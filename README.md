@@ -6,26 +6,26 @@ This workshop contains 5 different modules. Following all the steps from module 
 
 Are you ready to get started?
 
-##### Module 1
+### Module 1
 
 How to build a hello world application on nextjs and deploy it using Vercel ->
 [Get started](/module1/index.md)
 
-##### Module 2
+### Module 2
 
 How to connect your frontend application to OpenAI APIs and passing custom prompts ->
 [Get started](/module2/index.md)
 
-##### Module 3
+### Module 3
 
 Enabling Plagiarism checker ->
 [Get started](/module3/index.md)
 
-##### Module 4
+### Module 4
 
 Setting up Twitter Authentication and open graph preview ->
 [Get started](/module4/index.md)
 
-##### Module 5 (Optional)
+### Module 5 (Optional)
 Setting up image generator via custom AI tuning using AWS Sagemaker ->
 [Get started](/module5/index.md)
