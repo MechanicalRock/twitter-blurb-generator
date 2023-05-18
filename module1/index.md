@@ -10,7 +10,7 @@ Let's begin with some of the basic concepts about tools and technologies we are 
 
 ### Client Side Rendering vs Server Side Rendering
 
-Recently Server side rendering has been getting more and more attractions among the web development community and that is thanks to React and its built-in server-side hydration features. Before we begin, let's just first step back to understand the difference. The main difference between the two is where the web content is rendered. On CSR approach the page content is rendered on the client browser using java scripts for dynamic rendering vs on SSR approach the content is fully rendered on the server and sent to the client.
+Recently Server side rendering has been getting more and more attraction among the web development community and that is thanks to React and its built-in server-side hydration features. Before we begin, let's just first step back to understand the difference. The main difference between the two is where the web content is rendered. On CSR approach the page content is rendered on the client browser using JavaScript for dynamic rendering vs with the SSR approach the content is fully rendered on the server and sent to the client.
 
 Why should you use Server Side Rendering?
 
