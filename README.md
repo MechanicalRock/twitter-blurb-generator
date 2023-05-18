@@ -4,6 +4,15 @@ Welcome to Twitter Blurb Generator workshop. In this workshop you will be learni
 
 This workshop contains 5 different modules. Following all the steps from module 1 to 4 should be enough to up skill you with frontend technologies and inspire you on how to create your own startup idea in one day. Module 5 is a complementary module that takes you into more details on how to create your own AI model and tune it to your specifications.
 
+## Prerequisite
+
+Before you begin this workshop, you will have to make sure you have below softwares installed:
+
+1. Git
+2. Visual Studio Code
+3. Node version 16 and above, if you have an older version of node installed you can use NVM to install a different version and switch between them easily.
+  [NVM installation and usage](https://www.freecodecamp.org/news/node-version-manager-nvm-install-guide/)
+
 Are you ready to get started?
 
 ### Module 1
@@ -27,5 +36,6 @@ Setting up Twitter Authentication and open graph preview ->
 [Get started](/module4/index.md)
 
 ### Module 5 (Optional)
+
 Setting up image generator via custom AI tuning using AWS Sagemaker ->
 [Get started](/module5/index.md)
