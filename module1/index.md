@@ -61,7 +61,9 @@ That's it! You've successfully created a new Next.js app using pnpm as the packa
 
 ### Deploying your webapp using Vercel
 
-Now that we have our hello world application we would like to learn how to deploy this app into production. To do that, we are using Vercel for deploying server infrastructure. Let's find out what is Vercel?
+Now that we have our hello world application we would like to learn how to deploy this app into production. To do that, we are using Vercel for deploying server infrastructure. 
+
+#### What is Vercel?
 
 Vercel is a cloud platform that specializes in static site hosting and serverless functions deployment. It provides an intuitive and seamless way to deploy web applications, APIs, and serverless functions, with a focus on speed, scalability, and ease of use. Vercel is known for its developer-friendly experience, making it a popular choice for static site hosting, Jamstack applications, and serverless functions deployment. It offers an intuitive user interface, seamless Git integration, automatic scaling, built-in analytics and monitoring, domain and SSL management and a range of powerful features that simplify the deployment and management of modern web applications.
 
