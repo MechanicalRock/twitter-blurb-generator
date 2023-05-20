@@ -8,7 +8,7 @@ Are you ready to get started?
 
 ### Module 1
 
-How to build a hello world application on nextjs and deploy it using Vercel ->
+How to build a hello world application on NextJS and deploy it using Vercel ->
 [Get started](/module1/index.md)
 
 ### Module 2
@@ -27,5 +27,6 @@ Setting up Twitter Authentication and open graph preview ->
 [Get started](/module4/index.md)
 
 ### Module 5 (Optional)
+
 Setting up image generator via custom AI tuning using AWS Sagemaker ->
 [Get started](/module5/index.md)

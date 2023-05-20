@@ -670,6 +670,8 @@ export default async function handler(req: NextRequest) {
 </details>
 <br>
 
+---
+
 ## 3.4 Webhooks
 
 In order to receive the results of scans and exports from the Copy Leaks servers we need to create two webhooks. These webhooks will then write their data to our Firebase database.
@@ -860,6 +862,7 @@ export default async function handler(req: NextRequest) {
 
 </details>
 <br>
+---
 
 ## 3.5 Frontend
 
@@ -873,7 +876,9 @@ Ensure you running `pnpm dev` before solving the next tasks.
 
 **3.5.1.1 Editing a Blurb**
 
-1. Enable your blurb to be reworded and saved. Use `mui/icons-material` package for this. It should look like this:
+1. Enable your blurb to be reworded and saved. Use `mui/icons-material` package for this.
+   **Important once the blurb is rephrased we will NOT recheck the blurb for plagiarism**
+   It should look like this:
 
 ![Edit](../module3/imgs/Edit-1.png)
 ![Save](../module3/imgs/Edit-2.png)
@@ -932,7 +937,7 @@ return (
           </>
         ) : (
           <>
-            <Box>{highlightedHTMLBlurb}</Box>
+            <Box>{rephrasedBlurb}</Box>
             <Stack direction="row-reverse" spacing="0.5em">
               <Box>
                 <EditIcon
@@ -1119,6 +1124,285 @@ return (
           </>
         ) : (
           <>
+            <Box>{rephrasedBlurb}</Box>
+            {!plagiarismLoading && (
+              <Stack direction="row-reverse" spacing="0.5em">
+                <Box>
+                  <EditIcon
+                    className="cursor-pointer"
+                    onClick={() => setEnableEditor(true)}
+                  />
+                </Box>
+              </Stack>
+            )}
+          </>
+        )}
+      </Box>
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        width="15em"
+        className="bg-white rounded-xl shadow-md p-4 border"
+      >
+        <Plagiarism loading={plagiarismLoading} score={plagiarisedScore} />
+      </Stack>
+    </Stack>
+  </>
+);
+```
+
+</details>
+<br>
+
+### 3.5.2 Verify UI with Dummy Values
+
+Before we hook up our frontend to our APIs, lets use some dummy objects to validate our changes. This will allow us to avoid using time consuming APIs and provide us with quicker feedback.
+
+**3.5.2.1 Handle Scan Results**
+
+Using this dummy scan results object
+
+```json
+{
+  "matchedWords": 7,
+  "results": {
+    "identical": {
+      "source": {
+        "chars": {
+          "starts": [4, 16],
+          "lengths": [5, 10]
+        }
+      }
+    }
+  }
+}
+```
+
+do the following:
+
+Let's assume that when we call our `scan` API the above object is returned.
+
+1. Write a function that uses the results to calculate the percentage of the blurb which was plagiarised. It should look like this:
+
+![ScanPercentage](../module3/imgs/ScanPercentage.png)
+
+<details>
+  <summary>Solution</summary>
+
+1. In `GenerateBio.tsx` create a function called `handleScan` which takes a `text` string variable as a parameter.
+   assign a variable called `scan` to have the value of our dummy object.
+2. Set `plagiarismLoading` to be true.
+3. Calculate the total number of words in our blurb by doing a `string.split()` on our blurb and finding the length of this array.
+4. Get the total number of `matchedWords` from our scan.
+5. Set the `plagiarisedScore` to be `(matchedWords/totalWords) * 100` and set `plagiarismLoading` to be false.
+
+```ts
+function handleScan(text: string) {
+  const scan = {
+    matchedWords: 7,
+    results: {
+      identical: {
+        source: {
+          chars: {
+            starts: [4, 16],
+            lengths: [5, 10],
+          },
+        },
+      },
+    },
+  };
+  const totalBlurbWords = text.split(" ").length;
+  setPlagiarismLoading(true);
+  const matchedWords = scan.matchedWords;
+  setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
+  setPlagiarismLoading(false);
+}
+```
+
+</details>
+<br>
+
+**3.5.2.2 Handle Detailed Results**
+
+1. Extend your `handleScan` function to handle detailed results. This should highlight the text in the blurb which has been plagiarised. Here is an example of how you should interpret the results from Copy Leaks:
+   Given the blurb
+   And the characterStarts array for the blurb
+   And the characterLengths array for the blurb
+   Then highlight the words in the blurb that have been plagiarised
+
+   - characterStarts is an array of character indexes in the blurb
+     which indicate the beginning of the plagiarised text. This
+     has a 1-1 relationship with characterLengths
+   - characterLengths is an array of lengths after a characterStarts
+     element for text that has been plagiarised
+
+   Example:
+
+   text = "The quick brown fox jumped over the lazy dog."
+   <br>
+   characterStarts: [4, 16]
+   <br>
+   characterLengths: [5, 10]
+
+   1. characterStart = 4 & characterLength = 5
+      <br>
+      characterEnd = 4 + 5 = 9
+      <br>
+      plagiarisedText = text[4] + text[5] + text[6] + text[7] + text[8]
+      <br>
+      = "quick"
+
+   2. characterStart = 16 & characterLength = 10
+      <br>
+      characterEnd = 16 + 10 = 26
+      <br>
+      plagiarisedText = text[16] + text[17] + text[18] + ... + text[25]
+      <br>
+      = "fox jumped"
+
+   More information on characterStart and characterLength under chars.starts and chars.lengths:
+   https://api.copyleaks.com/documentation/v3/webhooks/result
+
+**Important: You will need to use the `dangerouslySetInnerHTML` HTML property for this task**
+
+This is what is should look like:
+
+![BlurbHighlighting](../module3/imgs/BlurbHighlighting.png)
+
+<details>
+  <summary>Solution</summary>
+
+1. In `GenerateBio.tsx` write a function that dynamically creates HTML based on `text`, `characterStarts` and `characterEnds`.
+   1. Initialise an index for characterStarts named `characterStartIndex` and set it to 0.
+   2. Initialise a string variable named `highlightedHTMLBlurb`.
+   3. Loop through each character index in `text`
+      1. If the character index is not equal to the `characterStarts[characterStartIndex]` then this character has not been plagiarised so add the character to `highlightedHTMLBlurb`.
+      2. If the character index is equal to the `characterStarts[characterStartIndex]` then this character has been plagiarised and this is therefore the beginning of a plagiarised segment.
+         1. Assign the `segmentStart` variable to be `characterStarts[characterStartIndex]`.
+         2. Assign the `segmentEnd` variable to be `characterStarts[characterStartIndex] + characterLengths[characterStartIndex]`.
+         3. Get the substring of the `text` beginning at `segmentStart` and ending at `segmentEnd`
+         4. Wrap this substring in `<mark>` tags (this will highlight it) and then add the segment to `highlightedHTMLBlurb`.
+         5. Change the loop character index to be `segmentEnd` as we have now checked all characters until this point.
+         6. Add 1 to the `characterStartIndex` as we have now already checked those characters.
+   4. Return a HTML element with `highlightedBlurb` as it's value for the `dangerouslySetInnerHTML` property.
+
+```ts
+function getHighlightedHTMLBlurb(
+  text: string,
+  characterStarts: number[],
+  characterLengths: number[]
+) {
+  let characterStartsIndex = 0;
+  let highlightedHTMLBlurb = "";
+  for (let i = 0; i < text.length; i++) {
+    if (i == characterStarts[characterStartsIndex]) {
+      const segmentStart = characterStarts[i];
+      const segmentEnd = characterStarts[i] + characterLengths[i];
+      highlightedHTMLBlurb += `
+          <mark style={{ background: "FF9890" }}>
+            ${text.substring(segmentStart, segmentEnd)}
+          </mark>`;
+      i = segmentEnd;
+      characterStartsIndex = characterStartsIndex + 1;
+    } else {
+      highlightedHTMLBlurb += text[i];
+    }
+  }
+  return <Box dangerouslySetInnerHTML={{ __html: highlightedHTMLBlurb }}></Box>;
+}
+```
+
+2. In the `handleScan` function before you `setPlagiarismLoading` to be false.
+   1. Set the `characterStarts` variable to be `scan.results.identical.source.chars.starts`
+   2. Set the `characterLengths` variable to be `scan.results.identical.source.chars.lengths`
+   3. Call the `getHighlightedHTMLBlurb` function with `blurb`, `characterStarts` and `characterLengths`.
+
+```ts
+function handleScan(text: string) {
+  const scan = {
+    matchedWords: 7,
+    results: {
+      identical: {
+        source: {
+          chars: {
+            starts: [4, 16],
+            lengths: [5, 10],
+          },
+        },
+      },
+    },
+  };
+  const totalBlurbWords = text.split(" ").length;
+  setPlagiarismLoading(true);
+  const matchedWords = scan.matchedWords;
+  setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
+  const characterStarts = scan.results.identical.source.chars.starts;
+  const characterLengths = scan.results.identical.source.chars.lengths;
+  const highlightedHTMLBlurb = getHighlightedHTMLBlurb(
+    text,
+    characterStarts,
+    characterLengths
+  );
+  setHighlightedHTMLBlurb(highlightedHTMLBlurb);
+  setPlagiarismLoading(false);
+}
+```
+
+3. Change the HTML to show the new `highlightedHTMLBlurb`.
+
+   1. Change the save buttons `onClick` callback to also set `highlightedHTMLBlurb` to be the new rephrasedBlurb. A rephrased blurb is NOT rechecked for plagiarism so this text will never be highlighted.
+   2. Show the `highlightedHTMLBlurb` instead of the `rephrasedBlurb` in the blurb box.
+
+4. Append the conditional check on `bio` in `useEffect` to set `highlightedHTMLBlurb` state variable to be `<>{bio}</>`.
+
+```ts
+return (
+
+  useEffect(() => {
+    ...
+    if (bio) {
+      setBlurb(bio);
+      setHighlightedHTMLBlurb(<>{bio}</>);
+    }
+  }, [bio, finishedStreaming]);
+
+  <>
+    <Stack direction="row" spacing="1em" ref={blurbRef}>
+      <Box width="100%" className="bg-white rounded-xl shadow-md p-4 border">
+        {enableEditor ? (
+          <>
+            <TextField
+              className="bg-white rounded-xl"
+              defaultValue={blurb}
+              onChange={(event) => {
+                setRephrasedBlurb(event.target.value);
+              }}
+              multiline
+              style={{ width: "100%" }}
+            ></TextField>
+            <Stack direction="row-reverse" spacing="0.5em">
+              <Box>
+                <CloseIcon
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setEnableEditor(false);
+                  }}
+                ></CloseIcon>
+              </Box>
+              <Box>
+                <SaveIcon
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setBlurb(rephrasedBlurb);
+                    setHighlightedHTMLBlurb(<>{rephrasedBlurb}</>);
+                    setEnableEditor(false);
+                  }}
+                ></SaveIcon>
+              </Box>
+            </Stack>
+          </>
+        ) : (
+          <>
             <Box>{highlightedHTMLBlurb}</Box>
             {!plagiarismLoading && (
               <Stack direction="row-reverse" spacing="0.5em">
@@ -1146,40 +1430,198 @@ return (
 );
 ```
 
-### 3.5.2 Verify UI with Dummy Values
+</details>
+<br>
 
-**3.5.2.1 Handle Scan Results**
+### 3.5.3 Hookup API
 
-Using this dummy scan results object
+Now that we know the UI works with dummy values, lets use real world values.
 
-```json
-{
-  "matchedWords": 7,
-  "results": {
-    "identical": {
-      "source": {
-        "chars": {
-          "starts": [4, 16],
-          "lengths": [5, 10]
-        }
+**3.5.3.1 Calling the Scan API**
+
+1. Write a `useEfffect` function calls our `scan` API.
+
+<details>
+  <summary>Solution</summary>
+
+1. Append the `useEfffect` function to watch for when a `blurb` is set and `finshedStreaming` is true. When this is true call the `checkPlagiarism` function.
+2. Create a `checkPlagiarism` function which takes the `text` as a parameter.
+   1. Set `plagiarismLoading` to be true.
+   2. Call our `scan` API with our text. Get the `scanId` from this response.
+   3. Set `plagiarismLoading` to be false.
+
+```ts
+useEffect(() => {
+  const checkPlagiarism = async (streamedBlurb: string) => {
+    setPlagiarismLoading(true);
+
+    // Send blurb to be scanned for plagiarism
+    const scanResponse = await fetch("/api/plagiarismCheck", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: streamedBlurb,
+      }),
+    });
+
+    const scanId = ((await scanResponse.json()) as ScanResponse).scanId;
+
+    setPlagiarismLoading(false);
+  };
+
+  if (blurb && finishedStreaming) {
+    void checkPlagiarism(blurb);
+  }
+
+  if (bio) {
+    setBlurb(bio);
+    setHighlightedHTMLBlurb(<>{bio}</>);
+  }
+}, [bio, finishedStreaming]);
+```
+
+</details>
+<br>
+
+**3.5.3.2 Listening to Firebase Events**
+
+Now that we can send text to be scanned for plagiarism, lets listen to Firebase for when the results are returned. **Important from here on you will need to have your changes deployed in order to see results. Because we are still working in sandbox mode results will come back however they will NOT be accurate.**
+
+1. Using the Firebase SDK listen for scan results on a specific node based on `scanId`. Use Firebases `onValue` function. More information: https://firebase.google.com/docs/database/web/read-and-write#read_data
+
+<details>
+  <summary>Solution</summary>
+
+1. After we get our `scanId` from our `scan` API but before we set the `plagiarismLoading` to be false in `useEffect`, instantiate a `FirebaseWrapper`.
+2. Get a `scanRef` by calling `FirebaseWrapper.getScanReference(scanId)`.
+3. Use Firebases `onValue` function to listen for events on our `scanRef`.
+4. If the `scanRecord` does not exist, do nothing. This means that CopyLeaks has not returned the results as yet.
+5. Remove the `setPlagiarismLoading(false)` line. This will now be handled by the `handleScan` function.
+6. Call our `handleScan` function with the `scanRecord.val()` as a parameter.
+
+```ts
+useEffect(() => {
+  const checkPlagiarism = async (streamedBlurb: string) => {
+    setPlagiarismLoading(true);
+
+    // Send blurb to be scanned for plagiarism
+    const scanResponse = await fetch("/api/plagiarismCheck", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: streamedBlurb,
+      }),
+    });
+
+    const totalBlurbWords = streamedBlurb.split(" ").length;
+    const scanId = ((await scanResponse.json()) as ScanResponse).scanId;
+    onValue(scanRef, async (scanRecord: any) => {
+      // Only continue if a <scanId> node is present in Firebase
+      if (scanRecord.exists()) {
+        const scan = scanRecord.val();
+        handleScan(streamedBlurb, scan);
       }
-    }
+    });
+  };
+
+  if (blurb && finishedStreaming) {
+    void checkPlagiarism(blurb);
+  }
+
+  if (bio) {
+    setBlurb(bio);
+    setHighlightedHTMLBlurb(<>{bio}</>);
+  }
+}, [bio, finishedStreaming]);
+```
+
+7. Change our `handleScan` function to take a scan as a parameter.
+   1. Remove the dummy `scan` variable.
+   2. Remove the `setPlagiarismLoading(true)` line.
+   3. Add a check above the assignment of the `characterStarts` variable to check if `scan.results` exists. This is because a `scan` will return before `scan.results` is in the database as we are only writing the `scan.results` node once we have the `scan` information and the time between these calls will be close to 20 seconds. See our `api/copy-leaks/completed/[scanId].ts` for more information.
+
+```ts
+function handleScan(text: string, scan) {
+  const totalBlurbWords = text.split(" ").length;
+  setPlagiarismLoading(true);
+  const matchedWords = scan.matchedWords;
+  setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
+  if (scan.results) {
+    const characterStarts = scan.results.identical.source.chars.starts;
+    const characterLengths = scan.results.identical.source.chars.lengths;
+    const highlightedHTMLBlurb = getHighlightedHTMLBlurb(
+      text,
+      characterStarts,
+      characterLengths
+    );
+    setHighlightedHTMLBlurb(highlightedHTMLBlurb);
+    setPlagiarismLoading(false);
   }
 }
 ```
 
-do the following:
-
-1. Install the Firebase SDK Package - https://www.npmjs.com/package/firebase
-
-**3.5.2.2 Handle Detailed Results**
-
-1. Install the Firebase SDK Package - https://www.npmjs.com/package/firebase
-
-### 3.5.3 Hookup API
-
-**3.5.3.1 Calling the Scan API**
-
-**3.5.3.2 Listening to Firebase Events**
+</details>
+<br>
 
 **3.5.3.3 Turning off the CopyLeaks Sandbox Mode**
+
+1. Turn off CopyLeaks Sandbox Mode in the `CopyLeaksWrapper`. More information: https://api.copyleaks.com/documentation/v3/scans/submit/file
+
+**Important**
+
+- **Response times were relatively quick with sandbox mode on because Copy Leaks was returning fake data. Turning sandbox mode off means that we will now get real data however response times will be quite high between one to two minutes.**
+- **Changing the filters will result in more accurate results but longer load times.**
+
+<details>
+  <summary>Solution</summary>
+
+1. In the `CopyLeaksWrapper` in the `scan` function set the `sandbox` property to be false.
+
+```ts
+  public async scan(text: string): Promise<string> {
+    if (text.length < 2) throw new Error("Text too short to check");
+    const scanId = uuidv4();
+    const buffer = Buffer.from(text);
+    const access_token = await this.getAccessToken();
+
+    try {
+      await fetch(`${this.baseCopyLeaksApiUrl}/scans/submit/file/${scanId}`, {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${access_token.access_token}`,
+        },
+        method: "PUT",
+        body: JSON.stringify({
+          base64: buffer.toString("base64"),
+          filename: `${scanId}.txt`,
+          properties: {
+            sandbox: false,
+            filters: {
+              minorChangesEnabled: false,
+              relatedMeaningEnabled: false,
+              safeSearch: true,
+              sensitivityLevel: 1,
+            },
+            expiration: 1,
+            webhooks: {
+              status: `${this.baseAppUrl}/copy-leaks/{STATUS}/${scanId}`,
+            },
+          },
+        }),
+      });
+    } catch (e) {
+      console.error("Error submitting scan to CopyLeaks", e);
+      throw e;
+    }
+    return scanId;
+  }
+```
+
+</details>
+<br>
+
+---
