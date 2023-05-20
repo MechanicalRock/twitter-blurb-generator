@@ -1,46 +1,12 @@
 # Module 2
 
-
-### Build the frontend steps
-
-Build out components
+# Context 
 
 
+## What is OpenAi, and how do I use it
 
 
-Create Generate.tsx
-
-What is streaming
-What is a [vercel edge function](https://vercel.com/features/edge-functions)
-
-First we'll be building a gpt3.5 powered app using OPENAI, nextjs and Vercel Edge functions.
-
-First with serverless functions, then we will rebuild it with Edge Fucntions and streaming to demonstate the speed and UX improbvements
-
-By the end of this module you should be able to build your own GPT3.5 apps!
-
-## The frontend 
-
-Our nextJs app will consists of the following components
-
-- A text box for users to prompt a specfic context for their post
-- multiple dropdowns where you can select the tone and audience of your post
-- a submit button for generating the post. This will call the openAI api endpoint and return 3 posts
-
-```
-Insert Prompt Here Joe
-```
-
-Now lets good at our generated.tsx for a serverless function
-
-```
-Go figure this out
-```
-
-
-
-### The Backend
-
+## What is NextJS
 A great advangate of using Next.js is being able to handle both the frontend and backend in a single app. We can then spinup the apiroute generate, by creating a file called genreate.ts in our apu folder.
 
 Lets see what this is doing.
@@ -50,6 +16,7 @@ We are taking a prompt from the request body, passed in fdrom, the frontend. We 
 After the payload is constructed, we send it in a POST request to OpenAI, await the result to get back the generated bios, then send them back to the client as JSON.
 
 
+### What are edge functions?
 # Limitations of the Serverless functions approach
 While using a serverless function works, there are some limitations that make using a edge function a much better expeience
 
@@ -57,7 +24,7 @@ While using a serverless function works, there are some limitations that make us
 - Waiting severel seconds for a the full response isnt a good UX
 - Serverless timeout issues (10 seconds free tier)
 
-There is a better way EDGE FUNCTIONS!!!
+There is a better way.... EDGE FUNCTIONS!!!
 
 Edge functions can be thought of as serverless functins with a lightweight runtume. They have their own limitations, smaller code size limit, smaller memory and dont support all node.js librairies. So why use them??
 
@@ -66,5 +33,79 @@ Edge functions can be thought of as serverless functins with a lightweight runtu
 - UX
 - longer timeouts
 
-## Edge functions with streaming
+What is streaming
+What is a [vercel edge function](https://vercel.com/features/edge-functions)
+
+
+### Lets get started with the frontend!
+
+Opening up our terminal lets create a new nextJS app
+
+```pnpm create next-app latency-workshop-app --template typescript```
+
+and create with the following options
+
+Now lets check everything is working, run  ```cd latency-workshop-app && pnpm run dev``` and check that the nextJs template is running.
+![](./www/pnpm_create_next.png)
+
+
+![](./www/vercel_splash.png)
+
+
+Now we can get started on our app!
+
+Lets build out the components we are going to need first. We are going to work from the top down of the page
+
+
+1. run ```pnpm install @mui/material @emotion/react @emotion/styled```
+2. Goto pages/index.ts and replace all with the following
+```
+import { Stack, Typography } from "@mui/material";
+
+export default function Home() {
+  return (
+    <Typography variant="h1">
+      Generate your next Twitter post with ChatGPT
+    </Typography>
+  );
+}
+```
+
+Obviously this dosnt look too great, so lets add in some simple tailwind to make it look a bit nicer. Feel free to play around with it to get to look as you would like.
+
+```
+...
+    <Typography
+      variant="h1"
+      className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
+    >
+...
+
+
+This still isnt looking quite write. So lets wrap this in a Stack to get it centred as we would like. 
+
+```
+    <Stack
+      component="main"
+      direction="column"
+      maxWidth="50em"
+      mx="auto"
+      alignItems="center"
+      justifyContent="center"
+      py="1em"
+      spacing="1em"
+    >
+      <Typography
+        variant="h1"
+        className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
+      >
+        Generate your next Twitter post with ChatGPT
+      </Typography>
+    </Stack>
+```
+Should look like the below
+
+![](./www/image_1.png)
+
+
 
