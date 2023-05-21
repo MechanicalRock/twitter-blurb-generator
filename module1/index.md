@@ -4,7 +4,7 @@ In this module you will be learning about some of the web development technologi
 
 Let's begin with some of the basic concepts about tools and technologies we are using in this workshop:
 
-## basic concepts
+## Basic concepts
 
 ### Client Side Rendering vs Server Side Rendering
 
@@ -59,18 +59,18 @@ That's it! You've successfully created a new Next.js app using pnpm as the packa
 
 ### Setting up your git repository
 
-Next step is to push your application into a git repository. This is required for setting up automatic deployment from every change you push into your main branch (Continuous Deployment).
+The next step is to push your application into a git repository. This is required for setting up automatic deployment from every change you push into your main branch (Continuous Deployment).
 
 **Step1:**
-Go to your github account and create a new repository. Take a note of your repository clone url
+Go to your GitHub account and create a new repository. Take a note of your repository clone url
 
 > **Note**
 > Make sure to create the new repository under your personal profile not your work organization to avoid permission problems later.
 
 **Step 2:**
-Go back to the terminal in your visual studio code. Make sure you currently are in the app folder that you just created.
+Go back to the terminal in your Visual Studio Code. Make sure you currently are in the app folder that you just created.
 
-Execute below commands:
+Execute the following commands:
 
 ```bash
 git init
@@ -108,3 +108,5 @@ If you wanted to deploy this application using AWS services, you would have had 
 11. Click `Deploy`
 12. Once the application has been deployed, click on the image below `Continue to Dashboard` to view your deployed application<br/>
   <img src="content/deployed-app.png" alt="deployed-app" width="400"/>
+
+## Adding new component

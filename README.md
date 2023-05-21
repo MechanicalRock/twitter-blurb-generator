@@ -6,7 +6,7 @@ This workshop contains 5 different modules. Following all the steps from module 
 
 ## Prerequisite
 
-Before you begin this workshop, you will have to make sure you have below softwares installed:
+Before you begin this workshop, you will have to make sure you have the following software installed:
 
 1. Git
 2. Visual Studio Code
