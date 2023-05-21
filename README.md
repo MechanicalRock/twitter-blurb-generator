@@ -17,7 +17,7 @@ Are you ready to get started?
 
 ### Module 1
 
-How to build a hello world application on nextjs and deploy it using Vercel ->
+How to build a hello world application on NextJS and deploy it using Vercel ->
 [Get started](/module1/index.md)
 
 ### Module 2
