@@ -103,9 +103,12 @@ This still isnt looking quite write. So lets wrap this in a Stack to get it cent
       </Typography>
     </Stack>
 ```
+
 Should look like the below
 
 ![](./www/image_1.png)
 
+3. Lets add in our intial prompt, first lets create a new folder ```components/forms``` and file ```ChatGptForm.ts```. This will be our input into making the openAI api later.
 
+In ChatGptForm  
 
