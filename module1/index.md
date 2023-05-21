@@ -1,12 +1,10 @@
 # Module 1
 
-How to build a hello world application on nextjs and deploy it using Vercel:
-
-## Context
-
 In this module you will be learning about some of the web development technologies that we are most excited about. You will go through the basic concepts, understanding the technologies we are using in this workshop and why, we will then take you through how to get started in building your first hello world application and how to deploy and get it running.
 
 Let's begin with some of the basic concepts about tools and technologies we are using in this workshop:
+
+## Basic concepts
 
 ### Client Side Rendering vs Server Side Rendering
 
@@ -59,9 +57,31 @@ This command will start the development server and provide you with a local URL 
 
 That's it! You've successfully created a new Next.js app using pnpm as the package manager. You can start building your app by modifying the files in the pages directory and exploring the Next.js documentation for more information on how to work with Next.js features and components.
 
+### Setting up your git repository
+
+The next step is to push your application into a git repository. This is required for setting up automatic deployment from every change you push into your main branch (Continuous Deployment).
+
+**Step1:**
+Go to your GitHub account and create a new repository. Take a note of your repository clone url
+
+> **Note**
+> Make sure to create the new repository under your personal profile not your work organization to avoid permission problems later.
+
+**Step 2:**
+Go back to the terminal in your Visual Studio Code. Make sure you currently are in the app folder that you just created.
+
+Execute the following commands:
+
+```bash
+git init
+git branch -M main
+git remote add origin '[your repository clone url]'
+git push -u origin main
+```
+
 ### Deploying your webapp using Vercel
 
-Now that we have our hello world application we would like to learn how to deploy this app into production. To do that, we are using Vercel for deploying server infrastructure. 
+Now that we have our hello world application we would like to learn how to deploy this app into production. To do that, we are using Vercel for deploying server infrastructure.
 
 #### What is Vercel?
 
@@ -77,19 +97,16 @@ If you wanted to deploy this application using AWS services, you would have had 
 2. Click on the `Sign Up` button
 3. Select `Hobby`. Enter your name. Click Continue
 4. Click `Continue with GitHub`
-5. Authorise Vercel to connect to your GitHub account
+5. Authorize Vercel to connect to your GitHub account <br/>
+  Make sure to configure the permissions correctly<br/><br/>
+  <img src="content/github-authorization.png" alt="github authorization" width="400"/><br/><br/>
 6. Click `Import` next to your Git repository
 7. Click on the `Build and Output Settings` accordion.
 8. Under `Build Command`, enable the override toggle and enter `pnpm build`
-9. Under `Install Command`, enable the override toggle and enter `pnpm install`
-10. Under Environment Variables enter the environment variables and their values found in your `.local.env`. Which are the following:
-
-- `OPENAI_API_KEY`
-- `COPY_LEAKS_EMAIL`
-- `COPY_LEAKS_API_KEY`
-- `TWITTER_CLIENT_ID`
-- `TWITTER_CLIENT_SECRET`
-- `NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL`
-
+9. Under `Install Command`, enable the override toggle and enter `pnpm install`<br/><br/>
+  <img src="content/vercel-settings.png" alt="vercel-settings" width="400"/><br/><br/>
 11. Click `Deploy`
-12. Once the application has been deployed, click on the image below `Continue to Dashboard` to view your deployed application
+12. Once the application has been deployed, click on the image below `Continue to Dashboard` to view your deployed application<br/>
+  <img src="content/deployed-app.png" alt="deployed-app" width="400"/>
+
+## Adding new component
