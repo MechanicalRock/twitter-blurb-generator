@@ -66,12 +66,12 @@ The Firebase class that we will be writing will be a wrapper around the Firebase
 
 **3.1.2.2 Creating an Empty FirebaseWrapper Class**
 
-1. Create an empty class library named `FirebaseWrapper.tsx` in a sub-folder named `firebase`.
+1. Create an empty class library named `FirebaseWrapper.tsx` in a sub-folder named `firebase.tsx`.
 
 <details>
   <summary>Solution</summary>
 
-1. In your `lib` folder create a class named `FirebaseWrapper.tsx` in a sub-folder named `firebase`.
+1. In your `lib` folder create a class named `FirebaseWrapper.tsx` in a sub-folder named `firebase.tsx`.
 2. In `FirebaseWrapper.tsx` add the following code:
 
 ```ts
@@ -91,7 +91,7 @@ export class FirebaseWrapper {}
 1. Create a `public` function called `getInstance`.
 2. Add a `firebaseConfig` object which has `databaseURL` as a key and a value of your Firebase URL. In 3.1.1.13, we set the environment variable `NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL` to be our database URL. With this in mind the value of our Firebase URL will be `${process.env.NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL}`
 3. Initialise the Firebase app instance with `const app = initializeApp(firebaseConfig)`
-4. Get the database instance from the app instance
+4. Get the database instance from the app instance.
 
 ```ts
 const database = getDatabase(app);
@@ -189,17 +189,7 @@ export class FirebaseWrapper {
     return ref(this.getInstance(), `scans/${scanId}`);
   }
 
-  private getInstance(): Database {
-    if (!this.database) {
-      const firebaseConfig = {
-        databaseURL: `${process.env.NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL}`,
-      };
-      const app = initializeApp(firebaseConfig);
-      this.database = getDatabase(app);
-    }
-
-    return this.database;
-  }
+...
 }
 ```
 
@@ -229,7 +219,7 @@ Copyleaks is an online plagiarism detection and content verification platform. I
 
 ### 3.2.2 Writing a CopyLeaks Library
 
-The CopyLeaks class that we will be writing will be a wrapper around the CopyLeaks SDK which we will use in the frontend of our application. We will only need to use 3 CopyLeaks functions in this course:
+The CopyLeaks class that we will be writing will be a wrapper around the CopyLeaks SDK which we will use in the frontend of our application. We will only need to use 3 CopyLeaks APIs in this course:
 
 1. Login - https://api.copyleaks.com/documentation/v3/account/login
 2. Scan - https://api.copyleaks.com/documentation/v3/scans/submit/file
@@ -376,7 +366,10 @@ export class CopyLeaksWrapper {
 The scan function will send text to be scanned by CopyLeaks.
 **Important: On a successful response, this request returns an HTTP Code of 201. This function does not return the results directly, instead when the results are ready, CopyLeaks sends a response to one of our APIs via webhook. The webhook will only be called on a deployed public website. ie. Having localhost as the webhook domain will not work as localhost will not have a publicly accessible IP. Every time this request is made with `sandbox` property set to `false` will use up one of you 25 credits.**
 
-More information: https://api.copyleaks.com/documentation/v3/scans/submit/file
+More information:
+
+- CopyLeaks: https://api.copyleaks.com/documentation/v3/scans/submit/file
+- Webhooks: https://zapier.com/blog/what-are-webhooks/#what
 
 1. Write a function which will call the `https://api.copyleaks.com/v3/scans/submit/file/<scanId>` which takes the text to be scanned as a parameter and returns the scanId.
 
@@ -435,42 +428,7 @@ export class CopyLeaksWrapper {
     return scanId;
   }
 
-  private async login(): Promise<CopyleaksAuthToken> {
-    if (!process.env.COPY_LEAKS_EMAIL) {
-      throw new Error("COPY_LEAKS_EMAIL environment variable not set");
-    }
-    if (!process.env.COPY_LEAKS_API_KEY) {
-      throw new Error("COPY_LEAKS_API_KEY environment variable not set");
-    }
-
-    const response = await fetch(
-      "https://id.copyleaks.com/v3/account/login/api",
-      {
-        headers: { "Content-type": "application/json" },
-        method: "POST",
-        body: JSON.stringify({
-          email: process.env.COPY_LEAKS_EMAIL,
-          key: process.env.COPY_LEAKS_API_KEY,
-        }),
-      }
-    );
-    const result = (await response.json()) as CopyleaksAuthToken;
-    return result;
-  }
-
-  private async getAccessToken(): Promise<CopyleaksAuthToken> {
-    try {
-      if (!this.accessToken) throw new Error("Access token not set");
-      this.copyleaks.verifyAuthToken(this.accessToken);
-    } catch (error) {
-      console.log("Requesting new access token...");
-      const newAccessToken = await this.login();
-      this.accessToken = newAccessToken;
-    } finally {
-      if (!this.accessToken) throw new Error("Access token not set");
-      return this.accessToken;
-    }
-  }
+...
 }
 ```
 
@@ -482,7 +440,10 @@ export class CopyLeaksWrapper {
 A scan may return multiple sources where it thinks the plagiarised text comes from. This function returns the details of a source and which lines within the source were plagiarised via a webhook.
 **Important: On a successful response, this request returns an HTTP Code of 201. This function does not return the results directly, instead when the results are ready, CopyLeaks sends a response to one of our APIs via webhook. The webhook will only be called on a deployed public website. ie. Having localhost as the webhook domain will not work as localhost will not have a publicly accessible IP.**
 
-More information: https://api.copyleaks.com/documentation/v3/downloads/export
+More information:
+
+- CopyLeaks: https://api.copyleaks.com/documentation/v3/downloads/export
+- Webhooks: https://zapier.com/blog/what-are-webhooks/#what
 
 1. Write a function which will call the `https://api.copyleaks.com/v3/export/${scanId}/${resultId}` which takes the scanId and resultId as parameters and returns an exportId.
 
@@ -541,80 +502,7 @@ export class CopyLeaksWrapper {
     return exportId;
   }
 
-  public async scan(text: string): Promise<string> {
-    if (text.length < 2) throw new Error("Text too short to check");
-    const scanId = uuidv4();
-    const buffer = Buffer.from(text);
-    const access_token = await this.getAccessToken();
-
-    try {
-      await fetch(`https://api.copyleaks.com/v3/scans/submit/file/${scanId}`, {
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${access_token.access_token}`,
-        },
-        method: "PUT",
-        body: JSON.stringify({
-          base64: buffer.toString("base64"),
-          filename: `${scanId}.txt`,
-          properties: {
-            sandbox: true,
-            filters: {
-              minorChangesEnabled: false,
-              relatedMeaningEnabled: false,
-              safeSearch: true,
-              sensitivityLevel: 1,
-            },
-            expiration: 1,
-            webhooks: {
-              status: `www.fakeURL.com/copy-leaks/{STATUS}/${scanId}`,
-            },
-          },
-        }),
-      });
-    } catch (e) {
-      console.error("Error submitting scan to CopyLeaks", e);
-      throw e;
-    }
-    return scanId;
-  }
-
-  private async login(): Promise<CopyleaksAuthToken> {
-    if (!process.env.COPY_LEAKS_EMAIL) {
-      throw new Error("COPY_LEAKS_EMAIL environment variable not set");
-    }
-    if (!process.env.COPY_LEAKS_API_KEY) {
-      throw new Error("COPY_LEAKS_API_KEY environment variable not set");
-    }
-
-    const response = await fetch(
-      "https://id.copyleaks.com/v3/account/login/api",
-      {
-        headers: { "Content-type": "application/json" },
-        method: "POST",
-        body: JSON.stringify({
-          email: process.env.COPY_LEAKS_EMAIL,
-          key: process.env.COPY_LEAKS_API_KEY,
-        }),
-      }
-    );
-    const result = (await response.json()) as CopyleaksAuthToken;
-    return result;
-  }
-
-  private async getAccessToken(): Promise<CopyleaksAuthToken> {
-    try {
-      if (!this.accessToken) throw new Error("Access token not set");
-      this.copyleaks.verifyAuthToken(this.accessToken);
-    } catch (error) {
-      console.log("Requesting new access token...");
-      const newAccessToken = await this.login();
-      this.accessToken = newAccessToken;
-    } finally {
-      if (!this.accessToken) throw new Error("Access token not set");
-      return this.accessToken;
-    }
-  }
+...
 }
 ```
 
@@ -683,8 +571,9 @@ In order to receive the results of scans and exports from the Copy Leaks servers
 **3.4.1 Create a Scan Webhook**
 
 1. Create an Edge function named `[scanId].ts` in `pages/api/copy-leaks/completed` which receives the results of a scan and returns a response with `{message: "Scan Completed"}`. This should also write the scan to the database using the Firebase PUT API under the node `scans/<scanId>.json`. More information:
-   1.1. Copy Leaks - https://api.copyleaks.com/documentation/v3/webhooks/completed.
-   1.2. Firebase - https://firebase.google.com/docs/database/rest/save-data#section-put
+
+- Copy Leaks: https://api.copyleaks.com/documentation/v3/webhooks/completed.
+- Firebase: https://firebase.google.com/docs/database/rest/save-data#section-put
 
 <details>
   <summary>Solution</summary>
@@ -731,7 +620,7 @@ export default async function handler(req: NextRequest) {
 
 **3.4.2 Call the Export Results Function from the Scan Webhook**
 
-A scan may return multiple sources where it thinks the plagiarised text comes from. For the amount of text we are scanning it is safe to assume we should get a response back from Copy Leaks in 2 minutes. Looking at the scan results we receive from Copy Leaks, there is a lot of information we are not interested in for this workshop https://api.copyleaks.com/documentation/v3/webhooks/completed. We are only interested in the result in `results.internet` which has the highest amount of `matchedWords`. That is to say we are only interested in the source which has the most amount of plagiarised text.
+A scan may return multiple sources where it thinks the plagiarised text comes from. For the amount of text we are scanning it is safe to assume we should get a response back from Copy Leaks in 2 minutes. Looking at the scan results we receive from Copy Leaks, there is a lot of information we are not interested in for this workshop: https://api.copyleaks.com/documentation/v3/webhooks/completed#1-example. We are only interested in the result in `results.internet` which has the highest amount of `matchedWords`. That is to say we are only interested in the source which has the most amount of plagiarised text.
 
 1. Edit your webhook to find the scan result which has the highest number of `matchedWords`. Instead of writing the entire scan to firebase, write only the number of `matchedWords`.
 
@@ -743,7 +632,7 @@ A scan may return multiple sources where it thinks the plagiarised text comes fr
       }
 ```
 
-2. Once this is found, call the `CopyLeaksWrapper.exportResults` function with the scanId and resultId of this source.
+2. Once this is found, call the `CopyLeaksWrapper.exportResults` function with the `scanId` and `resultId` of this source.
 3. Push your code to main to deploy your webhook
 
 <details>
@@ -798,8 +687,9 @@ export default async function handler(req: NextRequest) {
 This is webhook called by CopyLeaks with the detailed results of a source from a plagiarism scan.
 
 1. Create an Edge function named `[exportId].ts` in `pages/api/copy-leaks/export/[scanId]/` which receives the results of an export and returns a response with `{message: "Result exported successfully"}`. This should also write the results to the database using the Firebase PUT API under the node `scans/<scanId>/results.json`. We only need the object in `text.comparison`. More information:
-   1.1. Copy Leaks - https://api.copyleaks.com/documentation/v3/webhooks/result.
-   1.2. Firebase - https://firebase.google.com/docs/database/rest/save-data#section-put
+
+- Copy Leaks: https://api.copyleaks.com/documentation/v3/webhooks/result.
+- Firebase: https://firebase.google.com/docs/database/rest/save-data#section-put
 
 <details>
   <summary>Solution</summary>
