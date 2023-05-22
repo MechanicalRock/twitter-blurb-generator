@@ -103,12 +103,14 @@ This still isnt looking quite write. So lets wrap this in a Stack to get it cent
       </Typography>
     </Stack>
 ```
+Let’s quickly go over what we are doing here.
+
 
 Should look like the below
 
 ![](./www/image_1.png)
 
-3. Lets add in our intial prompt, first lets create a new folder ```components/fields/ChatGptForm.ts```. 
+3. Lets add in our intial prompt, first lets create a new folder ```components/fields/PostTextArea.ts```. 
 
 We're gonna set it up as below:
 
@@ -149,16 +151,22 @@ export function PostTextArea({ bioRef }: Props) {
 
 Let’s quickly go over what we are doing here.
 
-- We are creating a new 
+- We are creating a new textfield using the MUI library.
+- Applying specific styling to remove box shadow
+- Placing placeholder htext
+- Pass in the prop {{bioRef}}
 
 
+Next Step is to create our ChatGPTForm. This is where we will populate our textboxt and the rest of our input components.
 
-for later
+Create ```components/forms/ChatGptForm.ts```
+
 ```
+
 import { Stack } from "@mui/material";
 import { useRef } from "react";
-
 import { PostTextArea } from "../fields/PostTextArea";
+
 interface Props {
   blurbsGenerated: boolean;
   setBlurbsGenerated: (blurbsGenerated: boolean) => void;
@@ -172,3 +180,24 @@ export function ChatGPTForm({ blurbsGenerated, setBlurbsGenerated }: Props) {
   );
 }
 ```
+
+Let’s quickly go over what we are doing here.
+
+- Importing our PostTextArea component that we just created
+- Placing our component in a stack, and passing in the bioref prop
+
+
+Now lets go to our index file, and make the following changes.
+
+
+```
+...
+<ChatGPTForm
+  blurbsGenerated={blurbsGenerated}
+  setBlurbsGenerated={setBlurbsGenerated}
+/>
+...
+```
+
+Challenge: Can you set the width of the new component?
+
