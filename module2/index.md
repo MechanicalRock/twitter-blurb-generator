@@ -337,5 +337,8 @@ export function ChatGPTForm({ blurbsGenerated, setBlurbsGenerated }: Props) {
 }
 ```
 
-### Add your own component!
+### Add your own dropdown component!
 
+front end confuses me
+
+## Backend 
