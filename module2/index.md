@@ -201,3 +201,141 @@ Now lets go to our index file, and make the following changes.
 
 Challenge: Can you set the width of the new component?
 
+### Adding a Dropdown Component.
+
+What are we going to be doing:
+- Creating a Generic Dropdown Component
+- Creating a Vibe Component
+- Then you'll go off and create your own component.
+
+#### Generic Dropdown component
+
+Create ```components/fields/DropDown.tsx```, and throw this code in their
+
+```
+import { Box, FormControl, MenuItem, Select, Typography } from "@mui/material";
+
+interface Props<T> {
+  value: T;
+  label: string;
+  options: string[];
+  setState: (value: T) => void;
+}
+
+export default function DropDown<T>({ value, label, options, setState }: Props<T>) {
+  return (
+    <Box>
+      <Typography variant="body1">{label}</Typography>
+      <FormControl fullWidth hiddenLabel>
+        <Select
+          notched={false}
+          value={value}
+          onChange={(e) => setState(e.target.value as T)}
+        >
+          {options.map((option) => (
+            <MenuItem key={option} value={option}>{option}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Box>
+  );
+}
+```
+
+Let’s quickly go over what we are doing here:
+
+- This is a TypeScript React component that renders a dropdown menu with a label and a list of options.
+
+- It takes in four props: value, label, options, and setState.
+
+- It uses Material-UI components for its UI.
+
+- The value prop is the currently selected option in the dropdown.
+
+- The label prop is the text that appears above the dropdown.
+
+- The options prop is an array of strings that represent the available options in the dropdown.
+
+- The setState prop is a function that updates the state of the parent component when a new option is selected.
+
+- The component renders a Box component that contains a Typography component with the label prop as its text.
+
+- Below that is a FormControl component that wraps a Select component.
+
+- The Select component has the value prop set to the current value prop and an onChange event handler that calls the setState function with the new selected value.
+
+- The options prop is mapped over to create a list of MenuItem components, each with a unique key prop and a value prop set to the corresponding option string.
+
+
+
+Now, lets create a Vive Components ```latencyworkshop/components/fields/VibeDropDown.tsx```
+
+Feel free to change up the names of the vibes, and add your own.
+
+```
+import DropDown from "./DropDown";
+
+export type Vibe = "Professional" | "Casual" | "Funny";
+export const vibes: Vibe[] = ["Professional", "Casual", "Funny"];
+
+interface Props {
+  vibe: Vibe;
+  setVibe: (vibe: Vibe) => void;
+}
+
+export function VibeDropDown({ vibe, setVibe }: Props) {
+  return (
+    <DropDown
+      value={vibe}
+      setState={setVibe}
+      label="Select your vibe"
+      options={vibes}
+    />
+  );
+}
+
+```
+Lets explain what we are doing here:
+- Create a typescript type for our vibe
+- Create a list of vibes of type Vibe
+- Create a Props interface that takes in a vibe and setVibe function
+- Create a VibeDropDown component that takes in the vibe and setVibe props
+
+Great, lets add that into our ChatGPTForm component
+
+```
+// import "react-circular-progressbar/dist/styles.css";
+
+import { Stack } from "@mui/material";
+import { useRef, useState } from "react";
+
+import { PostTextArea } from "../fields/PostTextArea";
+import { Vibe, VibeDropDown } from "../fields/VibeDropDown";
+
+interface Props {
+  blurbsGenerated: boolean;
+  setBlurbsGenerated: (blurbsGenerated: boolean) => void;
+}
+export function ChatGPTForm({ blurbsGenerated, setBlurbsGenerated }: Props) {
+  const bioRef = useRef("");
+  const [vibe, setVibe] = useState<Vibe>("Professional");
+
+  return (
+    <Stack direction="column" spacing="1em" width="100%">
+      <Stack
+        spacing="1em"
+        width="100%"
+        maxWidth="48em"
+        mx="auto"
+        alignItems="center"
+      >
+        <PostTextArea bioRef={bioRef} />
+        <VibeDropDown vibe={vibe} setVibe={(newVibe) => setVibe(newVibe)} />
+      </Stack>
+    </Stack>
+  );
+}
+```
+
+### Add your own component!
+
