@@ -108,7 +108,67 @@ Should look like the below
 
 ![](./www/image_1.png)
 
-3. Lets add in our intial prompt, first lets create a new folder ```components/forms``` and file ```ChatGptForm.ts```. This will be our input into making the openAI api later.
+3. Lets add in our intial prompt, first lets create a new folder ```components/fields/ChatGptForm.ts```. 
 
-In ChatGptForm  
+We're gonna set it up as below:
 
+INSERT LE IMAGE
+
+Lets get started by creating this file 
+
+```
+import { Box, TextField, Typography } from "@mui/material";
+import { MutableRefObject } from "react";
+
+interface Props {
+  bioRef: MutableRefObject<string>;
+}
+
+export function PostTextArea({ bioRef }: Props) {
+  return (
+    <Box>
+      <Typography variant="body1">
+        What content do you want your post to be about?
+      </Typography>
+
+      <TextField
+        multiline
+        fullWidth
+        minRows={4}
+        sx={{ "& textarea": { boxShadow: "none !important" } }}
+        placeholder="e.g. I'm learning about NextJs and OpenAI GPT-3 api at the Latency Conference."
+        onChange={(e) => {
+          bioRef.current = e.target.value;
+        }}
+      />
+    </Box>
+  );
+}
+```
+
+
+Let’s quickly go over what we are doing here.
+
+- We are creating a new 
+
+
+
+for later
+```
+import { Stack } from "@mui/material";
+import { useRef } from "react";
+
+import { PostTextArea } from "../fields/PostTextArea";
+interface Props {
+  blurbsGenerated: boolean;
+  setBlurbsGenerated: (blurbsGenerated: boolean) => void;
+}
+export function ChatGPTForm({ blurbsGenerated, setBlurbsGenerated }: Props) {
+  const bioRef = useRef("");
+  return (
+    <Stack direction="column" spacing="1em" width="100%">
+      <PostTextArea bioRef={bioRef} />
+    </Stack>
+  );
+}
+```
