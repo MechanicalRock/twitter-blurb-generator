@@ -59,6 +59,7 @@ Lets build out the components we are going to need first. We are going to work f
 
 1. run ```pnpm install @mui/material @emotion/react @emotion/styled```
 2. Goto pages/index.ts and replace all with the following
+
 ```
 import { Stack, Typography } from "@mui/material";
 
@@ -74,12 +75,11 @@ export default function Home() {
 Obviously this dosnt look too great, so lets add in some simple tailwind to make it look a bit nicer. Feel free to play around with it to get to look as you would like.
 
 ```
-...
     <Typography
       variant="h1"
       className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
     >
-...
+```
 
 
 This still isnt looking quite write. So lets wrap this in a Stack to get it centred as we would like. 
