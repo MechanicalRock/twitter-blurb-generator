@@ -247,7 +247,7 @@ Let’s quickly go over what we are doing here:
 
 
 
-Now, lets create a Vive Components ```latencyworkshop/components/fields/VibeDropDown.tsx```
+Now, lets create a Vibe Component ```latencyworkshop/components/fields/VibeDropDown.tsx```
 
 Feel free to change up the names of the vibes, and add your own.
 
