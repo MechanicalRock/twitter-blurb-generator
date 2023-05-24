@@ -1,7 +1,5 @@
 # Module 2
-
 # Context 
-
 
 ## What is OpenAi, and how do I use it
 
