@@ -320,67 +320,114 @@ export function ChatGPTForm({ blurbsGenerated, setBlurbsGenerated }: Props) {
 
 front end confuses me
 
+GenerateBio.tsx
+```
+const generateBio = async (e: any) => {
+  e.preventDefault();
+  setGeneratedBios("");
+  setLoading(true);
+
+  const response = await fetch("/api/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+
+  let answer = await response.json();
+  setGeneratedBios(answer.choices[0].text);
+  setLoading(false);
+};
+```
+
 ## Backend 
-
-
-Assumption -> all front end components are done and we need to create API
-
-### What are edge functions?
-# Limitations of the Serverless functions approach
-While using a serverless function works, there are some limitations that make using a edge function a much better expeience
-
-- Cold start times
-- Waiting severel seconds for a the full response isnt a good UX
-- Serverless timeout issues (10 seconds free tier)
-
-There is a better way, edge functions.
-
-Edge functions can be thought of as serverless functins with a lightweight runtume. They have their own limitations, smaller code size limit, smaller memory and dont support all node.js librairies. So why use them??
-
-3 Reasons
-- speed
-- UX
-- longer timeouts
-
-What is streaming
-What is a [vercel edge function](https://vercel.com/features/edge-functions)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 A great advantage of using NEtJs is that we can handle both the frontend and backend in a single application. We can easily spin up a new ap route by creating a file ```pages/api/generate.ts```
 
 We get the prompt from the request body that is passed in from the frontend. In this payload we have to specifiy the api paramters needed by gpt3.5.
 
-Tokens: Token limit of the response (1 oken is roughly 4 characters)
-
-For more infomation see (INSERT LINK)
+After the payload is constructed, we seend it in a POST request to OpenAI, await the result to get back the generated bios, then we send that back to the client as JSON
 
 
+generate.ts
+
+```
+export default async function handler(req, res) {
+  const { prompt } = req.body;
+
+  const payload = {
+    model: "gpt-3.5-turbo",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.7,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 200,
+    n: 1,
+  };
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
+    },
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  const json = await response.json();
+  res.status(200).json(json);
+}
+```
+
+Thats it! we've built the first version of our application. 
+
+Whilst this appraach works, there are limitations to a serverless function.
+
+1. If we are building a app that we want to wait for longer responses, this will likley take longer than 10 seconds which can lead to a timeout issue on the vercel free tier.
+
+2. Waiting several seconds before seeing any data is poor UX design. Ideally we want to have a incremental load to do this.
+
+3. Cold start times from the serverless function can effect UX 
+
+### Edge Functions vs. Serverless Functions
+You can think of Edge Functions as serverless functions with a more lightweight runtime. They have a smaller code size limit, smaller memory, and don’t support all Node.js libraries. So you may be thinking—why would I want to use them?
+
+### Three answers: speed, UX, and longer timeouts.
+
+1. Because Edge Functions use a smaller edge runtime and run very close to users on the edge, they’re also fast. They have virtually no cold starts and are significantly faster than serverless functions.
+
+2. They allow for a great user experience, especially when paired with streaming. Streaming a response breaks it down into small chunks and progressively sends them to the client, as opposed to waiting for the entire response before sending it.
+
+3. Edge Functions have a timeout of 30 seconds and even longer when streaming, which far exceeds the timeout limit for serverless functions on Vercel’s Hobby plan. Using these can allow you to get past timeout issues when using AI APIs that take longer to respond. As an added benefit, Edge Functions are also cheaper to run.
+
+### Edge Functions and Streaming
+
+Now we have a basic udnerstanding of the benefits of edge functions, lets refactor our existing code to take advantage of the streaming utility
+
+The first thing we will do, is change our generate fucntion to run on the ```edge```. We will also enable in our payloadto openAI ```steam: true```/
+
+As the last step, we will inotroduce a helper function ```OpenAIStream``` to allow for incremental loading of the chatGPT response
 
 ```
 import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
+
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("Missing env var from OpenAI");
+}
 
 export const config = {
   runtime: "edge",
 };
 
-/*
-    Given a prompt, generate blurbs using OpenAI
-*/
 const handler = async (req: Request): Promise<Response> => {
   const { prompt } = (await req.json()) as {
     prompt?: string;
@@ -409,17 +456,41 @@ const handler = async (req: Request): Promise<Response> => {
 export default handler;
 ```
 
-We will also need the following code in ```utils/OpenAiStream.ts```
-```
-import { createParser, ParsedEvent, ReconnectInterval } from "eventsource-parser";
+Create the below file in ```./utils/OpenAIStream.ts```
 
-export async function OpenAIStream(payload) {
+```
+import {
+  createParser,
+  ParsedEvent,
+  ReconnectInterval,
+} from "eventsource-parser";
+
+export type ChatGPTAgent = "user" | "system";
+
+export interface ChatGPTMessage {
+  role: ChatGPTAgent;
+  content: string;
+}
+
+export interface OpenAIStreamPayload {
+  model: string;
+  messages: ChatGPTMessage[];
+  temperature: number;
+  top_p: number;
+  frequency_penalty: number;
+  presence_penalty: number;
+  max_tokens: number;
+  stream: boolean;
+  n: number;
+}
+
+export async function OpenAIStream(payload: OpenAIStreamPayload) {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
   let counter = 0;
 
-  const res = await fetch("https://api.openai.com/v1/completions", {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
@@ -430,32 +501,35 @@ export async function OpenAIStream(payload) {
 
   const stream = new ReadableStream({
     async start(controller) {
+      // callback
       function onParse(event: ParsedEvent | ReconnectInterval) {
         if (event.type === "event") {
           const data = event.data;
+          // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
           if (data === "[DONE]") {
             controller.close();
             return;
           }
           try {
             const json = JSON.parse(data);
-            const text = json.choices[0].text;
+            const text = json.choices[0].delta?.content || "";
             if (counter < 2 && (text.match(/\n/) || []).length) {
+              // this is a prefix character (i.e., "\n\n"), do nothing
               return;
             }
             const queue = encoder.encode(text);
             controller.enqueue(queue);
             counter++;
           } catch (e) {
+            // maybe parse error
             controller.error(e);
           }
         }
       }
 
-     // stream response (SSE) from OpenAI may be fragmented into multiple chunks
-     // this ensures we properly read chunks & invoke an event for each SSE event stream
-     const parser = createParser(onParse);
-
+      // stream response (SSE) from OpenAI may be fragmented into multiple chunks
+      // this ensures we properly read chunks and invoke an event for each SSE event stream
+      const parser = createParser(onParse);
       // https://web.dev/streams/#asynchronous-iteration
       for await (const chunk of res.body as any) {
         parser.feed(decoder.decode(chunk));
@@ -466,6 +540,9 @@ export async function OpenAIStream(payload) {
   return stream;
 }
 ```
+Lets see what we just did:
+1 . It sends a post request to OpenAI with the payload like we did before with the serverless version.
 
-Lets take a look at the above function
-We create a stream to continuously parse the data we’re receiving from OpenAI, all while waiting for the [DONE] token to be sent since this signifies the end. When this happens, we close the stream.
+2. We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for ```[DONE]```. This will tell us the stream has completed.
+
+In the frontend, we need to change the generateBio function to accomandate these streaming changes. We accomplish this by using the native [getReader()](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReaderfunction), and progressibly add data to our state as its streamed in.
