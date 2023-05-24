@@ -127,8 +127,89 @@ export default function Home() {
 ```
 
 Let’s quickly go over what we have done. Your homepage should look like the below:
+![home page with the heading](./content/image_1.png)
 
-![](./content/image_1.png)
+Next step is to add a textbox so people can type what blurb they would like to generate:
+
+```typescript
+import { Stack, TextField, Typography } from "@mui/material";
+
+export default function Home() {
+  return (
+    <Stack
+      component="main"
+      direction="column"
+      maxWidth="50em"
+      mx="auto"
+      alignItems="center"
+      justifyContent="center"
+      py="1em"
+      spacing="1em"
+    >
+      <Typography
+        variant="h1"
+        className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
+      >
+        Generate your next Twitter post with ChatGPT
+      </Typography>
+
+      <TextField
+        multiline
+        fullWidth
+        minRows={4}
+        sx={{ "& textarea": { boxShadow: "none !important" } }}
+        placeholder="Key words on what you would like your blurb to be about"
+      ></TextField>
+    </Stack>
+  );
+}
+```
+
+Let's now add a button that allows users to generate their blurb and have an empty function that is called when the button is clicked:
+
+```typescript
+import { Button, Stack, TextField, Typography } from "@mui/material";
+
+export default function Home() {
+  function generateBlurb(): void {
+    throw new Error("Function not implemented.");
+  }
+
+  return (
+    <Stack
+      component="main"
+      direction="column"
+      maxWidth="50em"
+      mx="auto"
+      alignItems="center"
+      justifyContent="center"
+      py="1em"
+      spacing="1em"
+    >
+      <Typography
+        variant="h1"
+        className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
+      >
+        Generate your next Twitter post with ChatGPT
+      </Typography>
+
+      <TextField
+        multiline
+        fullWidth
+        minRows={4}
+        sx={{ "& textarea": { boxShadow: "none !important" } }}
+        placeholder="e.g. I'm learning about NextJs and OpenAI GPT-3 api at the Latency Conference."
+      ></TextField>
+
+      <Button onClick={generateBlurb}>Generate Blurb</Button>
+    </Stack>
+  );
+}
+```
+
+Congratulations! Your homepage is now completed. It should look like below:
+
+![Final home page design]()
 
 In this workshop we are not focusing on learning about UI designs, if you are interested to learn more about [Tailwind](https://tailwindcss.com/) and [Material UI](https://mui.com/material-ui/getting-started/overview/) on your own time, feel free so.
 
