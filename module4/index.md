@@ -135,5 +135,182 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
 Finally, let's start creating the UI to show the user what their tweet will look like and before posting it to Twitter.
 
-### Tweet Preview
+Outline:
 
+1: Create a TweetPreview Dialog component<br />
+2: Bind the tweet button to the new tweetPost API<br />
+3: Handle the response from the API<br />
+3.1: Show an error on error<br />
+3.2: Close the Dialog on success and show a success message<br />
+
+### Tweet Preview Dialog component
+
+<details>
+  <summary>Solution</summary>
+
+1. Create a file named `TweetPreview.ts` in `components/TweetPreview`.
+2. The component should declare a `bio` parameter (which gets injected by the HoC).
+3. The component should have 4 states to manage: 
+<br />`editableBio` should be initialised with the bio parameter. It's purpose is to allow the user to edit the bio in the preview itself.
+<br /><br />`loading` should be initialised with `false`. It's purpose is to show a loading indicator when the user clicks the tweet button.
+<br /><br />`showDialog` should be initialised with `false`. It's purpose is to show the dialog when the user clicks the tweet button; likewise hide the Dialog when the user clicks the close button.
+<br /><br />`error` should be initialised with `undefined`. It's purpose is to show an error message when the API call fails.
+
+4. Tweet Handler should be async and do the following:
+<br />a. Set loading to true
+<br />b. Set error to undefined
+<br />c. Call the `tweetPost` API you created earlier with the `editableBio` value
+<br />d. If the API call fails, set error to the error message
+<br />e. If the API call succeeds, close the Dialog and show a success message
+<br />f. Set loading to false
+<br />**NOTE: On success, this will publish to your Twitter account!**
+
+```ts
+import "react-circular-progressbar/dist/styles.css";
+
+import TwitterIcon from "@mui/icons-material/Twitter";
+import { useState } from "react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  TextField,
+} from "@mui/material";
+import { CenterBox } from "../CenterBox";
+import { ProfilePicture } from "./ProfilePicture";
+import { toast } from "react-hot-toast";
+
+export const TweetPreview = ({ bio }: { bio: string }) => {
+  const [editableBio, setEditableBio] = useState(bio);
+  const [loading, setLoading] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [error, setError] = useState<string>();
+
+  const tweet = async () => {
+    try {
+      setLoading(true);
+      setError(undefined);
+      const res = await fetch("/api/tweetPost", {
+        method: "POST",
+        body: JSON.stringify({
+          message: bio,
+        }),
+      });
+
+      const errors = (await res.json()).errors;
+      if (Array.isArray(errors) && errors.length > 0) {
+        throw new Error(errors[0].message);
+      } else {
+        toast('Tweet Posted!');
+        setShowDialog(false);
+      }
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <TwitterIcon
+        className="cursor-pointer"
+        onClick={() => setShowDialog(true)}
+      />
+      <Dialog
+        open={showDialog}
+        onClose={() => setShowDialog(false)}
+        fullWidth
+        sx={{ maxWidth: 600, mx: "auto" }}
+      >
+        <DialogTitle>Tweet Preview</DialogTitle>
+        <DialogContent sx={{ position: "relative" }}>
+          {loading && (
+            <CenterBox
+              sx={{
+                backgroundColor: "white",
+                zIndex: 1,
+                opacity: 0.5,
+              }}
+            >
+              <CircularProgress color="primary" />
+            </CenterBox>
+          )}
+          <Stack direction="row">
+            <ProfilePicture />
+            <Box width={"100%"}>
+              {error && <p className="text-red-500">{error}</p>}
+              <TextField
+                fullWidth
+                minRows={4}
+                multiline
+                onChange={(e) => setEditableBio(e.target.value)}
+                sx={{ "& textarea": { boxShadow: "none !important" } }}
+                value={editableBio}
+                variant="standard"
+              />
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDialog(false)} disabled={loading}>
+            Close
+          </Button>
+          <Button
+            onClick={tweet}
+            disabled={loading}
+            variant="contained"
+            color="primary"
+          >
+            Tweet
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
+
+```
+</details>
+
+
+### Create a ProfilePicture component
+
+1. Create a file named `ProfilePicture.ts` in `components/TweetPreview`.
+2. The component should show the logged in user's profile picture (https://next-auth.js.org/getting-started/client).
+
+<details>
+  <summary>Solution</summary>
+
+```ts
+import { useSession } from "next-auth/react";
+
+export const ProfilePicture = () => {
+  const { data: session } = useSession();
+  const twitterImage = session?.user?.image;
+
+  return (
+    <>
+      {twitterImage && (
+        <img 
+          src={twitterImage} 
+          alt="User's Twitter Profile Picture" 
+          style={{
+            height: '3em',
+            width: 'auto',
+            borderRadius: '50%',
+            marginRight: '1em',
+          }}  
+        />
+      )}
+    </>
+  );
+};
+
+```
+</details>
