@@ -16,27 +16,6 @@ We are taking a prompt from the request body, passed in fdrom, the frontend. We 
 After the payload is constructed, we send it in a POST request to OpenAI, await the result to get back the generated bios, then send them back to the client as JSON.
 
 
-### What are edge functions?
-# Limitations of the Serverless functions approach
-While using a serverless function works, there are some limitations that make using a edge function a much better expeience
-
-- Cold start times
-- Waiting severel seconds for a the full response isnt a good UX
-- Serverless timeout issues (10 seconds free tier)
-
-There is a better way.... EDGE FUNCTIONS!!!
-
-Edge functions can be thought of as serverless functins with a lightweight runtume. They have their own limitations, smaller code size limit, smaller memory and dont support all node.js librairies. So why use them??
-
-3 Reasons
-- speed
-- UX
-- longer timeouts
-
-What is streaming
-What is a [vercel edge function](https://vercel.com/features/edge-functions)
-
-
 ### Lets get started with the frontend!
 
 Opening up our terminal lets create a new nextJS app
@@ -342,3 +321,151 @@ export function ChatGPTForm({ blurbsGenerated, setBlurbsGenerated }: Props) {
 front end confuses me
 
 ## Backend 
+
+
+Assumption -> all front end components are done and we need to create API
+
+### What are edge functions?
+# Limitations of the Serverless functions approach
+While using a serverless function works, there are some limitations that make using a edge function a much better expeience
+
+- Cold start times
+- Waiting severel seconds for a the full response isnt a good UX
+- Serverless timeout issues (10 seconds free tier)
+
+There is a better way, edge functions.
+
+Edge functions can be thought of as serverless functins with a lightweight runtume. They have their own limitations, smaller code size limit, smaller memory and dont support all node.js librairies. So why use them??
+
+3 Reasons
+- speed
+- UX
+- longer timeouts
+
+What is streaming
+What is a [vercel edge function](https://vercel.com/features/edge-functions)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+A great advantage of using NEtJs is that we can handle both the frontend and backend in a single application. We can easily spin up a new ap route by creating a file ```pages/api/generate.ts```
+
+We get the prompt from the request body that is passed in from the frontend. In this payload we have to specifiy the api paramters needed by gpt3.5.
+
+Tokens: Token limit of the response (1 oken is roughly 4 characters)
+
+For more infomation see (INSERT LINK)
+
+
+
+```
+import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
+
+export const config = {
+  runtime: "edge",
+};
+
+/*
+    Given a prompt, generate blurbs using OpenAI
+*/
+const handler = async (req: Request): Promise<Response> => {
+  const { prompt } = (await req.json()) as {
+    prompt?: string;
+  };
+
+  if (!prompt) {
+    return new Response("No prompt in the request", { status: 400 });
+  }
+
+  const payload: OpenAIStreamPayload = {
+    model: "gpt-3.5-turbo",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 1,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 200,
+    stream: true,
+    n: 1,
+  };
+
+  const stream = await OpenAIStream(payload);
+  return new Response(stream);
+};
+
+export default handler;
+```
+
+We will also need the following code in ```utils/OpenAiStream.ts```
+```
+import { createParser, ParsedEvent, ReconnectInterval } from "eventsource-parser";
+
+export async function OpenAIStream(payload) {
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  let counter = 0;
+
+  const res = await fetch("https://api.openai.com/v1/completions", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
+    },
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      function onParse(event: ParsedEvent | ReconnectInterval) {
+        if (event.type === "event") {
+          const data = event.data;
+          if (data === "[DONE]") {
+            controller.close();
+            return;
+          }
+          try {
+            const json = JSON.parse(data);
+            const text = json.choices[0].text;
+            if (counter < 2 && (text.match(/\n/) || []).length) {
+              return;
+            }
+            const queue = encoder.encode(text);
+            controller.enqueue(queue);
+            counter++;
+          } catch (e) {
+            controller.error(e);
+          }
+        }
+      }
+
+     // stream response (SSE) from OpenAI may be fragmented into multiple chunks
+     // this ensures we properly read chunks & invoke an event for each SSE event stream
+     const parser = createParser(onParse);
+
+      // https://web.dev/streams/#asynchronous-iteration
+      for await (const chunk of res.body as any) {
+        parser.feed(decoder.decode(chunk));
+      }
+    },
+  });
+
+  return stream;
+}
+```
+
+Lets take a look at the above function
+We create a stream to continuously parse the data we’re receiving from OpenAI, all while waiting for the [DONE] token to be sent since this signifies the end. When this happens, we close the stream.
