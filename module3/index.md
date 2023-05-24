@@ -1250,6 +1250,8 @@ return (
 
   useEffect(() => {
     ...
+    handleScan(streamedBlurb);
+  
     if (bio) {
       setBlurb(bio);
       setHighlightedHTMLBlurb(<>{bio}</>);
