@@ -69,7 +69,7 @@ For this workshop we have decided to use [Material UI](https://mui.com/material-
 pnpm install @mui/material @emotion/react @emotion/styled
 ```
 
-Now let's go to pages/index.ts and replace everything with the following.
+Now let's go to pages/index.ts and replace everything with the following. Execute ```pnpm dev``` to check your latest changes
 
 ```typescript
 import { Typography } from "@mui/material";
@@ -94,6 +94,8 @@ export default function Home() {
       variant="h1"
       className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
     >
+      Generate your next Twitter post with ChatGPT
+    </Typography>
   );
 }
 ```
@@ -198,7 +200,7 @@ export default function Home() {
         fullWidth
         minRows={4}
         sx={{ "& textarea": { boxShadow: "none !important" } }}
-        placeholder="e.g. I'm learning about NextJs and OpenAI GPT-3 api at the Latency Conference."
+        placeholder="Key words on what you would like your blurb to be about"
       ></TextField>
 
       <Button onClick={generateBlurb}>Generate Blurb</Button>
@@ -209,7 +211,7 @@ export default function Home() {
 
 Congratulations! Your homepage is now completed. It should look like below:
 
-![Final home page design]()
+![Final home page design](content/final-homepage.png)
 
 In this workshop we are not focusing on learning about UI designs, if you are interested to learn more about [Tailwind](https://tailwindcss.com/) and [Material UI](https://mui.com/material-ui/getting-started/overview/) on your own time, feel free so.
 
@@ -267,4 +269,5 @@ If you wanted to deploy this application using AWS services, you would have had 
 12. Once the application has been deployed, click on the image below `Continue to Dashboard` to view your deployed application<br/>
 ![deployed-app](content/deployed-app.png)
 
-Congratulations you have now completed Module1 and ready to move on to the second module. Your completed home page should look like this: [Link to Module1-final demo](branch)
+Congratulations you have now completed Module1 and ready to move on to the second module. Your completed app should look like this: [Module1-final demo](final-demo/latency-workshop-app/). <br/>
+If you have any issues finishing off module1, you can download the content in ```final-demo/latency-workshop-app``` and move onto the next module.
