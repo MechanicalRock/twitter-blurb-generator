@@ -2,6 +2,22 @@
 
 This module covers setting up Twitter authentication for this application which acts as one of the last few steps in closing the loop, from generating your the blurb and running plagarism checks to finally posting the Tweet.
 
+---
+
+## Contents
+
+4.1 [Twitter Auth Configuration](#twitter-auth-configuration)
+<br>
+4.1.1 [Signing up for Twitter Dev Account](#signing-up-for-twitter-dev-account)
+<br>
+4.1.2 [Setting Up Twitter API Consumer & Client Keys](#setting-up-twitter-api-consumer--client-keys)
+<br>
+4.2 [NextJS API](#nextjs-api)
+<br>
+4.3 Frontend
+
+---
+
 ## Twitter Auth Configuration
 
 In order to hook up Twitter with our application, we need a developer account and some consumer keys. Follow the steps below on how to setup if you have not already done so.
@@ -32,3 +48,269 @@ See https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twit
    d. Website URL to i.e. (http://example.com). It doesn't really matter for local development and prorotyping
 5. Click on the save button and you will be taken to a page with your client ID and client secret. Copy these values down and store somewhere safe as these keys will be required for the `.env.local` file for local development.
 6. Lastly, we need to set a value for `NEXTAUTH_SECRET` env variable used by nextauth.js library which is used to encrypt and decrypt JWT tokens. See here for more documentation on generating a good value: https://next-auth.js.org/configuration/options
+
+---
+
+## NextJS API
+
+In order to call the the Tweet function we need to create an API.
+
+### Tweet API
+
+**Create a Tweet Post API**
+
+1. Create an Edge function named `tweetPost.ts`.
+2. Obtain and validate the JWT Token from the request (https://next-auth.js.org/configuration/options#jwt-helper)
+3. Validate the incoming request Body
+4. Post Tweet using the Twitter API (https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets)
+5. Deploy your API
+
+<details>
+  <summary>Solution</summary>
+
+1. Create a file named `tweetPost.ts` in `pages/api`.
+2. Create a handler which takes a `req` parameter.
+3. Obtain and validate the JWT token from the request.
+4. Validate the incoming request Body.
+5. Post Tweet using the Twitter API.
+6. Push your code to main to deploy your API.
+
+```ts
+import { NextApiRequest, NextApiResponse } from "next";
+
+import { getEnvs } from "./utils";
+import { getToken } from "next-auth/jwt";
+
+const env = getEnvs("NEXTAUTH_SECRET");
+
+type TweetRequest = {
+  message: string;
+};
+/*
+    Given Twitter has been authenticated
+    And a TweetRequest has been provided
+    Then post the tweet to Twitter
+*/
+export default async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    // Validate Token
+    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
+    if (!token) {
+      throw new Error("Not authorised, please login to Twitter first");
+    }
+           
+    // Validate Request
+    const body = JSON.parse(req.body) as TweetRequest;
+    if (!body.message) {
+      throw new Error("No message provided");
+    }
+
+    // Post Tweet
+    const response = await fetch("https://api.twitter.com/2/tweets", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token.access_token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        text: body.message,
+      }),
+    });
+
+    const details = await response.json();
+    res.status(response.ok ? 201 : 400).send(details);
+  } catch (e) {
+    res.status(500).send((e as Error).message);
+  }
+};
+
+```
+</details>
+<br>
+
+---
+
+
+## Frontend
+
+Finally, let's start creating the UI to show the user what their tweet will look like and before posting it to Twitter.
+
+Outline:
+
+1: Create a TweetPreview Dialog component<br />
+2: Bind the tweet button to the new tweetPost API<br />
+3: Handle the response from the API<br />
+3.1: Show an error on error<br />
+3.2: Close the Dialog on success and show a success message<br />
+
+### Tweet Preview Dialog component
+
+<details>
+  <summary>Solution</summary>
+
+1. Create a file named `TweetPreview.ts` in `components/TweetPreview`.
+2. The component should declare a `bio` parameter (which gets injected by the HoC).
+3. The component should have 4 states to manage: 
+<br />`editableBio` should be initialised with the bio parameter. It's purpose is to allow the user to edit the bio in the preview itself.
+<br /><br />`loading` should be initialised with `false`. It's purpose is to show a loading indicator when the user clicks the tweet button.
+<br /><br />`showDialog` should be initialised with `false`. It's purpose is to show the dialog when the user clicks the tweet button; likewise hide the Dialog when the user clicks the close button.
+<br /><br />`error` should be initialised with `undefined`. It's purpose is to show an error message when the API call fails.
+
+4. Tweet Handler should be async and do the following:
+<br />a. Set loading to true
+<br />b. Set error to undefined
+<br />c. Call the `tweetPost` API you created earlier with the `editableBio` value
+<br />d. If the API call fails, set error to the error message
+<br />e. If the API call succeeds, close the Dialog and show a success message
+<br />f. Set loading to false
+<br />**NOTE: On success, this will publish to your Twitter account!**
+
+```ts
+import "react-circular-progressbar/dist/styles.css";
+
+import TwitterIcon from "@mui/icons-material/Twitter";
+import { useState } from "react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  TextField,
+} from "@mui/material";
+import { CenterBox } from "../CenterBox";
+import { ProfilePicture } from "./ProfilePicture";
+import { toast } from "react-hot-toast";
+
+export const TweetPreview = ({ bio }: { bio: string }) => {
+  const [editableBio, setEditableBio] = useState(bio);
+  const [loading, setLoading] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [error, setError] = useState<string>();
+
+  const tweet = async () => {
+    try {
+      setLoading(true);
+      setError(undefined);
+      const res = await fetch("/api/tweetPost", {
+        method: "POST",
+        body: JSON.stringify({
+          message: bio,
+        }),
+      });
+
+      const errors = (await res.json()).errors;
+      if (Array.isArray(errors) && errors.length > 0) {
+        throw new Error(errors[0].message);
+      } else {
+        toast('Tweet Posted!');
+        setShowDialog(false);
+      }
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <TwitterIcon
+        className="cursor-pointer"
+        onClick={() => setShowDialog(true)}
+      />
+      <Dialog
+        open={showDialog}
+        onClose={() => setShowDialog(false)}
+        fullWidth
+        sx={{ maxWidth: 600, mx: "auto" }}
+      >
+        <DialogTitle>Tweet Preview</DialogTitle>
+        <DialogContent sx={{ position: "relative" }}>
+          {loading && (
+            <CenterBox
+              sx={{
+                backgroundColor: "white",
+                zIndex: 1,
+                opacity: 0.5,
+              }}
+            >
+              <CircularProgress color="primary" />
+            </CenterBox>
+          )}
+          <Stack direction="row">
+            <ProfilePicture />
+            <Box width={"100%"}>
+              {error && <p className="text-red-500">{error}</p>}
+              <TextField
+                fullWidth
+                minRows={4}
+                multiline
+                onChange={(e) => setEditableBio(e.target.value)}
+                sx={{ "& textarea": { boxShadow: "none !important" } }}
+                value={editableBio}
+                variant="standard"
+              />
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDialog(false)} disabled={loading}>
+            Close
+          </Button>
+          <Button
+            onClick={tweet}
+            disabled={loading}
+            variant="contained"
+            color="primary"
+          >
+            Tweet
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
+
+```
+</details>
+
+
+### Create a ProfilePicture component
+
+1. Create a file named `ProfilePicture.ts` in `components/TweetPreview`.
+2. The component should show the logged in user's profile picture (https://next-auth.js.org/getting-started/client).
+
+<details>
+  <summary>Solution</summary>
+
+```ts
+import { useSession } from "next-auth/react";
+
+export const ProfilePicture = () => {
+  const { data: session } = useSession();
+  const twitterImage = session?.user?.image;
+
+  return (
+    <>
+      {twitterImage && (
+        <img 
+          src={twitterImage} 
+          alt="User's Twitter Profile Picture" 
+          style={{
+            height: '3em',
+            width: 'auto',
+            borderRadius: '50%',
+            marginRight: '1em',
+          }}  
+        />
+      )}
+    </>
+  );
+};
+
+```
+</details>
