@@ -1079,30 +1079,47 @@ Let's assume that when we call our `scan` API the above object is returned.
 <details>
   <summary>Solution</summary>
 
-1. In `GenerateBio.tsx` create a function called `handleScan` which takes a `text` string variable as a parameter.
-   assign a variable called `scan` to have the value of our dummy object.
-2. Set `plagiarismLoading` to be true.
-3. Calculate the total number of words in our blurb by doing a `string.split()` on our blurb and finding the length of this array.
-4. Get the total number of `matchedWords` from our scan.
-5. Set the `plagiarisedScore` to be `(matchedWords/totalWords) * 100` and set `plagiarismLoading` to be false.
+1. In `GenerateBio.tsx` create a function called `handleScan` which takes a `text` string variable as a parameter and a `scan` object parameter.
+2. In `useEffect` set `plagiarismLoading` to be true.
+3. In `useEffect` assign a variable called `scan` to have the value of our dummy object.
+4. In `useEffect` call `handleScan`.
+5. Calculate the total number of words in our blurb by doing a `string.split()` on our blurb and finding the length of this array.
+6. Get the total number of `matchedWords` from our scan.
+7. Set the `plagiarisedScore` to be `(matchedWords/totalWords) * 100` and set `plagiarismLoading` to be false.
 
 ```ts
-function handleScan(text: string) {
-  const scan = {
-    matchedWords: 7,
-    results: {
-      identical: {
-        source: {
-          chars: {
-            starts: [4, 16],
-            lengths: [5, 10],
-          },
+useEffect(() => {
+  const checkPlagiarism = async (streamedBlurb: string) => {
+    setPlagiarismLoading(true);
+    const scan = {
+        matchedWords: 7,
+        results: {
+        identical: {
+            source: {
+            chars: {
+                starts: [4, 16],
+                lengths: [5, 10],
+            },
+            },
         },
-      },
-    },
-  };
+        },
+    };
+    handleScan(streamedBlurb, scan);
+
+  if (blurb && finishedStreaming) {
+    void checkPlagiarism(blurb);
+  }
+
+  if (bio) {
+    setBlurb(bio);
+    setHighlightedHTMLBlurb(<>{bio}</>);
+  }
+}, [bio, finishedStreaming]);
+```
+
+```ts
+function handleScan(text: string, scan: any) {
   const totalBlurbWords = text.split(" ").length;
-  setPlagiarismLoading(true);
   const matchedWords = scan.matchedWords;
   setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
   setPlagiarismLoading(false);
@@ -1208,20 +1225,7 @@ function getHighlightedHTMLBlurb(
    3. Call the `getHighlightedHTMLBlurb` function with `blurb`, `characterStarts` and `characterLengths`.
 
 ```ts
-function handleScan(text: string) {
-  const scan = {
-    matchedWords: 7,
-    results: {
-      identical: {
-        source: {
-          chars: {
-            starts: [4, 16],
-            lengths: [5, 10],
-          },
-        },
-      },
-    },
-  };
+function handleScan(text: string, scan: any) {
   const totalBlurbWords = text.split(" ").length;
   setPlagiarismLoading(true);
   const matchedWords = scan.matchedWords;
@@ -1251,7 +1255,7 @@ return (
   useEffect(() => {
     ...
     handleScan(streamedBlurb);
-  
+
     if (bio) {
       setBlurb(bio);
       setHighlightedHTMLBlurb(<>{bio}</>);
@@ -1315,7 +1319,10 @@ return (
         width="15em"
         className="bg-white rounded-xl shadow-md p-4 border"
       >
-        <Plagiarism loading={plagiarismLoading} score={plagiarisedScore} />
+          <Plagiarism
+            loading={plagiarismLoading}
+            score={plagiarisedScore ? Math.round(plagiarisedScore) : 0}
+          />
       </Stack>
     </Stack>
   </>
@@ -1409,8 +1416,9 @@ useEffect(() => {
       }),
     });
 
-    const totalBlurbWords = streamedBlurb.split(" ").length;
     const scanId = ((await scanResponse.json()) as ScanResponse).scanId;
+    const firebase = new FirebaseWrapper();
+    const scanRef = firebase.getScanReference(scanId);
     onValue(scanRef, async (scanRecord: any) => {
       // Only continue if a <scanId> node is present in Firebase
       if (scanRecord.exists()) {
