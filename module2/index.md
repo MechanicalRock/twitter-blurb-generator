@@ -1,91 +1,246 @@
 # Module 2
-# Context 
 
-## What is OpenAi, and how do I use it
+Welcome to the second module of this workshop. By this part of the workshop, you should already know about the main technologies we are using and have built and deployed your app with a basic home page.
+In this module, our primary focus will be on establishing an API endpoint for your application and seamlessly integrating it with OpenAI APIs to generate captivating social blurbs. We will then delve into the process of refining our input parameters for the OpenAI API, ensuring that the generated output aligns more closely with our desired context and requirements.
+
+## Creating an api endpoint in Next.js
+
+A great advantage of using Next.js is that we can handle both the frontend and backend in a single application. In Next.js, you can create APIs using API routes, a built-in feature that allows you to define server-side endpoints within your Next.js application. In order to create a new api route, you can simply add a file under ```pages/api/``` folder and Next.js handles all the routing for you.
+
+Let's now get started to create a new API:
+
+Step 1: Create an API route
+
+* In your Next.js project, navigate to the pages/api directory.
+* Create a new file named generateBlurb.ts (This file will represent your API route)
+* Define the API logic: Inside the API route file, you can define the logic for your API. You can handle HTTP requests, process data, and return responses.
+
+  ```typescript
+  const handler = async (req: Request): Promise<Response> => {
+    return new Response("This API is not implemented yet", { status: 400 });
+  };
+
+  export default handler;
+  ```
+
+* Make API requests: Now, you can make requests to your API from client-side code, server-side code, or any other applications. You can use JavaScript's built-in fetch function or any other HTTP client libraries to make requests to your API endpoint.
+
+### Change your api to call OpenAI endpoint
+
+Before we get to the development, let's find out what is OpenAI and how should you use it? <br/>
+OpenAI is known for developing advanced language models, such as GPT (Generative Pre-trained Transformer), which can generate human-like text based on given prompts or inputs. OpenAI also provides an API (Application Programming Interface) that allows developers to access and utilize the power of these language models in their own applications, products, or services.
+
+To use the OpenAI API, you need to follow these steps:
+
+* Sign up for an OpenAI account: Visit the OpenAI website and create an account. You may need to provide some information and agree to their terms and conditions.
+
+* Obtain API credentials: Once you have an account, you will need to obtain API credentials. OpenAI will provide you with an API key, which is a unique identifier that grants you access to the API services.
+
+For the purpose of this workshop, we have provided you with OpenAI credentials, saving you from the hustle of going through the sign-up process.
+
+#### Change generateBlurb.ts to call OpenAI
+
+We get the prompt from the request body that is passed in from the frontend. In this payload we have to specifiy the api paramters needed by gpt3.5.
+
+After the payload is constructed, we seend it in a POST request to OpenAI, await the result to get back the generated bios, then we send that back to the client as JSON
 
 
-## What is NextJS
-A great advangate of using Next.js is being able to handle both the frontend and backend in a single app. We can then spinup the apiroute generate, by creating a file called genreate.ts in our apu folder.
-
-Lets see what this is doing.
-
-We are taking a prompt from the request body, passed in fdrom, the frontend. We then construct a payload to OpenAI. In this payload we soecufut the exact model and how many token we want returtned. In this case we are limiting this because twitter posts have a max chacarter constraint.
-
-After the payload is constructed, we send it in a POST request to OpenAI, await the result to get back the generated bios, then send them back to the client as JSON.
-
-
-### Lets get started with the frontend!
-
-Opening up our terminal lets create a new nextJS app
-
-```pnpm create next-app latency-workshop-app --template typescript```
-
-and create with the following options
-
-Now lets check everything is working, run  ```cd latency-workshop-app && pnpm run dev``` and check that the nextJs template is running.
-![](./www/pnpm_create_next.png)
-
-
-![](./www/vercel_splash.png)
-
-
-Now we can get started on our app!
-
-Lets build out the components we are going to need first. We are going to work from the top down of the page
-
-
-1. run ```pnpm install @mui/material @emotion/react @emotion/styled```
-2. Goto pages/index.ts and replace all with the following
+generate.ts
 
 ```
-import { Stack, Typography } from "@mui/material";
+export default async function handler(req, res) {
+  const { prompt } = req.body;
 
-export default function Home() {
-  return (
-    <Typography variant="h1">
-      Generate your next Twitter post with ChatGPT
-    </Typography>
-  );
+  const payload = {
+    model: "gpt-3.5-turbo",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.7,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 200,
+    n: 1,
+  };
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
+    },
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  const json = await response.json();
+  res.status(200).json(json);
 }
 ```
 
-Obviously this dosnt look too great, so lets add in some simple tailwind to make it look a bit nicer. Feel free to play around with it to get to look as you would like.
+Thats it! we've built the first version of our application. 
+
+Whilst this approach works, there are limitations to a serverless function.
+
+1. If we are building a app that we want to wait for longer responses, this will likely take longer than 10 seconds which can lead to a timeout issue on the vercel free tier.
+
+2. Waiting several seconds before seeing any data is poor UX design. Ideally we want to have a incremental load to do this.
+
+3. Cold start times from the serverless function can effect UX 
+
+#### Edge functions vs Serverless functions
+
+You can think of Edge Functions as serverless functions with a more lightweight runtime. They have a smaller code size limit, smaller memory, and don’t support all Node.js libraries. So you may be thinking—why would I want to use them?
+
+##### Three answers: speed, UX, and longer timeouts
+
+1. Because Edge Functions use a smaller edge runtime and run very close to users on the edge, they’re also fast. They have virtually no cold starts and are significantly faster than serverless functions.
+
+2. They allow for a great user experience, especially when paired with streaming. Streaming a response breaks it down into small chunks and progressively sends them to the client, as opposed to waiting for the entire response before sending it.
+
+3. Edge Functions have a timeout of 30 seconds and even longer when streaming, which far exceeds the timeout limit for serverless functions on Vercel’s Hobby plan. Using these can allow you to get past timeout issues when using AI APIs that take longer to respond. As an added benefit, Edge Functions are also cheaper to run.
+
+##### Edge Functions and Streaming
+
+Now we have a basic udnerstanding of the benefits of edge functions, lets refactor our existing code to take advantage of the streaming utility
+
+The first thing we will do, is change our generate fucntion to run on the ```edge```. We will also enable in our payloadto openAI ```steam: true```/
+
+As the last step, we will inotroduce a helper function ```OpenAIStream``` to allow for incremental loading of the chatGPT response
 
 ```
-    <Typography
-      variant="h1"
-      className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
-    >
+import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
+
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("Missing env var from OpenAI");
+}
+
+export const config = {
+  runtime: "edge",
+};
+
+const handler = async (req: Request): Promise<Response> => {
+  const { prompt } = (await req.json()) as {
+    prompt?: string;
+  };
+
+  if (!prompt) {
+    return new Response("No prompt in the request", { status: 400 });
+  }
+
+  const payload: OpenAIStreamPayload = {
+    model: "gpt-3.5-turbo",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 1,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 200,
+    stream: true,
+    n: 1,
+  };
+
+  const stream = await OpenAIStream(payload);
+  return new Response(stream);
+};
+
+export default handler;
 ```
 
-
-This still isnt looking quite write. So lets wrap this in a Stack to get it centred as we would like. 
+Create the below file in ```./utils/OpenAIStream.ts```
 
 ```
-    <Stack
-      component="main"
-      direction="column"
-      maxWidth="50em"
-      mx="auto"
-      alignItems="center"
-      justifyContent="center"
-      py="1em"
-      spacing="1em"
-    >
-      <Typography
-        variant="h1"
-        className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
-      >
-        Generate your next Twitter post with ChatGPT
-      </Typography>
-    </Stack>
+import {
+  createParser,
+  ParsedEvent,
+  ReconnectInterval,
+} from "eventsource-parser";
+
+export type ChatGPTAgent = "user" | "system";
+
+export interface ChatGPTMessage {
+  role: ChatGPTAgent;
+  content: string;
+}
+
+export interface OpenAIStreamPayload {
+  model: string;
+  messages: ChatGPTMessage[];
+  temperature: number;
+  top_p: number;
+  frequency_penalty: number;
+  presence_penalty: number;
+  max_tokens: number;
+  stream: boolean;
+  n: number;
+}
+
+export async function OpenAIStream(payload: OpenAIStreamPayload) {
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  let counter = 0;
+
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
+    },
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      // callback
+      function onParse(event: ParsedEvent | ReconnectInterval) {
+        if (event.type === "event") {
+          const data = event.data;
+          // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
+          if (data === "[DONE]") {
+            controller.close();
+            return;
+          }
+          try {
+            const json = JSON.parse(data);
+            const text = json.choices[0].delta?.content || "";
+            if (counter < 2 && (text.match(/\n/) || []).length) {
+              // this is a prefix character (i.e., "\n\n"), do nothing
+              return;
+            }
+            const queue = encoder.encode(text);
+            controller.enqueue(queue);
+            counter++;
+          } catch (e) {
+            // maybe parse error
+            controller.error(e);
+          }
+        }
+      }
+
+      // stream response (SSE) from OpenAI may be fragmented into multiple chunks
+      // this ensures we properly read chunks and invoke an event for each SSE event stream
+      const parser = createParser(onParse);
+      // https://web.dev/streams/#asynchronous-iteration
+      for await (const chunk of res.body as any) {
+        parser.feed(decoder.decode(chunk));
+      }
+    },
+  });
+
+  return stream;
+}
 ```
-Let’s quickly go over what we are doing here.
+Lets see what we just did:
+1 . It sends a post request to OpenAI with the payload like we did before with the serverless version.
+
+2. We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for ```[DONE]```. This will tell us the stream has completed.
+
+------------------
+## Connecting frontend to our API [JOE CONTINUES FROM HERE]
+
+In the frontend, we need to change the generateBio function to accomandate these streaming changes. We accomplish this by using the native [getReader()](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReaderfunction), and progressibly add data to our state as its streamed in.
 
 
-Should look like the below
 
-![](./www/image_1.png)
 
 3. Lets add in our intial prompt, first lets create a new folder ```components/fields/PostTextArea.ts```. 
 
@@ -102,7 +257,7 @@ import { MutableRefObject } from "react";
 interface Props {
   bioRef: MutableRefObject<string>;
 }
-
+<!-- Explain the difference between ref and state -->
 export function PostTextArea({ bioRef }: Props) {
   return (
     <Box>
@@ -345,202 +500,3 @@ const generateBio = async (e: any) => {
 };
 ```
 
-## Backend 
-
-
-A great advantage of using NEtJs is that we can handle both the frontend and backend in a single application. We can easily spin up a new ap route by creating a file ```pages/api/generate.ts```
-
-We get the prompt from the request body that is passed in from the frontend. In this payload we have to specifiy the api paramters needed by gpt3.5.
-
-After the payload is constructed, we seend it in a POST request to OpenAI, await the result to get back the generated bios, then we send that back to the client as JSON
-
-
-generate.ts
-
-```
-export default async function handler(req, res) {
-  const { prompt } = req.body;
-
-  const payload = {
-    model: "gpt-3.5-turbo",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.7,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    max_tokens: 200,
-    n: 1,
-  };
-
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
-    },
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-
-  const json = await response.json();
-  res.status(200).json(json);
-}
-```
-
-Thats it! we've built the first version of our application. 
-
-Whilst this appraach works, there are limitations to a serverless function.
-
-1. If we are building a app that we want to wait for longer responses, this will likley take longer than 10 seconds which can lead to a timeout issue on the vercel free tier.
-
-2. Waiting several seconds before seeing any data is poor UX design. Ideally we want to have a incremental load to do this.
-
-3. Cold start times from the serverless function can effect UX 
-
-### Edge Functions vs. Serverless Functions
-You can think of Edge Functions as serverless functions with a more lightweight runtime. They have a smaller code size limit, smaller memory, and don’t support all Node.js libraries. So you may be thinking—why would I want to use them?
-
-### Three answers: speed, UX, and longer timeouts.
-
-1. Because Edge Functions use a smaller edge runtime and run very close to users on the edge, they’re also fast. They have virtually no cold starts and are significantly faster than serverless functions.
-
-2. They allow for a great user experience, especially when paired with streaming. Streaming a response breaks it down into small chunks and progressively sends them to the client, as opposed to waiting for the entire response before sending it.
-
-3. Edge Functions have a timeout of 30 seconds and even longer when streaming, which far exceeds the timeout limit for serverless functions on Vercel’s Hobby plan. Using these can allow you to get past timeout issues when using AI APIs that take longer to respond. As an added benefit, Edge Functions are also cheaper to run.
-
-### Edge Functions and Streaming
-
-Now we have a basic udnerstanding of the benefits of edge functions, lets refactor our existing code to take advantage of the streaming utility
-
-The first thing we will do, is change our generate fucntion to run on the ```edge```. We will also enable in our payloadto openAI ```steam: true```/
-
-As the last step, we will inotroduce a helper function ```OpenAIStream``` to allow for incremental loading of the chatGPT response
-
-```
-import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
-
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("Missing env var from OpenAI");
-}
-
-export const config = {
-  runtime: "edge",
-};
-
-const handler = async (req: Request): Promise<Response> => {
-  const { prompt } = (await req.json()) as {
-    prompt?: string;
-  };
-
-  if (!prompt) {
-    return new Response("No prompt in the request", { status: 400 });
-  }
-
-  const payload: OpenAIStreamPayload = {
-    model: "gpt-3.5-turbo",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 1,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    max_tokens: 200,
-    stream: true,
-    n: 1,
-  };
-
-  const stream = await OpenAIStream(payload);
-  return new Response(stream);
-};
-
-export default handler;
-```
-
-Create the below file in ```./utils/OpenAIStream.ts```
-
-```
-import {
-  createParser,
-  ParsedEvent,
-  ReconnectInterval,
-} from "eventsource-parser";
-
-export type ChatGPTAgent = "user" | "system";
-
-export interface ChatGPTMessage {
-  role: ChatGPTAgent;
-  content: string;
-}
-
-export interface OpenAIStreamPayload {
-  model: string;
-  messages: ChatGPTMessage[];
-  temperature: number;
-  top_p: number;
-  frequency_penalty: number;
-  presence_penalty: number;
-  max_tokens: number;
-  stream: boolean;
-  n: number;
-}
-
-export async function OpenAIStream(payload: OpenAIStreamPayload) {
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
-
-  let counter = 0;
-
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
-    },
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      // callback
-      function onParse(event: ParsedEvent | ReconnectInterval) {
-        if (event.type === "event") {
-          const data = event.data;
-          // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
-          if (data === "[DONE]") {
-            controller.close();
-            return;
-          }
-          try {
-            const json = JSON.parse(data);
-            const text = json.choices[0].delta?.content || "";
-            if (counter < 2 && (text.match(/\n/) || []).length) {
-              // this is a prefix character (i.e., "\n\n"), do nothing
-              return;
-            }
-            const queue = encoder.encode(text);
-            controller.enqueue(queue);
-            counter++;
-          } catch (e) {
-            // maybe parse error
-            controller.error(e);
-          }
-        }
-      }
-
-      // stream response (SSE) from OpenAI may be fragmented into multiple chunks
-      // this ensures we properly read chunks and invoke an event for each SSE event stream
-      const parser = createParser(onParse);
-      // https://web.dev/streams/#asynchronous-iteration
-      for await (const chunk of res.body as any) {
-        parser.feed(decoder.decode(chunk));
-      }
-    },
-  });
-
-  return stream;
-}
-```
-Lets see what we just did:
-1 . It sends a post request to OpenAI with the payload like we did before with the serverless version.
-
-2. We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for ```[DONE]```. This will tell us the stream has completed.
-
-In the frontend, we need to change the generateBio function to accomandate these streaming changes. We accomplish this by using the native [getReader()](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReaderfunction), and progressibly add data to our state as its streamed in.
