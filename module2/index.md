@@ -23,7 +23,26 @@ Step 1: Create an API route
   export default handler;
   ```
 
-* Make API requests: Now, you can make requests to your API from client-side code, server-side code, or any other applications. You can use JavaScript's built-in fetch function or any other HTTP client libraries to make requests to your API endpoint.
+* Make API requests: Now, you can make requests to your API from client-side code, server-side code, or any other applications. You can use JavaScript's built-in fetch function or any other HTTP client libraries to make requests to your API endpoint. </br></br>
+
+  In your previous module, you have created a button in your homepage with an empty function click called ```generateBlurb()```. Let's now go and replace that function's implementation with a call to our api endpoint.
+
+  ```typescript
+    async function generateBlurb() {
+      const response = await fetch("/api/generateBlurb", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: "Here is an empty body",
+      });
+
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      console.log(response);
+    }
+  ```
 
 ### Change your api to call OpenAI endpoint
 
