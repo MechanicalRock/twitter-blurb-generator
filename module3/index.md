@@ -5,18 +5,19 @@ In this module we learn how to check your blurb for plagiarism using the CopyLea
 
 The flow for a plagiarism check is as follows:
 
-1. The frontend calls our NextJS `plagiarismCheck` API with some text to be checked. A `scanId` is returned. We then listen to Firebase for any changes on the node `scan/[scanId]`.
+1. The frontend calls our Next.js `plagiarismCheck` API with some text to be checked. A `scanId` is returned. We then listen to Firebase for any changes on the node `scan/[scanId]`.
 2. This text is then passed to the CopyLeaks `scan` API - Copyleaks is an online plagiarism detection tool.
 3. Once CopyLeaks has finished scanning our text for plagiarism it sends high level details of the results to our `pages/api/copy-leaks/completed/[scanId]` Webhook. **It can take up to two minutes before we receive these results.**
 4. When we receive the high level results in our `pages/api/copy-leaks/completed/[scanId]` Webhook. We do the following:
 
-- We write the scan results to Firebase. Once our listener, mentioned in step 1, gets notified of this change we calculate the plagiarism score based off this data.
+- We write the scan results to Firebase. Once our listener, mentioned in step 1, gets notified of this change we then calculate the plagiarism score based off this data.
 - We find the source within the results which has the highest amount of suspected plagiarism and pass it to the CopyLeaks `exportResults` API.
 
 5. The CopyLeaks `exportResults` API gives us further information about a particular source such as which words in our text it thinks were plagiarised. Once CopyLeaks has finished exporting the results of a source it sends the low level details of the results to our `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook. **It can take up to a minute before we receive these results**.
 6. When we receive the results in our `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook. We do the following:
 
-- We write the results to Firebase. Once our listener, mentioned in step 1, gets notified of this change we highlight which words in our blurb were plagiarism based off this data.
+- We write the results to Firebase.
+- Once our listener, mentioned in step 1, gets notified of this change we highlight which words in our blurb were plagiarised based off this data.
 
 ---
 
@@ -32,7 +33,7 @@ The flow for a plagiarism check is as follows:
 <br>
 3.5 Validate Webhooks in the UI Using Firebase
 <br>
-3.6 NextJS Plagiarism Check API
+3.6 Next.js Plagiarism Check API
 <br>
 3.7 Hookup API to Frontend
 
@@ -623,7 +624,7 @@ This link will be helpful when completing this section - https://firebase.google
 
 As we are working backwards through the workflow lets first write the `export` Webhook, mentioned in step 5. This is webhook called by CopyLeaks with the detailed results of a source from a plagiarism scan.
 
-1. Create an Edge function named `[exportId].ts` in `pages/api/copy-leaks/export/[scanId]/` which receives the results of an export and returns a response with `{message: "Result exported successfully"}`. This should also write the results to the database using the Firebase PUT API under the node `scans/<scanId>/results.json`. We only need the object in `text.comparison`. Instead of writing the actual results to the database, lets write some dummy results into the database using `utils/dummy-data/dummyCompletedExportResultsWebhookResponse.json`.
+1. Create an Edge function named `[exportId].ts` in `pages/api/copy-leaks/export/[scanId]/` which receives the results of an export and returns a response with `{message: "Result exported successfully"}`. This should also write the results to the database using the Firebase PUT API under the node `scans/<scanId>/results.json`. We only need the object in `text.comparison`. Instead of writing the actual results to the database.
    <br>
    More information:
 
@@ -676,8 +677,7 @@ export default async function handler(req: NextRequest) {
 
 Now lets write the `scan` Webhook, mentioned in step 4.
 
-1. Create an Edge function named `[scanId].ts` in `pages/api/copy-leaks/completed` which receives the results of a scan and returns a response with `{message: "Scan Completed"}`. This should also write the scan to the database using the Firebase PUT API under the node `scans/<scanId>.json`. Instead of writing the actual results to the database, lets write some dummy results into the database using `utils/dummy-data/dummyCompletedScanWebhookResponse.json`.
-   <br>
+1. Create an Edge function named `[scanId].ts` in `pages/api/copy-leaks/completed` which receives the results of a scan and returns a response with `{message: "Scan Completed"}`. This should also write the scan to the database using the Firebase PUT API under the node `scans/<scanId>.json`. Instead of writing the actual results to the database.
 
 More information:
 
@@ -825,7 +825,7 @@ export class FirebaseWrapper {}
   <summary>Solution</summary>
 
 1. Create a `public` function called `getInstance`.
-2. Add a `firebaseConfig` object which has `databaseURL` as a key and a value of your Firebase URL. In 3.1.1.13, we set the environment variable `NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL` to be our database URL. With this in mind the value of our Firebase URL will be `${process.env.NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL}`
+2. Add a `firebaseConfig` object which has `databaseURL` as a key and a value of your Firebase URL. In 3.3.1.13, we set the environment variable `NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL` to be our database URL. With this in mind the value of our Firebase URL will be `${process.env.NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL}`
 3. Initialise the Firebase app instance with `const app = initializeApp(firebaseConfig)`
 4. Get the database instance from the app instance.
 
@@ -988,7 +988,7 @@ useEffect(() => {
 
 **3.5.2 Listening to Firebase Events**
 
-Now that we can send text to be scanned for plagiarism, lets listen to Firebase for when the results are returned.
+Now that we can send scan results and export results to the database via Webhook lets listen to Firebase for when the results are returned.
 
 1. Using the Firebase SDK listen for scan results on a specific node based on `scanId`. Use Firebases `onValue` function. Remember to use the `scanId` `f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2`.
    <br>
@@ -1088,7 +1088,7 @@ function handleScan(text: string, scan) {
 
 ---
 
-## 3.6 NextJS Plagiarism Check API
+## 3.6 Next.js Plagiarism Check API
 
 In order to call the the CopyLeaks scan function we need to create an API. Before we write our API we first need to write a library that can call the CopyLeaks API. Copyleaks is an online plagiarism detection and content verification platform. It utilizes advanced algorithms and artificial intelligence (AI) technology to compare submitted content against a vast database of sources, including web pages, academic journals, publications, and more.
 
