@@ -675,3 +675,10 @@ Why is this occuring? Have a go and trying to fix it.
 <br>
 
 ## 2.6 Challenge: Add in dropdown choices dynamically change the audience type
+
+Currently, the student audience is hardcoded into our prompt. Can you create a drop down to dynamically change the audience type?
+
+Resources: 
+- [MUI Dropdown Component](https://mui.com/material-ui/react-select/)
+- [React Use State](https://www.w3schools.com/react/react_usestate.asp)
+
