@@ -674,4 +674,4 @@ Why is this occuring? Have a go and trying to fix it.
 --- 
 <br>
 
-## 2.6 Challenge: Add in dropdown choices to set the prompt Vibe
+## 2.6 Challenge: Add in dropdown choices dynamically change the audience type
