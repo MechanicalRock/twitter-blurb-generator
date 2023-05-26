@@ -85,14 +85,14 @@ export default function Home() {
 
 Obviously this doesn't look great, so lets add in some simple tailwind to make it look a bit nicer. Feel free to play around with it to get to look as you would like. [Tailwind](https://tailwindcss.com/) is a CSS library that comes with the app if you selected yes on tailwind setup when you were creating your Next.js app.
 
-```typescript
+```diff
 import { Typography } from "@mui/material";
 
 export default function Home() {
   return (
     <Typography
       variant="h1"
-      className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
++      className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
     >
       Generate your next Twitter post with ChatGPT
     </Typography>
@@ -102,28 +102,29 @@ export default function Home() {
 
 This still is not looking quite right. So lets wrap this in a Stack to get it centred as we would like. 
 
-```typescript
-import { Typography, Stack } from "@mui/material";
+```diff 
+- import { Typography } from "@mui/material";
++ import { Typography, Stack } from "@mui/material";
 
 export default function Home() {
   return (
-    <Stack
-      component="main"
-      direction="column"
-      maxWidth="50em"
-      mx="auto"
-      alignItems="center"
-      justifyContent="center"
-      py="1em"
-      spacing="1em"
-    >
++   <Stack
++     component="main"
++     direction="column"
++     maxWidth="50em"
++     mx="auto"
++     alignItems="center"
++     justifyContent="center"
++     py="1em"
++     spacing="1em"
++   >
       <Typography
         variant="h1"
         className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
       >
         Generate your next Twitter post with ChatGPT
       </Typography>
-    </Stack>
++   </Stack>
   );
 }
 ```
@@ -133,8 +134,9 @@ Let’s quickly go over what we have done. Your homepage should look like the be
 
 Next step is to add a textbox so people can type what blurb they would like to generate:
 
-```typescript
-import { Stack, TextField, Typography } from "@mui/material";
+```diff
+- import { Typography, Stack } from "@mui/material";
++ import { Stack, TextField, Typography } from "@mui/material";
 
 export default function Home() {
   return (
@@ -155,13 +157,13 @@ export default function Home() {
         Generate your next Twitter post with ChatGPT
       </Typography>
 
-      <TextField
-        multiline
-        fullWidth
-        minRows={4}
-        sx={{ "& textarea": { boxShadow: "none !important" } }}
-        placeholder="Key words on what you would like your blurb to be about"
-      ></TextField>
++     <TextField
++       multiline
++       fullWidth
++       minRows={4}
++       sx={{ "& textarea": { boxShadow: "none !important" } }}
++       placeholder="Key words on what you would like your blurb to be about"
++     ></TextField>
     </Stack>
   );
 }
@@ -169,7 +171,7 @@ export default function Home() {
 
 Let's now add a button that allows users to generate their blurb and have an empty function that is called when the button is clicked:
 
-```typescript
+```diff
 import { Button, Stack, TextField, Typography } from "@mui/material";
 
 export default function Home() {
@@ -203,7 +205,7 @@ export default function Home() {
         placeholder="Key words on what you would like your blurb to be about"
       ></TextField>
 
-      <Button onClick={generateBlurb}>Generate Blurb</Button>
++     <Button onClick={generateBlurb}>Generate Blurb</Button>
     </Stack>
   );
 }
