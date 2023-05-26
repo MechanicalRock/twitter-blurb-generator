@@ -680,5 +680,33 @@ Currently, the student audience is hardcoded into our prompt. Can you create a d
 
 Resources: 
 - [MUI Dropdown Component](https://mui.com/material-ui/react-select/)
-- [React Use State](https://www.w3schools.com/react/react_usestate.asp)
+- [React Use Ref](https://www.w3schools.com/react/react_useref.asp)
 
+
+
+<details>
+   <summary><span style="color:red">Solution</summary>
+
+
+```diff
+
++      <FormControl fullWidth>
++       <InputLabel id="Audience">Audience</InputLabel>
++       <Select
++          labelId="Audience"
++          id="Audience"
++          label="Audience"
++          onChange={(event) => {
++            audienceRef.current = event.target.value;
++          }}
++          value={audienceRef.current}
++        >
++          <MenuItem value="Student">Student</MenuItem>
++          <MenuItem value="Profesional">Profesional</MenuItem>
++          <MenuItem value="Monkey">Monkey</MenuItem>
++        </Select>
++      </FormControl>
+
+```
+
+</details>

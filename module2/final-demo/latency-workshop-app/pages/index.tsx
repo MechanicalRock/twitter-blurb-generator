@@ -1,7 +1,25 @@
-import { Button, Stack, TextField, Typography } from "@mui/material";
-import { json } from "stream/consumers";
+import {
+  Button,
+  Card,
+  CardContent,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useRef, useState } from "react";
 
 export default function Home() {
+  const blurbRef = useRef("");
+  const audienceRef = useRef("");
+  const [generatedBlurb, setGeneratedBlurb] = useState("");
+
+  const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
+      Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a Student Audience, and base them on this context: ${blurbRef.current}`;
+
   async function generateBlurb() {
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
@@ -9,11 +27,35 @@ export default function Home() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        prompt: "lol",
+        prompt: prompt,
       }),
     });
-    const data = await response.json();
-    console.log(data);
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    const data = response.body;
+    if (!data) {
+      return;
+    }
+    const reader = data.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+    let firstPost = false;
+    let streamedText = "";
+
+    while (!done) {
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      const chunkValue = decoder.decode(value);
+      streamedText += chunkValue;
+      if (firstPost) {
+        setGeneratedBlurb(streamedText);
+      } else {
+        firstPost = streamedText.includes("1.");
+      }
+    }
   }
 
   return (
@@ -38,11 +80,45 @@ export default function Home() {
         multiline
         fullWidth
         minRows={4}
+        onChange={(e) => {
+          blurbRef.current = e.target.value;
+        }}
         sx={{ "& textarea": { boxShadow: "none !important" } }}
-        placeholder="Key words on what you would like your blurb to be about"
+        placeholder="e.g. I'm learning about NextJs and OpenAI GPT-3 api at the Latency Conference."
       ></TextField>
 
+      <FormControl fullWidth>
+        <InputLabel id="Audience">Audience</InputLabel>
+        <Select
+          labelId="Audience"
+          id="Audience"
+          label="Audience"
+          onChange={(event) => {
+            audienceRef.current = event.target.value;
+          }}
+          value={audienceRef.current}
+        >
+          <MenuItem value="Student">Student</MenuItem>
+          <MenuItem value="Profesional">Profesional</MenuItem>
+          <MenuItem value="Monkey">Monkey</MenuItem>
+        </Select>
+      </FormControl>
+
       <Button onClick={generateBlurb}>Generate Blurb</Button>
+      {generatedBlurb && (
+        <>
+          {generatedBlurb
+            .substring(generatedBlurb.indexOf("1.") + 3)
+            .split(/2\.|3\./)
+            .map((generatedPost) => {
+              return (
+                <Card>
+                  <CardContent>{generatedPost}</CardContent>
+                </Card>
+              );
+            })}
+        </>
+      )}
     </Stack>
   );
 }
