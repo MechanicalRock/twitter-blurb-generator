@@ -1,0 +1,13 @@
+{
+  "matchedWords": 7,
+  "results": {
+    "identical": {
+      "source": {
+        "chars": {
+          "starts": [4, 16],
+          "lengths": [5, 10]
+        }
+      }
+    }
+  }
+}

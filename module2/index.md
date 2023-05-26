@@ -4,10 +4,9 @@ Welcome to the second module of this workshop. By this part of the workshop, you
 
 In this module, our primary focus will be on establishing an API endpoint for your application and seamlessly integrating it with OpenAI APIs to generate captivating social blurbs.
 
- We will then delve into the process of refining our input parameters for the OpenAI API, ensuring that the generated output aligns more closely with our desired context and requirements.
+We will then delve into the process of refining our input parameters for the OpenAI API, ensuring that the generated output aligns more closely with our desired context and requirements.
 
 If you've had issues so far, clone from [Module1]().
-
 
 ## Contents
 
@@ -21,9 +20,9 @@ If you've had issues so far, clone from [Module1]().
 <br>
 2.5 Prompt Engineering
 <br>
-2.6 Challenge: Add in dropdown choices to set the prompt vibe
-
-
+2.6 Refactoring into Components
+<br>
+2.7 Challenge: Add in dropdown choices to set the prompt vibe
 
 ## 2.1: Creating an api endpoint in Next.js
 
@@ -31,18 +30,16 @@ If you've had issues so far, clone from [Module1]().
 
 A great advantage of using Next.js is that we can handle both the frontend and backend in a single application. In Next.js, you can create APIs using API routes, a built-in feature that allows you to define server-side endpoints within your Next.js application.
 
-
 Let's now get started to create a [new API in NextJs](https://nextjs.org/learn/basics/api-routes/creating-api-routes):
-
 
 ### <u>Step 1: Create an API route</u>
 
 <details>
    <summary><span style="color:red"><span style="color:red">Solution</summary>
 
-* In your Next.js project, navigate to the pages/api directory.
-* Create a new file named generateBlurb.ts (This file will represent your API route)
-* Define the API logic: Inside the API route file, you can define the logic for your API. You can handle HTTP requests, process data, and return responses.
+- In your Next.js project, navigate to the pages/api directory.
+- Create a new file named generateBlurb.ts (This file will represent your API route)
+- Define the API logic: Inside the API route file, you can define the logic for your API. You can handle HTTP requests, process data, and return responses.
 
   ```ts
   import { NextApiRequest, NextApiResponse } from "next";
@@ -56,7 +53,8 @@ Let's now get started to create a [new API in NextJs](https://nextjs.org/learn/b
 
   export default handler;
   ```
-</details>
+
+  </details>
 
 <br>
 
@@ -64,26 +62,26 @@ Let's now get started to create a [new API in NextJs](https://nextjs.org/learn/b
 
 Now, you can make requests to your API from client-side code, server-side code, or any other applications. You can use JavaScript's built-in fetch function or any other HTTP client libraries to make requests to your API endpoint. </br></br>
 
-In your previous module, you have created a button in your homepage with an empty function click called ```generateBlurb()```. Let's now go and replace that function's implementation with a call to our api endpoint.
+In your previous module, you have created a button in your homepage with an empty function click called `generateBlurb()`. Let's now go and replace that function's implementation with a call to our api endpoint.
 
 <details>
    <summary><span style="color:red">Solution</summary>
 
-  ```ts
-  async function generateBlurb() {
-    const response = await fetch("/api/generateBlurb", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: "This is an empty prompt",
-      }),
-    });
-    const data = await response.json();
-    console.log(data);
-  }
-  ```
+```ts
+async function generateBlurb() {
+  const response = await fetch("/api/generateBlurb", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt: "This is an empty prompt",
+    }),
+  });
+  const data = await response.json();
+  console.log(data);
+}
+```
 
 </details>
 
@@ -91,7 +89,7 @@ In your previous module, you have created a button in your homepage with an empt
 
 ### <u>Step 3: Connecting OpenAI to our API</u>
 
-Before we get to the development, let's find out what is OpenAI and how should you use it? 
+Before we get to the development, let's find out what is OpenAI and how should you use it?
 
 OpenAI is known for developing advanced language models, such as GPT (Generative Pre-trained Transformer), which can generate human-like text based on given prompts or inputs. OpenAI also provides an API (Application Programming Interface) that allows developers to access and utilize the power of these language models in their own applications, products, or services.
 
@@ -102,7 +100,7 @@ For the purpose of this workshop, we have provided you with OpenAI credentials, 
 Next.js provides native support for managing environment variables, offering the following capabilities:
 
 1. You can easily load your environment variables by storing them into a .env.local file
-2. You can expose your environment variables to the browser by prefixing them with NEXT_PUBLIC_
+2. You can expose your environment variables to the browser by prefixing them with NEXT*PUBLIC*
 
 In order to access the openAI key in your app, create a new file in the project root folder and name it .env.local.
 
@@ -110,7 +108,7 @@ In order to access the openAI key in your app, create a new file in the project 
 OPENAI_API_KEY=xyzxyzxyzxyz
 ```
 
-Now you should be able to access this key in your app by using ```process.env.OPENAI_API_KEY```
+Now you should be able to access this key in your app by using `process.env.OPENAI_API_KEY`
 
 ---
 
@@ -121,6 +119,7 @@ We get the prompt from the request body that is passed in from the frontend. In 
 After the payload is constructed, we send it in a POST request to OpenAI, await the result to get back the generated bios, then we send that back to the client as JSON
 
 Resources:
+
 - [OpenAI API Reference](https://platform.openai.com/docs/api-reference)
 
 <details>
@@ -157,7 +156,7 @@ export default async function handler(req, res) {
 
 </details>
 
---- 
+---
 
 <br>
 
@@ -167,26 +166,24 @@ Now lets update our frontend to receive the response from the API. For now, we w
    <summary><span style="color:red">Solution</summary>
 
 ```ts
-  const generateBlurb = useCallback(async () => {
-    const response = await fetch("/api/generateBlurb", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: blurbRef.current,
-      }),
-    });
+const generateBlurb = useCallback(async () => {
+  const response = await fetch("/api/generateBlurb", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt: blurbRef.current,
+    }),
+  });
 
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
 
-    const answer = await response.json();
-    console.log(answer);
-        }
-  , [blurbRef.current]);
-
+  const answer = await response.json();
+  console.log(answer);
+}, [blurbRef.current]);
 ```
 
 </details>
@@ -206,13 +203,14 @@ Lets create a output now for this to display.
 Now we've got a actual response from openAI, lets display it in our app.
 
 You will need the following things
+
 - Implement a MUI card to display the response
 - Output OpenAI response into a state [UseState]()
 
 <details>
    <summary><span style="color:red">Solution</summary>
 
-  Add the following to your code.
+Add the following to your code.
 
 ```diff
 - import { useRef } from "react";
@@ -237,11 +235,10 @@ Next step is to update our state with the response from OpenAi
 
 Resources: [React Use State](https://www.w3schools.com/react/react_usestate.asp)
 
-
 <details>
    <summary><span style="color:red">Solution</summary>
 
-  Add the following to your code.
+Add the following to your code.
 
 ```diff
 ...
@@ -270,7 +267,6 @@ Resources: [React Use State](https://www.w3schools.com/react/react_usestate.asp)
 
 </details>
 
-
 <br>
 
 Congrats, you should now be seeing the response from OpenAI using our prompt
@@ -286,7 +282,7 @@ Whilst this approach works, there are limitations to a serverless function.
 
 2. Waiting several seconds before seeing any data is poor UX design. Ideally we want to have a incremental load to do this.
 
-3. Cold start times from the serverless function can effect UX 
+3. Cold start times from the serverless function can effect UX
 
 #### Edge functions vs Serverless functions
 
@@ -362,15 +358,16 @@ export default handler;
 <br>
 
 Lets have a look at the changes we've made above.
+
 - We've updated our config, so our API will run as a edge function.
-- We will also enable in our [payload](https://platform.openai.com/docs/api-reference/completions)  ```stream:true``` . This tells OpenAI to stream the response back, rather than waitng for the response to fully be completed.
-- In addtion, we have created a helper function called ```OpenAIStream``` to allow for incremental loading of the chatGPT response.
+- We will also enable in our [payload](https://platform.openai.com/docs/api-reference/completions) `stream:true` . This tells OpenAI to stream the response back, rather than waitng for the response to fully be completed.
+- In addtion, we have created a helper function called `OpenAIStream` to allow for incremental loading of the chatGPT response.
 
 Next step is to actually create our helper function:
 
-Create the below file and copy the contents into ```./utils/OpenAIStream.ts```
+Create the below file and copy the contents into `./utils/OpenAIStream.ts`
 
-You will also need to install an new dependency ```pnpm i eventsource-parser```
+You will also need to install an new dependency `pnpm i eventsource-parser`
 
 <details>
    <summary><span style="color:cyan">/utils/OpenAIStream.ts</summary>
@@ -465,18 +462,19 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
 Lets see what we just did:
 
 1. It sends a post request to OpenAI with the payload like we did before with the serverless version.
-2.  We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for ```[DONE]```. This will tell us the stream has completed.
+2. We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for `[DONE]`. This will tell us the stream has completed.
 
-------------------
-### Connecting frontend to our API 
+---
+
+### Connecting frontend to our API
 
 We've updated our backend to stream, however our frontend dosnt know how to interpret the stream.
 
 Try and do this yourself!
 
 Heres some hints to get you started.
-- https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReader
 
+- https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReader
 
 <details>
    <summary><span style="color:red">Solution</summary>
@@ -503,7 +501,7 @@ Heres some hints to get you started.
 +    }
 +    const reader = data.getReader();
 +    const decoder = new TextDecoder();
-    
+
 
 
 +    while (!done) {
@@ -513,7 +511,7 @@ Heres some hints to get you started.
 +      setGeneratedBlurb((prev) => prev + chunkValue);
     }
   }
-  ```
+```
 
 </details>
 <br>
@@ -521,11 +519,11 @@ You should now have a streaming response!!
 
 <br>
 
---- 
+---
+
 <br>
 
 ## 2.4 Prompt Engineering
-
 
 So we have linked our textboxt to input, OpenAI and are displaying the response in a single card.
 
@@ -545,8 +543,6 @@ When it comes to AI models, prompt engineering can involve many strategies, incl
 
 Prompt engineering can be quite complex because language models don't actually understand language in the way humans do. They're trained on massive amounts of text data and learn to predict the next piece of text based on the input they're given. So, you're essentially trying to understand the model's 'thinking' and craft prompts that will guide it towards the answers you want.
 
-
-
 #### Challenge: Create a prompt that feeds into generate API, that will generate 3 clearly labelled twitter bios, using the input we have supplied from the textbox.
 
 <br>
@@ -559,7 +555,7 @@ Prompt engineering can be quite complex because language models don't actually u
 ...
   const [generatedBlurb, setGeneratedBlurb] = useState("");
 
-+  const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
++  const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.".
 +      Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a Student Audience, and base them on this context: ${blurbRef.current}`;
 
   async function generateBlurb() {
@@ -573,12 +569,14 @@ Prompt engineering can be quite complex because language models don't actually u
 +       prompt: prompt,
       }),
     });
-    
+
     ...
 
 
 ```
+
 Lets explain what we just did:
+
 - Created a new value `prompt` that is taking a hardcoded text, and subsititing our textbox, bound to `blurbRef` into the text body.
 
 Remeber OpenAI, needs to return a response that we can parse, hence we have clearly prompted it to return each post clearly labelled, we then use this in the next section to seperate each blurb into its own output.
@@ -587,21 +585,19 @@ Feel free to manipulate and add in your own changes.
 
 </details>
 
-
 <br>
 
 ---
-## 2.5 String manipulation to output multiple cards
 
+## 2.5 String manipulation to output multiple cards
 
 So currently our output is generating 3 posts, however they all displaying into one card! To fix this we can use have to seperate each post into their own card.
 
 Have a go at doing this yourself, below are some hints to get you started.
 
-Resources: 
+Resources:
+
 - [String Splitting](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)
-
-
 
 <details>
    <summary><span style="color:red">Solution</summary>
@@ -626,7 +622,9 @@ Resources:
 +     )}
 
 ```
+
 Lets explain what we just did.
+
 1. generatedBlurb.substring(generatedBlurb.indexOf("1.") + 3): This finds "1." in the string generatedBlurb and trims off the part before and including "1.".
 
 2. .split(/2\.|3\./): This divides the string into parts at "2." and "3." and makes an array (list) of these parts.
@@ -645,11 +643,8 @@ In short, the code splits a text string into parts at "1.", "2.", and "3.", and 
 
 Why is this occuring? Have a go and trying to fix it.
 
-
-
 <details>
    <summary><span style="color:red">Solution</summary>
-
 
 ```diff
     let done = false
@@ -673,30 +668,81 @@ Why is this occuring? Have a go and trying to fix it.
 
 </details>
 
+---
 
---- 
 <br>
 
-## 2.6 Challenge: Add in dropdown choices dynamically change the audience type
+## 2.6 Refactoring into Components
+
+Currently, our `index.tsx` is quite messy. Let's try and refactor the `Card` Component into another file.
+
+**Tasks**
+
+**2.6.1 Refactor index.tsx**
+
+1. Move the card component which holds the blurb into a separate component file called `Blurb.tsx`
+
+<details>
+   <summary>Solution</summary>
+
+Your `Blurb` component should now look like this:
+
+```ts
+import { Card, CardContent } from "@mui/material";
+
+interface Props {
+  generatingBlurb: string;
+}
+
+export function Blurb({ generatingBlurb }: Props) {
+  return (
+    <Card>
+      <CardContent>{generatingBlurb}</CardContent>
+    </Card>
+  );
+}
+```
+
+`index.tsx` should now look like this:
+
+```ts
+...
+      <Button onClick={generateBlurb}>Generate Blurb</Button>
+      {generatingPosts && (
+        <>
+          {generatingPosts
+            .substring(generatingPosts.indexOf("1.") + 3)
+            .split(/2\.|3\./)
+            .map((generatingPost, index) => {
+              return (
+                <Blurb key={index} generatingBlurb={generatingPost}></Blurb>
+              );
+            })}
+        </>
+      )}
+      ...
+```
+
+   </details>
+
+## 2.7 Challenge: Add in dropdown choices dynamically change the audience type
 
 Currently, the student audience is hardcoded into our prompt. Can you create a drop down to dynamically change the audience type?
 
-Resources: 
+Resources:
+
 - [MUI Dropdown Component](https://mui.com/material-ui/react-select/)
 - [React Use Ref](https://www.w3schools.com/react/react_useref.asp)
-
-
 
 <details>
    <summary><span style="color:red">Solution</summary>
 
-
 ```diff
 ...
 
--   const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
+-   const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.".
 -   Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a student Audience, and base them on this context: ${blurbRef.current}`;
-+   const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
++   const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.".
 +   Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a ${audienceRef.current} Audience, and base them on this context: ${blurbRef.current}`;
 ...
 

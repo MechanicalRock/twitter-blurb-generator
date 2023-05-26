@@ -47,7 +47,61 @@ Firstly, let's start creating the UI to show our plagiarism results.
 
 Ensure you running `pnpm dev` before solving the next tasks.
 
-**3.1.1 Editing a Blurb**
+**3.1.1 Track When Blurb Has Finished Generating**
+
+We can only start edit a blurb for once all the blurbs have finished generating.
+
+1. Create a boolean state variable that tracks if all the blurbs have finished generating. Then pass this value as a `prop` to the `Blurb` component.
+
+<details>
+  <summary>Solution</summary>
+
+```ts
+...
+const [blurbsFinishedGenerating, setBlurbsFinishedGenerating] = useState<boolean>(false);
+...
+
+  async function generateBlurb() {
+  setBlurbsFinishedGenerating(false);
+  ...
+  while(!done){
+    ...
+  }
+
+  setBlurbsFinishedGenerating(false);
+
+  ...
+  <Blurb
+  key={index}
+  generatingBlurb={generatingPost}
+  blurbsFinishedGenerating={blurbsFinishedGenerating}
+  ></Blurb>
+  ...
+```
+
+</details>
+<br>
+
+In React, `useEffect` is a built-in hook that allows you to perform side effects in functional components. The `useEffect` hook takes two arguments: a function and an optional array of dependencies. The function passed as the first argument will be executed after the component renders, and it will run again if any of the dependencies change.
+
+2. Create a new state variable called `blurb` which is set to the completed generated blurb. You should use `useEffect` for this while having `blurbsFinishedGenerating` as a dependency.
+
+```ts
+...
+const [blurb, setBlurb] = useState<string>();
+...
+
+  useEffect(() => {
+    if (blurbsFinishedGenerating) {
+      setBlurb(generatingBlurb);
+    }
+  }, [blurbsFinishedGenerating]);
+```
+
+</details>
+<br>
+
+**3.1.2 Editing a Blurb**
 
 1. Enable your blurb to be reworded and saved. Use `mui/icons-material` package for this.
    **Important once the blurb is rephrased we will NOT recheck the blurb for plagiarism**
@@ -60,7 +114,7 @@ Ensure you running `pnpm dev` before solving the next tasks.
   <summary>Solution</summary>
 
 1. Install `mui/icons-material` using `pnpm i @mui/icons-material`
-2. In `GenerateBio.tsx` add a boolean state variable named `enableEditor` and set the default value to false.
+2. In `Blurb.tsx` add a boolean state variable named `enableEditor` and set the default value to false.
 3. Add a string state variable named `rephrasedBlurb`.
 4. Add a conditional in the blurb HTML based on `enableEditor`.
    1. If `enableEditor` is true
@@ -70,14 +124,16 @@ Ensure you running `pnpm dev` before solving the next tasks.
    2. If `enableEditor` is false
       1. Add an edit button using muis `EditIcon` and set the `onClick` property to change `enableEditor` to be true.
 
-Your `GenerateBio.tsx` return statement should look like this:
+Your `Blurb.tsx` should look something like this:
 
 ```ts
 return (
   <>
-    <Stack direction="row" spacing="1em" ref={blurbRef}>
-      <Box width="100%" className="bg-white rounded-xl shadow-md p-4 border">
-        {enableEditor ? (
+    <Card>
+      <CardContent>
+        {blurbsFinishedGenerating ? (
+          generatingBlurb
+        ) : enableEditor ? (
           <>
             <TextField
               className="bg-white rounded-xl"
@@ -88,41 +144,44 @@ return (
               multiline
               style={{ width: "100%" }}
             ></TextField>
-            <Stack direction="row-reverse" spacing="0.5em">
-              <Box>
-                <CloseIcon
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setEnableEditor(false);
-                  }}
-                ></CloseIcon>
-              </Box>
-              <Box>
-                <SaveIcon
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setBlurb(rephrasedBlurb);
-                    setEnableEditor(false);
-                  }}
-                ></SaveIcon>
-              </Box>
-            </Stack>
           </>
         ) : (
-          <>
-            <Box>{rephrasedBlurb}</Box>
-            <Stack direction="row-reverse" spacing="0.5em">
-              <Box>
-                <EditIcon
-                  className="cursor-pointer"
-                  onClick={() => setEnableEditor(true)}
-                />
-              </Box>
-            </Stack>
-          </>
+          blurb
         )}
-      </Box>
-    </Stack>
+      </CardContent>
+      <CardActions>
+        {blurbsFinishedGenerating && enableEditor ? (
+          <Stack direction="row-reverse" spacing="0.5em">
+            <Box>
+              <CloseIcon
+                className="cursor-pointer"
+                onClick={() => {
+                  setEnableEditor(false);
+                }}
+              ></CloseIcon>
+            </Box>
+            <Box>
+              <SaveIcon
+                className="cursor-pointer"
+                onClick={() => {
+                  setBlurb(rephrasedBlurb);
+                  setEnableEditor(false);
+                }}
+              ></SaveIcon>
+            </Box>
+          </Stack>
+        ) : (
+          <Stack direction="row-reverse" spacing="0.5em">
+            <Box>
+              <EditIcon
+                className="cursor-pointer"
+                onClick={() => setEnableEditor(true)}
+              />
+            </Box>
+          </Stack>
+        )}
+      </CardActions>
+    </Card>
   </>
 );
 ```
@@ -130,7 +189,9 @@ return (
 </details>
 <br>
 
-**3.1.2 Plagiarism Progress Bar**
+**3.1.3 Plagiarism Progress Bar**
+
+Copy and paste the `components` folder found in `module3/content/components` into the root of your project. The `CenterBox` component will help you center your plagiarism score component.
 
 1. Add a section next to each blurb which holds a `CircularProgress` bar and a value as a percent. It should look like this:
 
@@ -161,7 +222,9 @@ export function Loading() {
       >
         <CircularProgress size="4em" />
       </Box>
-      <Box paddingTop="0.5em">Analysing Plagiarism</Box>
+      <Box paddingTop="0.5em" textAlign="center">
+        Analysing Plagiarism
+      </Box>
     </>
   );
 }
@@ -220,8 +283,6 @@ export function Score(
    3. If `loading` is false we will show our `Score` component.
 
 ```ts
-import "react-circular-progressbar/dist/styles.css";
-
 import { Box } from "@mui/material";
 import { Loading } from "./Loading";
 import { Score } from "./Score";
@@ -245,72 +306,30 @@ export function Plagiarism({ loading, score }: Props) {
       {loading ? (
         <Loading />
       ) : (
-        typeof score === "number" && <Score value={score} label={`${score}%`} />
+        typeof score === "number" && (
+          <Score value={score} label={`${Math.round(score)}%`} />
+        )
       )}
     </Box>
   );
 }
 ```
 
-4. In `GenerateBio.tsx`
+4. In `Blurb.tsx`
    1. Add a boolean state variable named `plagiarismLoading` with the default value of false.
    2. Add a number state variable named `plagiarisedScore` with the default value of 0.
    3. At the bottom of the HTML `Stack` add the `Plagiarism` component with the `loading` property having the value `plagiarismLoading` and the `score` property having the value `plagiarisedScore`.
 
-Your `GenerateBio.tsx` return statement should look like this:
+Your `Blurb.tsx` return statement should look like this:
 
 ```ts
-return (
-  <>
-    <Stack direction="row" spacing="1em" ref={blurbRef}>
-      <Box width="100%" className="bg-white rounded-xl shadow-md p-4 border">
-        {enableEditor ? (
-          <>
-            <TextField
-              className="bg-white rounded-xl"
-              defaultValue={blurb}
-              onChange={(event) => {
-                setRephrasedBlurb(event.target.value);
-              }}
-              multiline
-              style={{ width: "100%" }}
-            ></TextField>
-            <Stack direction="row-reverse" spacing="0.5em">
-              <Box>
-                <CloseIcon
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setEnableEditor(false);
-                  }}
-                ></CloseIcon>
-              </Box>
-              <Box>
-                <SaveIcon
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setBlurb(rephrasedBlurb);
-                    setEnableEditor(false);
-                  }}
-                ></SaveIcon>
-              </Box>
-            </Stack>
-          </>
-        ) : (
-          <>
-            <Box>{rephrasedBlurb}</Box>
-            {!plagiarismLoading && (
-              <Stack direction="row-reverse" spacing="0.5em">
-                <Box>
-                  <EditIcon
-                    className="cursor-pointer"
-                    onClick={() => setEnableEditor(true)}
-                  />
-                </Box>
-              </Stack>
-            )}
-          </>
-        )}
-      </Box>
+...
+      <Button onClick={generateBlurb}>Generate Blurb</Button>
+      {generatedBlurb && (
+        <>
+        ...
+        </>
+      )}
       <Stack
         alignItems="center"
         justifyContent="center"
@@ -336,7 +355,7 @@ Before we write our APIs, lets use some dummy objects to validate our changes. T
 
 **3.2.1 Handle Scan Results**
 
-Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has completed and we have the dummy scan results object found in `utils/dummy-data-dummyScanResults.json` in Firebase.
+Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has completed and we have the dummy scan results object found in `module3/content/utils/dummy-data-dummyScanResults.json` in Firebase. Copy and paste the `module/utils` folder into the root of your project.
 
 1. Write a function that uses the results to calculate the percentage of the blurb which was plagiarised. It should look like this:
 
@@ -345,109 +364,53 @@ Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has c
 <details>
   <summary>Solution</summary>
 
-1. In `GenerateBio.tsx` create a function called `handleScan` which takes a `text` string variable as a parameter and a `scan` object parameter.
-2. In `useEffect` set `plagiarismLoading` to be true.
-3. In `useEffect` assign a variable called `scan` to have the value of our dummy object.
-4. In `useEffect` call `handleScan`.
+1. In `Blurb.tsx` create a function called `handleScan` which takes a `text` string variable as a parameter and a `scan` object parameter.
+2. In `checkPlagiarism` set `plagiarismLoading` to be true.
+3. In `checkPlagiarism` assign a variable called `scan` to have the value of our dummy object.
+4. In `checkPlagiarism` call `handleScan` and set `plagiarismLoading` to be false.
 5. Calculate the total number of words in our blurb by doing a `string.split()` on our blurb and finding the length of this array.
 6. Get the total number of `matchedWords` from our scan.
-7. Set the `plagiarisedScore` to be `(matchedWords/totalWords) * 100` and set `plagiarismLoading` to be false.
+7. Set the `plagiarismScore` to be `(matchedWords/totalWords) * 100` .
 
 ```ts
-import dummyScanResults from "../../utils/dummy-data/dummyScanResults.json";
+import dummyScanResults from "utils/dummy-data/dummyScanResults.json";
 ...
-useEffect(() => {
   const checkPlagiarism = async (streamedBlurb: string) => {
     setPlagiarismLoading(true);
     const scan = dummyScanResults;
     handleScan(streamedBlurb, scan);
-
-  if (blurb && finishedStreaming) {
-    void checkPlagiarism(blurb);
-  }
-
-  if (bio) {
-    setBlurb(bio);
-    setHighlightedHTMLBlurb(<>{bio}</>);
-  }
-}, [bio, finishedStreaming]);
+    setPlagiarismLoading(false);
+  };
 ```
 
 ```ts
 function handleScan(text: string, scan: any) {
   const totalBlurbWords = text.split(" ").length;
   const matchedWords = scan.matchedWords;
-  setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
-  setPlagiarismLoading(false);
+  setPlagiarismScore((matchedWords / totalBlurbWords) * 100);
 }
 ```
 
 </details>
 <br>
 
+As this runs pretty quickly we don't actually get to see our loading spinner. Let's put a timeout for 5 seconds in our `checkPlagiarism` function to force our loading spinner to show. Your function should look like this:
+
+```ts
+const checkPlagiarism = async (streamedBlurb: string) => {
+  setPlagiarismLoading(true);
+  await new Promise((r) => setTimeout(r, 5000));
+  const scan = dummyScanResults;
+  handleScan(streamedBlurb, scan);
+  setPlagiarismLoading(false);
+};
+```
+
+Now that we tested that the loading spinner works. We can remove the timeout.
+
 **3.2.2 Handle Detailed Results**
 
-1. Extend your `handleScan` function to handle detailed results. This should highlight the text in the blurb which has been plagiarised. Here is an example of how you should interpret the results from Copy Leaks:
-   Given the blurb
-   And the `characterStarts` array for the blurb
-   And the `characterLengths` array for the blurb
-   Then highlight the words in the blurb that have been plagiarised
-
-   - `characterStarts` is an array of character indexes in the blurb
-     which indicate the beginning of the plagiarised text. This
-     has a 1-1 relationship with `characterLengths`
-   - `characterLengths` is an array of lengths after a `characterStarts`
-     element for text that has been plagiarised
-
-   Example:
-
-   text = "The quick brown fox jumped over the lazy dog."
-   <br>
-   `characterStarts`: [4, 16]
-   <br>
-   `characterLengths`: [5, 10]
-
-   1. characterStart = 4 & characterLength = 5
-      <br>
-      characterEnd = 4 + 5 = 9
-      <br>
-      plagiarisedText = text[4] + text[5] + text[6] + text[7] + text[8]
-      <br>
-      = "quick"
-
-   2. characterStart = 16 & characterLength = 10
-      <br>
-      characterEnd = 16 + 10 = 26
-      <br>
-      plagiarisedText = text[16] + text[17] + text[18] + ... + text[25]
-      <br>
-      = "fox jumped"
-
-   More information on `characterStart` and `characterLength` under chars.starts and chars.lengths:
-   https://api.copyleaks.com/documentation/v3/webhooks/result
-
-**Important: You will need to use the `dangerouslySetInnerHTML` HTML property for this task**
-
-This is what is should look like:
-
-![BlurbHighlighting](../module3/imgs/BlurbHighlighting.png)
-
-<details>
-  <summary>Solution</summary>
-
-1. In `GenerateBio.tsx` write a function that dynamically creates HTML based on `text`, `characterStarts` and `characterEnds`.
-   1. Initialise an index for characterStarts named `characterStartIndex` and set it to 0.
-   2. Initialise a string variable named `highlightedHTMLBlurb`.
-   3. Loop through each character index in `text`
-      1. If the character index is not equal to the `characterStarts[characterStartIndex]` then this character has not been plagiarised so add the character to `highlightedHTMLBlurb`.
-      2. If the character index is equal to the `characterStarts[characterStartIndex]` then this character has been plagiarised and this is therefore the beginning of a plagiarised segment.
-         1. Assign the `segmentStart` variable to be `characterStarts[characterStartIndex]`.
-         2. Assign the `segmentEnd` variable to be `characterStarts[characterStartIndex] + characterLengths[characterStartIndex]`.
-         3. Get the substring of the `text` beginning at `segmentStart` and ending at `segmentEnd`
-         4. Wrap this substring in `<mark>` tags (this will highlight it) and then add the segment to `highlightedHTMLBlurb`.
-         5. Change the loop character index to be `segmentEnd` as we have now checked all characters until this point.
-         6. Add 1 to the `characterStartIndex` as we have now already checked those characters.
-   4. Return a HTML element with `highlightedBlurb` as it's value for the `dangerouslySetInnerHTML` property.
+Lets extend your `handleScan` function to handle detailed results. Copy and paste this function into `Blurb.tsx`. This should highlight the text in the blurb which has been plagiarised.
 
 ```ts
 function getHighlightedHTMLBlurb(
@@ -459,13 +422,17 @@ function getHighlightedHTMLBlurb(
   let highlightedHTMLBlurb = "";
   for (let i = 0; i < text.length; i++) {
     if (i == characterStarts[characterStartsIndex]) {
-      const segmentStart = characterStarts[i];
-      const segmentEnd = characterStarts[i] + characterLengths[i];
-      highlightedHTMLBlurb += `
-          <mark style={{ background: "FF9890" }}>
-            ${text.substring(segmentStart, segmentEnd)}
-          </mark>`;
-      i = segmentEnd;
+      const segmentStart = characterStarts[characterStartsIndex];
+      const segmentEnd =
+        characterStarts[characterStartsIndex] +
+        characterLengths[characterStartsIndex];
+
+      highlightedHTMLBlurb += `<mark style="background:#FF9890">${text.substring(
+        segmentStart,
+        segmentEnd
+      )}</mark>`;
+
+      i = segmentEnd - 1;
       characterStartsIndex = characterStartsIndex + 1;
     } else {
       highlightedHTMLBlurb += text[i];
@@ -475,17 +442,64 @@ function getHighlightedHTMLBlurb(
 }
 ```
 
-2. In the `handleScan` function before you `setPlagiarismLoading` to be false.
-   1. Set the `characterStarts` variable to be `scan.results.identical.source.chars.starts`
-   2. Set the `characterLengths` variable to be `scan.results.identical.source.chars.lengths`
-   3. Call the `getHighlightedHTMLBlurb` function with `blurb`, `characterStarts` and `characterLengths`.
+Here is an example of how you should interpret the results from Copy Leaks:
+Given the blurb
+And the `characterStarts` array for the blurb
+And the `characterLengths` array for the blurb
+Then highlight the words in the blurb that have been plagiarised
+
+- `characterStarts` is an array of character indexes in the blurb
+  which indicate the beginning of the plagiarised text. This
+  has a 1-1 relationship with `characterLengths`
+- `characterLengths` is an array of lengths after a `characterStarts`
+  element for text that has been plagiarised
+
+Example:
+
+text = "The quick brown fox jumped over the lazy dog."
+<br>
+`characterStarts`: [4, 16]
+<br>
+`characterLengths`: [5, 10]
+
+1.  characterStart = 4 & characterLength = 5
+    <br>
+    characterEnd = 4 + 5 = 9
+    <br>
+    plagiarisedText = text[4] + text[5] + text[6] + text[7] + text[8]
+    <br>
+    = "quick"
+
+2.  characterStart = 16 & characterLength = 10
+    <br>
+    characterEnd = 16 + 10 = 26
+    <br>
+    plagiarisedText = text[16] + text[17] + text[18] + ... + text[25]
+    <br>
+    = "fox jumped"
+
+More information on `characterStart` and `characterLength` under chars.starts and chars.lengths:
+https://api.copyleaks.com/documentation/v3/webhooks/result
+
+This is what is should look like:
+
+![BlurbHighlighting](../module3/imgs/BlurbHighlighting.png)
+
+1. Extend your `handleScan` function to use the `getHighlightedHTMLBlurb` function.
+
+<details>
+  <summary>Solution</summary>
+
+1. Create a state variable called `highlightedHTMLBlurb` of type `JSX.Element`.
+2. In the `handleScan` function set the `characterStarts` variable to be `scan.results.identical.source.chars.starts`
+3. In the `handleScan` function set the `characterLengths` variable to be `scan.results.identical.source.chars.lengths`
+4. Call the `getHighlightedHTMLBlurb` function with `blurb`, `characterStarts` and `characterLengths`.
 
 ```ts
 function handleScan(text: string, scan: any) {
   const totalBlurbWords = text.split(" ").length;
-  setPlagiarismLoading(true);
   const matchedWords = scan.matchedWords;
-  setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
+  setPlagiarismScore((matchedWords / totalBlurbWords) * 100);
   const characterStarts = scan.results.identical.source.chars.starts;
   const characterLengths = scan.results.identical.source.chars.lengths;
   const highlightedHTMLBlurb = getHighlightedHTMLBlurb(
@@ -494,7 +508,6 @@ function handleScan(text: string, scan: any) {
     characterLengths
   );
   setHighlightedHTMLBlurb(highlightedHTMLBlurb);
-  setPlagiarismLoading(false);
 }
 ```
 
@@ -503,86 +516,77 @@ function handleScan(text: string, scan: any) {
    1. Change the save buttons `onClick` callback to also set `highlightedHTMLBlurb` to be the new rephrasedBlurb. A rephrased blurb is NOT rechecked for plagiarism so this text will never be highlighted.
    2. Show the `highlightedHTMLBlurb` instead of the `rephrasedBlurb` in the blurb box.
 
-4. Append the conditional check on `bio` in `useEffect` to set `highlightedHTMLBlurb` state variable to be `<>{bio}</>`.
+```ts
+<CardContent>
+  {!blurbsFinishedGenerating ? (
+    generatingBlurb
+  ) : enableEditor ? (
+    <>
+      <TextField
+        className="bg-white rounded-xl"
+        defaultValue={blurb}
+        onChange={(event) => {
+          setRephrasedBlurb(event.target.value);
+        }}
+        multiline
+        style={{ width: "100%" }}
+      ></TextField>
+      <Stack direction="row-reverse" spacing="0.5em">
+        <Box>
+          <CloseIcon
+            className="cursor-pointer"
+            onClick={() => {
+              setEnableEditor(false);
+            }}
+          ></CloseIcon>
+        </Box>
+        <Box>
+          <SaveIcon
+            className="cursor-pointer"
+            onClick={() => {
+              setBlurb(rephrasedBlurb);
+              setHighlightedHTMLBlurb(<>{rephrasedBlurb}</>);
+              setEnableEditor(false);
+            }}
+          ></SaveIcon>
+        </Box>
+      </Stack>
+    </>
+  ) : (
+    <>
+      {highlightedHTMLBlurb}
+      <Stack direction="row-reverse" spacing="0.5em">
+        <Box>
+          <EditIcon
+            className="cursor-pointer"
+            onClick={() => setEnableEditor(true)}
+          />
+        </Box>
+      </Stack>
+    </>
+  )}
+</CardContent>
+```
+
+</details>
+<br>
+
+**3.2.3 Check for Plagiarism**
+
+We should only check for plagiarism once the blurbs have finished generating.
+
+1. Amend the `useEffect` function to check call our `checkPlagiarism` function once our blurbs have finished generating.
+
+<details>
+  <summary>Solution</summary>
 
 ```ts
-  useEffect(() => {
-    ...
-    handleScan(streamedBlurb);
-
-    if (bio) {
-      setBlurb(bio);
-      setHighlightedHTMLBlurb(<>{bio}</>);
-    }
-  }, [bio, finishedStreaming]);
-
-return (
-
-  <>
-    <Stack direction="row" spacing="1em" ref={blurbRef}>
-      <Box width="100%" className="bg-white rounded-xl shadow-md p-4 border">
-        {enableEditor ? (
-          <>
-            <TextField
-              className="bg-white rounded-xl"
-              defaultValue={blurb}
-              onChange={(event) => {
-                setRephrasedBlurb(event.target.value);
-              }}
-              multiline
-              style={{ width: "100%" }}
-            ></TextField>
-            <Stack direction="row-reverse" spacing="0.5em">
-              <Box>
-                <CloseIcon
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setEnableEditor(false);
-                  }}
-                ></CloseIcon>
-              </Box>
-              <Box>
-                <SaveIcon
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setBlurb(rephrasedBlurb);
-                    setHighlightedHTMLBlurb(<>{rephrasedBlurb}</>);
-                    setEnableEditor(false);
-                  }}
-                ></SaveIcon>
-              </Box>
-            </Stack>
-          </>
-        ) : (
-          <>
-            <Box>{highlightedHTMLBlurb}</Box>
-            {!plagiarismLoading && (
-              <Stack direction="row-reverse" spacing="0.5em">
-                <Box>
-                  <EditIcon
-                    className="cursor-pointer"
-                    onClick={() => setEnableEditor(true)}
-                  />
-                </Box>
-              </Stack>
-            )}
-          </>
-        )}
-      </Box>
-      <Stack
-        alignItems="center"
-        justifyContent="center"
-        width="15em"
-        className="bg-white rounded-xl shadow-md p-4 border"
-      >
-          <Plagiarism
-            loading={plagiarismLoading}
-            score={plagiarisedScore ? Math.round(plagiarisedScore) : 0}
-          />
-      </Stack>
-    </Stack>
-  </>
-);
+useEffect(() => {
+  if (blurbsFinishedGenerating) {
+    checkPlagiarism(generatingBlurb);
+    setBlurb(generatingBlurb);
+  }
+}, [blurbsFinishedGenerating]);
 ```
 
 </details>
@@ -624,7 +628,13 @@ This link will be helpful when completing this section - https://firebase.google
 
 As we are working backwards through the workflow lets first write the `export` Webhook, mentioned in step 5. This is webhook called by CopyLeaks with the detailed results of a source from a plagiarism scan.
 
-1. Create an Edge function named `[exportId].ts` in `pages/api/copy-leaks/export/[scanId]/` which receives the results of an export and returns a response with `{message: "Result exported successfully"}`. This should also write the results to the database using the Firebase PUT API under the node `scans/<scanId>/results.json`. We only need the object in `text.comparison`. Instead of writing the actual results to the database.
+In Next.js, dynamic routes allow you to create pages with dynamic content based on the values in the URL. It enables you to generate static pages with dynamic paths and parameters, allowing you to build dynamic and interactive web applications.
+
+Dynamic routes are defined by placing the file inside the pages directory in Next.js with square brackets [] in the filename. For example, if you create a file named [id].js inside the pages directory, it will match any route that has a dynamic segment in the URL. The dynamic segment will be accessible as a parameter in the page component.
+
+In our case we want a dynamic route for the `scanId` and the `exportId` as this will be constantly changing for each scan that we do.
+
+1. Create a dynamic route Edge function named `[exportId].ts` in `pages/api/copy-leaks/export/[scanId]/` which receives the results of an export and returns a response with `{message: "Result exported successfully"}`. This should also write the results to the database using the Firebase PUT API under the node `scans/<scanId>/results.json`. We only need the object in `text.comparison`. Instead of writing the actual results to the database.
    <br>
    More information:
 
@@ -677,7 +687,7 @@ export default async function handler(req: NextRequest) {
 
 Now lets write the `scan` Webhook, mentioned in step 4.
 
-1. Create an Edge function named `[scanId].ts` in `pages/api/copy-leaks/completed` which receives the results of a scan and returns a response with `{message: "Scan Completed"}`. This should also write the scan to the database using the Firebase PUT API under the node `scans/<scanId>.json`. Instead of writing the actual results to the database.
+1. Create aa dynamic route Edge function named `[scanId].ts` in `pages/api/copy-leaks/completed` which receives the results of a scan and returns a response with `{message: "Scan Completed"}`. This should also write the scan to the database using the Firebase PUT API under the node `scans/<scanId>.json`. Instead of writing the actual results to the database.
 
 More information:
 
@@ -720,24 +730,46 @@ export default async function handler(req: NextRequest) {
   }
 
   return NextResponse.json({ message: "Scan complete" });
+}
 ```
 
 </details>
 <br>
 
-**3.3.2.3 Call the Export Results Function from the Scan Webhook**
+**3.3.2.3 Get the Highest Matched Words**
 
 A scan may return multiple sources where it thinks the plagiarised text comes from. For the amount of text we are scanning it is safe to assume we should get a response back from Copy Leaks in 2 minutes. Looking at the scan results we receive from Copy Leaks, there is a lot of information we are not interested in for this workshop: https://api.copyleaks.com/documentation/v3/webhooks/completed#1-example. We are only interested in the result in `results.internet` which has the highest amount of `matchedWords`. That is to say we are only interested in the source which has the most amount of plagiarised text.
 
-1. Edit your webhook to find the scan result which has the highest number of `matchedWords`. Instead of writing the entire scan to firebase, write only the number of `matchedWords`.
+Copy and paste this function into your `scan` webhook. This function will return the source with the highest number of `matchedWords`..
 
-```json
-      {
-        <scanId>:{
-          "matchedWords": <numberOfMatchedWords>
-        }
-      }
+```ts
+type SourceResults = {
+  resultId: string;
+  matchedWords: number;
+};
+
+function getHighestSourceResult(
+  completedScanWebhookResponse: any
+): SourceResults {
+  let matchedWords = 0;
+  let resultId = "";
+  if (completedScanWebhookResponse.results.internet) {
+    const sortedResults = completedScanWebhookResponse.results.internet.sort(
+      (a, b) => a.matchedWords - b.matchedWords
+    );
+    const highestResult = sortedResults[0];
+    resultId = highestResult.id;
+    matchedWords = highestResult.matchedWords;
+  }
+
+  return {
+    resultId,
+    matchedWords: matchedWords,
+  };
+}
 ```
+
+1. Edit your webhook to find the scan result which has the highest number of `matchedWords`. Instead of writing the entire scan to firebase, write only the number of `matchedWords`.
 
 <details>
   <summary>Solution</summary>
@@ -751,15 +783,8 @@ A scan may return multiple sources where it thinks the plagiarised text comes fr
 export default async function handler(req: NextRequest) {
   const body = dummyCompletedScanWebhookResponse;
   const scanId = body.scannedDocument.scanId;
-  let matchedWords = 0;
-  if (body.results.internet) {
-    const sortedResults = body.results.internet.sort(
-      (a, b) => a.matchedWords - b.matchedWords
-    );
-    const highestResult = sortedResults[0];
-    const resultId = highestResult.id;
-    matchedWords = highestResult.matchedWords;
-  }
+  const matchedWords = getHighestMatchedWords(body);
+
   try {
     await fetch(
       `${process.env.NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL}/scans/${scanId}.json`,
@@ -802,12 +827,12 @@ Before we can test our Webhooks in the frontend we first need to write a Firebas
 
 **3.4.2 Creating an Empty FirebaseWrapper Class**
 
-1. Create an empty class library named `FirebaseWrapper.tsx` in a sub-folder named `firebase.tsx`.
+1. Create an empty class library named `FirebaseWrapper.tsx` in a sub-folder named `firebase`.
 
 <details>
   <summary>Solution</summary>
 
-1. In your `lib` folder create a class named `FirebaseWrapper.tsx` in a sub-folder named `firebase.tsx`.
+1. In your `lib` folder create a class named `FirebaseWrapper.tsx` in a sub-folder named `firebase`.
 2. In `FirebaseWrapper.tsx` add the following code:
 
 ```ts
@@ -853,7 +878,7 @@ export class FirebaseWrapper {
 </details>
 <br>
 
-**3.4.4 Convert the FirebaseWrapper Class to Return a Singleton Instance**
+**Convert the FirebaseWrapper Class to Return a Singleton Instance**
 
 Imagine a scenario where we have to get 3 items from our database in the frontend. With our current implementation, every time we initialise the class in the frontend we would have to initialise the connection to the database as well. This would mean that we would have to initialise a connection to our database 3 times, this can be time-consuming and is considered bad practice.
 
@@ -861,13 +886,7 @@ Imagine a scenario where we have to get 3 items from our database in the fronten
 
 A singleton is a design pattern that restricts the number of instantiations of a class to one for the lifetime of the application. In this case every time we call the instance we would always be returned the same instance which in turn means we would not have any overheads in establishing multiple connections to the database. More information: https://refactoring.guru/design-patterns/singleton
 
-1. Convert the `GetInstance` function to return a Singleton instance
-
-<details>
-  <summary>Solution</summary>
-
-1. Create a private class variable called `database` of type `Database`
-2. In the `getInstance` method, assign the `getDatabase(app)` method call to this class variable. Then return the class variable
+Copy and paste the code below to make your database a Singleton instance.
 
 ```ts
 this.database = getDatabase(app);
@@ -877,6 +896,10 @@ return this.database;
 Your `FirebaseWrapper.tsx` should now look like this:
 
 ```ts
+import { Database, getDatabase, ref } from "firebase/database";
+
+import { initializeApp } from "firebase/app";
+
 export class FirebaseWrapper {
   private database?: Database;
 
@@ -894,26 +917,7 @@ export class FirebaseWrapper {
 }
 ```
 
-</details>
-<br>
-
-**3.4.5 Write a Get Scan Reference Function**
-
-This function will be used to get reference to the node in the database with a particular scan ID.
-
-1. Write a function called the `getScanReference` which takes an ID as a parameter and returns a database reference.
-
-<details>
-  <summary>Solution</summary>
-
-1. Create a public function called `getScanReference` which takes a string parameter called `getScanReference`
-2. Add a variable named `reference` with the value `ref(this.getInstance(), `scans/${scanId}`);`
-3. Return the `reference` variable.
-
-```ts
-this.database = getDatabase(app);
-return this.database;
-```
+We should also write a helper function to get a reference to the node in the database with a particular scan ID. Copy and paste the function below.
 
 Your `FirebaseWrapper.tsx` should now look like this:
 
@@ -929,9 +933,6 @@ export class FirebaseWrapper {
 }
 ```
 
-</details>
-<br>
-
 ---
 
 ## 3.5 Validate Webhooks in the UI Using Firebase
@@ -943,44 +944,52 @@ Ensure to use this `scanId` `f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2` and this `7e5
 
 **3.5.1 Manually call the Scan and Export Webook**
 
-1. In `GenerateBio.tsx` make a manual API call to the `scan` webhook with a fake request body.
-2. In `GenerateBio.tsx` make a manual API call to the `export` webhook with a fake request body.
+The dummy data for this task can be found in `module3/utils/dummy-data/dummyCompletedExportResultsWebhookResponse.json` and `module3/utils/dummy-data/dummyCompletedScanWebhookResponse.json`.
+
+1. In `Blurb.tsx` in `checkPlagiarism` make a manual API call to the `scan` webhook with a fake request body.
+2. In `Blurb.tsx` in `checkPlagiarism` make a manual API call to the `export` webhook with a fake request body.
 
 <details>
   <summary>Solution</summary>
 
 ```ts
-  import dummyCompletedExportResultsWebhookResponse from "../../utils/dummy-data/dummyCompletedExportResultsWebhookResponse.json";
-  import dummyCompletedScanWebhookResponse from "../../utils/dummy-data/dummyCompletedScanWebhookResponse.json";
+  import dummyCompletedExportResultsWebhookResponse from "utils/dummy-data/dummyCompletedExportResultsWebhookResponse.json";
+  import dummyCompletedScanWebhookResponse from "utils/dummy-data/dummyCompletedScanWebhookResponse.json";
 
 useEffect(() => {
 ...
-  const completedScanWebhookResponse = await fetch("/api/copy-leaks/completed/f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      text: dummyCompletedScanWebhookResponse,
-    }),
-  });
 
-  const completedExportResultsWebhookResponse = await fetch("/api/copy-leaks/export/f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2/7e514eabb3", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      text: dummyCompletedExportResultsWebhookResponse,
-    }),
-  });
-  handleScan(streamedBlurb);
+  const checkPlagiarism = async (streamedBlurb: string) => {
+    setPlagiarismLoading(true);
+    const scan = dummyScanResults;
+    const completedScanWebhookResponse = await fetch(
+      "/api/copy-leaks/completed/f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: dummyCompletedScanWebhookResponse,
+        }),
+      }
+    );
 
-  if (bio) {
-    setBlurb(bio);
-    setHighlightedHTMLBlurb(<>{bio}</>);
-  }
-}, [bio, finishedStreaming]);
+    const completedExportResultsWebhookResponse = await fetch(
+      "/api/copy-leaks/export/f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2/7e514eabb3",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: dummyCompletedExportResultsWebhookResponse,
+        }),
+      }
+    );
+    handleScan(streamedBlurb, scan);
+    setPlagiarismLoading(false);
+  };
 ```
 
 </details>
@@ -1046,29 +1055,18 @@ useEffect(() => {
       }
     });
   };
-
-  if (blurb && finishedStreaming) {
-    void checkPlagiarism(blurb);
-  }
-
-  if (bio) {
-    setBlurb(bio);
-    setHighlightedHTMLBlurb(<>{bio}</>);
-  }
-}, [bio, finishedStreaming]);
 ```
 
 7. Change our `handleScan` function to take a scan as a parameter.
-   1. Remove the dummy `scan` variable.
-   2. Remove the `setPlagiarismLoading(true)` line.
-   3. Add a check above the assignment of the `characterStarts` variable to check if `scan.results` exists. This is because a `scan` will return before `scan.results` is in the database as we are only writing the `scan.results` node once we have the `scan` information and the time between these calls will be close to 20 seconds. See our `api/copy-leaks/completed/[scanId].ts` for more information.
+   1. Remove the `setPlagiarismLoading(false)` line from the `checkPlagiarism` function.
+   2. Add a check above the assignment of the `characterStarts` variable to check if `scan.results` exists. This is because a `scan` will return before `scan.results` is in the database as we are only writing the `scan.results` node once we have the `scan` information and the time between these calls will be close to 20 seconds. See our `api/copy-leaks/completed/[scanId].ts` for more information.
+   3. Add the `setPlagiarismLoading(true)` line after we recieve the results from Firebase.
 
 ```ts
 function handleScan(text: string, scan) {
   const totalBlurbWords = text.split(" ").length;
-  setPlagiarismLoading(true);
   const matchedWords = scan.matchedWords;
-  setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
+  setPlagiarismScore((matchedWords / totalBlurbWords) * 100);
   if (scan.results) {
     const characterStarts = scan.results.identical.source.chars.starts;
     const characterLengths = scan.results.identical.source.chars.lengths;
@@ -1092,7 +1090,7 @@ function handleScan(text: string, scan) {
 
 In order to call the the CopyLeaks scan function we need to create an API. Before we write our API we first need to write a library that can call the CopyLeaks API. Copyleaks is an online plagiarism detection and content verification platform. It utilizes advanced algorithms and artificial intelligence (AI) technology to compare submitted content against a vast database of sources, including web pages, academic journals, publications, and more.
 
-**It is important to note that as this is a free account we are only entitled to 25 plagiarism checks. If you run out of credits you will have to go through this process again but with a different email address.**
+**It is important to note that as this is a free account we are only entitled to 25 plagiarism checks. If you run out of credits you will have to go through this process again but with a different email address. Credits will only be used when you use the deployed version of your app. Credits will not be used in local development, in local development CopyLeaks will run in sandbox mode, this means that a valid response will be returned but the response results will contain mocked data.**
 
 ### 3.6.1 Setting Up a Copy Leaks API
 
@@ -1131,204 +1129,14 @@ The CopyLeaks class that we will be writing will be a wrapper around the CopyLea
 </details>
 <br>
 
-**3.6.3.2 Creating an Empty CopyLeaksWrapper Class**
+Copy and paste the folder found in `module3/content/lib` into the root of your project.
 
-1. Create an empty class library named `CopyLeaksWrapper.tsx` in a sub-folder named `copy-leaks`.
-
-<details>
-  <summary>Solution</summary>
-
-1. In your `lib` folder create a class named `CopyLeaksWrapper.tsx` in a sub-folder named `copy-leaks`.
-2. In `CopyLeaksWrapper.tsx` add the following code:
-
-```ts
-export class CopyLeaksWrapper {}
-```
-
-</details>
-<br>
-
-**3.6.3.3 Writing a CopyLeaks Login Function**
-
-In order to use the CopyLeaks API. We need to append every request with an access token. To get the access token, we first need to login. More information: https://api.copyleaks.com/documentation/v3/account/login
-
-1. Write a function that will return an access token.
-
-<details>
-  <summary>Solution</summary>
-
-1. Create a private function called `login`.
-2. Make a `POST` api request to `https://id.copyleaks.com/v3/account/login/api` with your `COPY_LEAKS_EMAIL` and `COPY_LEAKS_API_KEY`
-3. Return the result
-
-```ts
-export class CopyLeaksWrapper {
-  private async login(): Promise<CopyleaksAuthToken> {
-    if (!process.env.COPY_LEAKS_EMAIL) {
-      throw new Error("COPY_LEAKS_EMAIL environment variable not set");
-    }
-    if (!process.env.COPY_LEAKS_API_KEY) {
-      throw new Error("COPY_LEAKS_API_KEY environment variable not set");
-    }
-
-    const response = await fetch(
-      "https://id.copyleaks.com/v3/account/login/api",
-      {
-        headers: { "Content-type": "application/json" },
-        method: "POST",
-        body: JSON.stringify({
-          email: process.env.COPY_LEAKS_EMAIL,
-          key: process.env.COPY_LEAKS_API_KEY,
-        }),
-      }
-    );
-    const result = (await response.json()) as CopyleaksAuthToken;
-    return result;
-  }
-}
-```
-
-</details>
-<br>
-
-**3.6.3.4 Writing a CopyLeaks Refresh Token Function**
-
-An access token expires 48 hours after you receive it, this means that we can use the same token for multiple requests.
-
-1. Write a function which will call the `login` function if the token is not set or the token has expired.
-
-<details>
-  <summary>Solution</summary>
-
-1. Create a private function called `getAccessToken`.
-2. Create a private class variable called `accessToken`.
-3. Create a private class variable called `copyleaks`. In the constructor assign this variable to be an instance of the CopyLeaks SDK.
-4. Check if the access token is set - if it is not set, call the `login` function and return the access token.
-5. If it is set, check if the access token is valid using the CopyLeaks SDK function `verifyToken`. If the token is valid, return the token.
-6. If the token is invalid, request a new token.
-
-```ts
-export class CopyLeaksWrapper {
-  private async login(): Promise<CopyleaksAuthToken> {
-    if (!process.env.COPY_LEAKS_EMAIL) {
-      throw new Error("COPY_LEAKS_EMAIL environment variable not set");
-    }
-    if (!process.env.COPY_LEAKS_API_KEY) {
-      throw new Error("COPY_LEAKS_API_KEY environment variable not set");
-    }
-
-    const response = await fetch(
-      "https://id.copyleaks.com/v3/account/login/api",
-      {
-        headers: { "Content-type": "application/json" },
-        method: "POST",
-        body: JSON.stringify({
-          email: process.env.COPY_LEAKS_EMAIL,
-          key: process.env.COPY_LEAKS_API_KEY,
-        }),
-      }
-    );
-    const result = (await response.json()) as CopyleaksAuthToken;
-    return result;
-  }
-
-  private async getAccessToken(): Promise<CopyleaksAuthToken> {
-    try {
-      if (!this.accessToken) throw new Error("Access token not set");
-      this.copyleaks.verifyAuthToken(this.accessToken);
-    } catch (error) {
-      console.log("Requesting new access token...");
-      const newAccessToken = await this.login();
-      this.accessToken = newAccessToken;
-    } finally {
-      if (!this.accessToken) throw new Error("Access token not set");
-      return this.accessToken;
-    }
-  }
-}
-```
-
-</details>
-<br>
-
-**3.6.3.5 Writing a Scan Function**
-
-The scan function will send text to be scanned by CopyLeaks.
-**Important: On a successful response, this request returns an HTTP Code of 201. This function does not return the results directly, instead when the results are ready, CopyLeaks sends a response to one of our APIs via webhook. The webhook will only be called on a deployed public website. ie. Having localhost as the webhook domain will not work as localhost will not have a publicly accessible IP. Every time this request is made with `sandbox` property set to `false` will use up one of you 25 credits.**
-
-More information:
-
-- CopyLeaks: https://api.copyleaks.com/documentation/v3/scans/submit/file
-- Webhooks: https://zapier.com/blog/what-are-webhooks/#what
-
-1. Write a function which will call the `https://api.copyleaks.com/v3/scans/submit/file/<scanId>` which takes the text to be scanned as a parameter and returns the scanId.
-
-- In the request the filename property can be anything as we do not need this for the workshop - use "`{scanId}.txt`".
-- In the request, the `webhooks.status` property should be set to "`https://${process.env.VERCEL_URL}/api/copy-leaks/{STATUS}/${scanId}`".
-- Ensure that the `sandbox` property is set to `true`. This will be changed in a later step.
-
-<details>
-  <summary>Solution</summary>
-
-1. Create a public function called `scan` with a string parameter called `text`.
-2. Throw an error if text is less than 3 characters long.
-3. Install the `uuid` package with `pnpm install uuid`. Create an ID for the scan using the `uuidv4` method.
-4. Encode the text to `base64` using the `Buffer` class. The text has to be encoded in order for CopyLeaks to scan it.
-5. Get an access token using the `getAccessToken` method we wrote in 3.2.2.4.
-6. Create a POST request to call `https://api.copyleaks.com/v3/scans/submit/file/<scanId>` with the access token and the encoded text.
-7. Return the scanId.
-
-```ts
-export class CopyLeaksWrapper {
-  public async scan(text: string): Promise<string> {
-    if (text.length < 2) throw new Error("Text too short to check");
-    const scanId = uuidv4();
-    const buffer = Buffer.from(text);
-    const access_token = await this.getAccessToken();
-
-    try {
-      await fetch(`https://api.copyleaks.com/v3/scans/submit/file/${scanId}`, {
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${access_token.access_token}`,
-        },
-        method: "PUT",
-        body: JSON.stringify({
-          base64: buffer.toString("base64"),
-          filename: `${scanId}.txt`,
-          properties: {
-            sandbox: true,
-            filters: {
-              minorChangesEnabled: false,
-              relatedMeaningEnabled: false,
-              safeSearch: true,
-              sensitivityLevel: 1,
-            },
-            expiration: 1,
-            webhooks: {
-              status: `https://${process.env.VERCEL_URL}/api/copy-leaks/{STATUS}/${scanId}`,
-            },
-          },
-        }),
-      });
-    } catch (e) {
-      console.error("Error submitting scan to CopyLeaks", e);
-      throw e;
-    }
-    return scanId;
-  }
-
-...
-}
-```
-
-</details>
-<br>
-
-**3.6.3.6 Create a Plagiarism Check API**
+**3.6.3.2 Create a Plagiarism Check API**
 
 1. Create an Edge function named `plagiarismCheck.ts` which calls our `CopyLeaksWrapper.scan` function the the text to be scanned. More information: https://vercel.com/docs/concepts/functions/edge-functions.
 2. Deploy your API
+
+**Important: When CopyLeaks.scan is called, this request returns an HTTP Code of 201. This function does not return the results directly, instead when the results are ready, CopyLeaks sends a response to one of our APIs via webhook. The webhook will only be called on a deployed public website. ie. Having localhost as the webhook domain will not work as localhost will not have a publicly accessible IP.**
 
 <details>
   <summary>Solution</summary>
@@ -1342,9 +1150,8 @@ export class CopyLeaksWrapper {
 7. Push your code to main to deploy your API.
 
 ```ts
+import { CopyLeaksWrapper } from "@/lib/copy-leaks/copyLeaksWrapper";
 import { NextRequest, NextResponse } from "next/server";
-
-import { CopyLeaksWrapper } from "../../lib/copy-leaks/copyLeaksWrapper";
 
 export const config = {
   runtime: "edge",
@@ -1366,106 +1173,27 @@ export default async function handler(req: NextRequest) {
 </details>
 <br>
 
-**3.6.2.6 Writing an Export Function**
+**3.6.2.3 Calling the Export Function from the Scan Webhook**
 
-A scan may return multiple sources where it thinks the plagiarised text comes from. This function returns the details of a source and which lines within the source were plagiarised via a webhook.
-**Important: On a successful response, this request returns an HTTP Code of 201. This function does not return the results directly, instead when the results are ready, CopyLeaks sends a response to one of our APIs via webhook. The webhook will only be called on a deployed public website. ie. Having localhost as the webhook domain will not work as localhost will not have a publicly accessible IP.**
+Once the `scan` Webhook receives a result we want to immediately call the CopyLeaksWrapper function `getDetailedResults` in order to get more details on the source with the highest number of matched words. This is step 4.2 in our workflow.
 
-More information:
+**Important: When CopyLeaks.getDetailedResults is called, this request returns an HTTP Code of 201. This function does not return the results directly, instead when the results are ready, CopyLeaks sends a response to one of our APIs via webhook. The webhook will only be called on a deployed public website. ie. Having localhost as the webhook domain will not work as localhost will not have a publicly accessible IP.**
 
-- CopyLeaks: https://api.copyleaks.com/documentation/v3/downloads/export
-- Webhooks: https://zapier.com/blog/what-are-webhooks/#what
-
-1. Write a function which will call the `https://api.copyleaks.com/v3/export/${scanId}/${resultId}` which takes the scanId and resultId as parameters and returns an exportId.
-
-- In the request, the `results[].endpoint` property should be set to "`https://${process.env.VERCEL_URL}/api/copy-leaks/export/${scanId}/${resultId}`".
-- In the request, the `completionWebhook` property is not being used by us in this workshop, however CopyLeaks requires that you set it - use "`www.fakeURL.com/fake`".
-- In the request, the `crawledVersion.endpoint` property is not being used by us in this workshop, however CopyLeaks requires that you set it - use "`www.fakeURL.com/fake`".
-- In the request, the `crawledVersion.verb` property is not being used by us in this workshop, however CopyLeaks requires that you set it - use "`POST`".
-
-<details>
-  <summary>Solution</summary>
-
-1. Create a public function called `exportResults` with two string parameters called `scanId` and `resultId`.
-2. Create an ID for the export using the `uuidv4` method.
-3. Get an access token using the `getAccessToken` method we wrote in 3.2.2.4.
-4. Create a POST request to call `https://api.copyleaks.com/v3/export/${scanId}/${resultId}` with the access token and the encoded text.
-5. Return the exportId.
-
-```ts
-export class CopyLeaksWrapper {
-  public async exportResults(
-    scanId: string,
-    resultId: string
-  ): Promise<string> {
-    const exportId = uuidv4();
-    const resultToExport: ExportResults = {
-      id: resultId,
-      verb: "POST",
-      endpoint: `https://${process.env.VERCEL_URL}/api/copy-leaks/export/${scanId}/${resultId}`,
-    };
-    const request: CopyleaksExportModel = {
-      completionWebhook: `www.fakeURL.com/fake`,
-      results: [resultToExport],
-      crawledVersion: {
-        endpoint: `www.fakeURL.com/fake`,
-        verb: "POST",
-      },
-    };
-    const access_token = await this.getAccessToken();
-
-    try {
-      await fetch(
-        `https://api.copyleaks.com/v3/downloads/${scanId}/export/${exportId}`,
-        {
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Bearer ${access_token.access_token}`,
-          },
-          method: "POST",
-          body: JSON.stringify(request),
-        }
-      );
-    } catch (e) {
-      console.error("Error exporting results from CopyLeaks", e);
-      throw e;
-    }
-    return exportId;
-  }
-
-...
-}
-```
-
-</details>
-<br>
-
-**3.6.2.7 Calling the Export Function from the Scan Webhook**
-
-Once the `scan` Webhook receives a result we want to immediately call the CopyLeaks `export` API in order to get more details on the source with the highest number of matched words. This is step 4.2 in our workflow.
-
-1. Edit your `scan` webhook to call the `CopyLeaksWrapper.exportResults` function with the `scanId` and `resultId` on the source with the highest number of matched words.
+1. Edit your `scan` webhook to call the `CopyLeaksWrapper.getDetailedResults` function with the `scanId` and `resultId` on the source with the highest number of matched words.
 
 <details>
   <summary>Solution</summary>
 
 4. Instantiate the `CopyLeaksWrapper`.
-5. Call `CopyLeaksWrapper.exportResults` with the `scanId` and `resultId`.
+5. Call `CopyLeaksWrapper.getDetailedResults` with the `scanId` and `resultId`.
 
 ```ts
 export default async function handler(req: NextRequest) {
   const body = dummyCompletedScanWebhookResponse;
   const scanId = body.scannedDocument.scanId;
-  let matchedWords = 0;
-  if (body.results.internet) {
-    const sortedResults = body.results.internet.sort(
-      (a, b) => a.matchedWords - b.matchedWords
-    );
-    const highestResult = sortedResults[0];
-    const resultId = highestResult.id;
-    matchedWords = highestResult.matchedWords;
+  if (matchedWords != 0) {
     const copyLeaks = new CopyLeaksWrapper();
-    await copyLeaks.exportResults(scanId, resultId);
+    await copyLeaks.getDetailedResults(scanId, resultId);
   }
   try {
     await fetch(
@@ -1495,7 +1223,7 @@ Now that we know the UI works with dummy values, lets use real world values. **I
 
 **3.7.1 Calling the Scan API**
 
-1. In `GenerateBio.tsx`, remove the direct calls to the `scan` and the `export` Webhooks.
+1. In `Blurb.tsx`, remove the direct calls to the `scan` and the `export` Webhooks.
 2. the `Write a `useEfffect`function calls our`scan` API.
 
 <details>
@@ -1509,7 +1237,10 @@ Now that we know the UI works with dummy values, lets use real world values. **I
    3. Set `plagiarismLoading` to be false.
 
 ```ts
-useEffect(() => {
+type ScanResponse = {
+  scanId: string;
+};
+...
   const checkPlagiarism = async (streamedBlurb: string) => {
     setPlagiarismLoading(true);
 
@@ -1534,79 +1265,14 @@ useEffect(() => {
         handleScan(streamedBlurb, scan);
       }
     });
-
-    setPlagiarismLoading(false);
   };
-
-  if (blurb && finishedStreaming) {
-    void checkPlagiarism(blurb);
-  }
-
-  if (bio) {
-    setBlurb(bio);
-    setHighlightedHTMLBlurb(<>{bio}</>);
-  }
-}, [bio, finishedStreaming]);
 ```
 
 </details>
 <br>
 
-**3.7.2 Turning off the CopyLeaks Sandbox Mode**
+Finally, push your code to deploy your app and test your blurbs with real plagiarism check. **Important: Once we deploy, we are no longer in sandbox mode, the response from CopyLeaks may take up to two minutes so you may see the loading spinner for a long time.**
 
-1. Turn off CopyLeaks Sandbox Mode in the `CopyLeaksWrapper`. More information: https://api.copyleaks.com/documentation/v3/scans/submit/file
-
-**Important**
-
-- **Response times were relatively quick with sandbox mode on because Copy Leaks was returning fake data. Turning sandbox mode off means that we will now get real data however response times will be quite high between one to two minutes.**
-- **Changing the filters will result in more accurate results but longer load times.**
-
-<details>
-  <summary>Solution</summary>
-
-1. In the `CopyLeaksWrapper` in the `scan` function set the `sandbox` property to be false.
-
-```ts
-  public async scan(text: string): Promise<string> {
-    if (text.length < 2) throw new Error("Text too short to check");
-    const scanId = uuidv4();
-    const buffer = Buffer.from(text);
-    const access_token = await this.getAccessToken();
-
-    try {
-      await fetch(`https://api.copyleaks.com/v3/scans/submit/file/${scanId}`, {
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${access_token.access_token}`,
-        },
-        method: "PUT",
-        body: JSON.stringify({
-          base64: buffer.toString("base64"),
-          filename: `${scanId}.txt`,
-          properties: {
-            sandbox: false,
-            filters: {
-              minorChangesEnabled: false,
-              relatedMeaningEnabled: false,
-              safeSearch: true,
-              sensitivityLevel: 1,
-            },
-            expiration: 1,
-            webhooks: {
-              status: `https://${process.env.VERCEL_URL}/api/copy-leaks/{STATUS}/${scanId}`,
-            },
-          },
-        }),
-      });
-    } catch (e) {
-      console.error("Error submitting scan to CopyLeaks", e);
-      throw e;
-    }
-    return scanId;
-  }
-```
-
-</details>
-<br>
+If a response hasn't come back after two minutes, check https://api.copyleaks.com/dashboard to see if you have enough credits. Remember we are checking 3 blurbs at once so we will use 3 credits every time we generate blurbs. If you run out of credits you will have to create a new Copy Leaks account with a different email address as outlined in step 3.6.1
 
 ---
