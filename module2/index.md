@@ -73,7 +73,8 @@ Step 1: Create an API route
 
 ### Change your api to call OpenAI endpoint
 
-Before we get to the development, let's find out what is OpenAI and how should you use it? </br>
+Before we get to the development, let's find out what is OpenAI and how should you use it? 
+
 OpenAI is known for developing advanced language models, such as GPT (Generative Pre-trained Transformer), which can generate human-like text based on given prompts or inputs. OpenAI also provides an API (Application Programming Interface) that allows developers to access and utilize the power of these language models in their own applications, products, or services.
 
 For the purpose of this workshop, we have provided you with OpenAI credentials, saving you from the hustle of going through the sign-up process.
@@ -130,7 +131,7 @@ export default async function handler(req, res) {
 
 Now lets update our frontend to receive the response from the API.
 
-```
+```ts
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
@@ -160,16 +161,65 @@ Lets create a output now for this to display.
 Now we've got a actual response from openAI, lets display it in our app.
 
 You will need the following things
-- Output OpenAI response into a state [UseState]()
 - Implement a MUI card to display the response
+- Output OpenAI response into a state [UseState]()
 
 <details>
   <summary>Solution</summary>
 
+  Add the following to your code.
+
 ```diff
-                <Card>
-                  <CardContent>{generatedPost}</CardContent>
-                </Card>
+- import { useRef } from "react";
++ import { useRef, useState } from "react";
+export default function Home() {
+  const blurbRef = useRef("");
++  const [generatedBlurb, setGeneratedBlurb] = useState("");
+
+...
+
++    <Card>
++      <CardContent>{generatedBlurb}</CardContent>
++    </Card>
+
+</Stack>
+```
+
+</details>
+
+Next step is to update our state with the response from OpenAi
+
+Resources: [React Use State](https://www.w3schools.com/react/react_usestate.asp)
+
+
+<details>
+  <summary>Solution</summary>
+
+  Add the following to your code.
+
+```diff
+...
+
+    const response = await fetch("/api/generateBlurb", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: blurbRef.current,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    const answer = await response.text();
+    console.log(answer);
+
++   setGeneratedBlurb(answer);
+
+....
 ```
 
 </details>
@@ -177,11 +227,12 @@ You will need the following things
 
 <br>
 
+Congrats, you should now be seeing the response from OpenAI using our prompt
+<br>
 
 
 
-
-### Streaming Vs Serverless
+## Streaming Vs Serverless
 
 Whilst this approach works, there are limitations to a serverless function.
 
@@ -207,20 +258,17 @@ You can think of Edge Functions as serverless functions with a more lightweight 
 
 Now we have a basic udnerstanding of the benefits of edge functions, lets refactor our existing code to take advantage of the streaming utility
 
-The first thing we will do, is change our generate fucntion to run on the ```edge```. We will also enable in our payloadto openAI ```stream: true```/
 
-As the last step, we will inotroduce a helper function ```OpenAIStream``` to allow for incremental loading of the chatGPT response
-
-```typescript
-import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
+```diff
++ import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("Missing env var from OpenAI");
 }
 
-export const config = {
-  runtime: "edge",
-};
++ export const config = {
++   runtime: "edge",
++ };
 
 const handler = async (req: Request): Promise<Response> => {
   const { prompt } = (await req.json()) as {
@@ -239,18 +287,38 @@ const handler = async (req: Request): Promise<Response> => {
     frequency_penalty: 0,
     presence_penalty: 0,
     max_tokens: 200,
-    stream: true,
++   stream: true,
     n: 1,
   };
 
-  const stream = await OpenAIStream(payload);
-  return new Response(stream);
+-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+-    headers: {
+-      "Content-Type": "application/json",
+-      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
+-    },
+-    method: "POST",
+-    body: JSON.stringify(payload),
+-  });
+
+-  const json = await response.json();
+-  res.status(200).json(json);
+
++  const stream = await OpenAIStream(payload);
++  return new Response(stream);
 };
 
 export default handler;
 ```
+<br>
 
-Create the below file in ```./utils/OpenAIStream.ts```
+Lets have a look at the changes we've made above.
+- We've updated our config, so our API will run as a edge function.
+- We will also enable in our [payload](https://platform.openai.com/docs/api-reference/completions)  ```stream:true``` . This tells OpenAI to stream the response back, rather than waitng for the response to fully be completed.
+- In addtion, we have created a helper function called ```OpenAIStream``` to allow for incremental loading of the chatGPT response.
+
+Next step is to actually create our helper function:
+
+Create the below file and copy the contents into ```./utils/OpenAIStream.ts```
 
 ```typescript
 import {
@@ -337,7 +405,7 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
 Lets see what we just did:
 1 . It sends a post request to OpenAI with the payload like we did before with the serverless version.
 
-2. We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for ```[DONE]```. This will tell us the stream has completed.
+1. We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for ```[DONE]```. This will tell us the stream has completed.
 
 ------------------
 ## Connecting frontend to our API 
@@ -353,8 +421,6 @@ We've updated our backend to stream, however our frontend dosnt know how to inte
 ```diff
   async function generateBlurb() {
 +   let done = false;
-+   let firstPost = false;
-+   let streamedText = "";
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
