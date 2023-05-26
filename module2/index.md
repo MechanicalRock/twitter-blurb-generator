@@ -689,6 +689,16 @@ Resources:
 
 
 ```diff
+...
+
+-   const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
+-   Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a student Audience, and base them on this context: ${blurbRef.current}`;
++   const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
++   Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a ${audienceRef.current} Audience, and base them on this context: ${blurbRef.current}`;
+
+...
+
+      ></TextField>
 
 +      <FormControl fullWidth>
 +       <InputLabel id="Audience">Audience</InputLabel>
@@ -706,6 +716,10 @@ Resources:
 +          <MenuItem value="Monkey">Monkey</MenuItem>
 +        </Select>
 +      </FormControl>
+
+      <Button onClick={generateBlurb}>Generate Blurb</Button>
+
+      ...
 
 ```
 

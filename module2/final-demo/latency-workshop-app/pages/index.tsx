@@ -10,17 +10,18 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export default function Home() {
   const blurbRef = useRef("");
-  const audienceRef = useRef("");
+  const audienceRef = useRef<HTMLInputElement>();
   const [generatedBlurb, setGeneratedBlurb] = useState("");
 
-  const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
-      Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a Student Audience, and base them on this context: ${blurbRef.current}`;
+  const generateBlurb = useCallback(async () => {
+    const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
+    Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a ${audienceRef.current.value} Audience, and base them on this context: ${blurbRef.current}`;
 
-  async function generateBlurb() {
+    console.log(prompt);
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
@@ -56,7 +57,7 @@ export default function Home() {
         firstPost = streamedText.includes("1.");
       }
     }
-  }
+  }, [blurbRef.current, audienceRef.current]);
 
   return (
     <Stack
@@ -93,14 +94,12 @@ export default function Home() {
           labelId="Audience"
           id="Audience"
           label="Audience"
-          onChange={(event) => {
-            audienceRef.current = event.target.value;
-          }}
-          value={audienceRef.current}
+          inputRef={audienceRef}
+          defaultValue={"Student"}
         >
-          <MenuItem value="Student">Student</MenuItem>
-          <MenuItem value="Profesional">Profesional</MenuItem>
-          <MenuItem value="Monkey">Monkey</MenuItem>
+          <MenuItem value={"Student"}>Student</MenuItem>
+          <MenuItem value={"Profesional"}>Profesional</MenuItem>
+          <MenuItem value={"Monkey"}>Monkey</MenuItem>
         </Select>
       </FormControl>
 
@@ -110,9 +109,9 @@ export default function Home() {
           {generatedBlurb
             .substring(generatedBlurb.indexOf("1.") + 3)
             .split(/2\.|3\./)
-            .map((generatedPost) => {
+            .map((generatedPost, index) => {
               return (
-                <Card>
+                <Card key={index}>
                   <CardContent>{generatedPost}</CardContent>
                 </Card>
               );
