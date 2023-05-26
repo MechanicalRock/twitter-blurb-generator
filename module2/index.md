@@ -294,23 +294,43 @@ We've updated our backend to stream, however our frontend dosnt know how to inte
 
 ```diff
   async function generateBlurb() {
++   let done = false;
++   let firstPost = false;
++   let streamedText = "";
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: "Here is an empty body",
+      body: prompt,
     });
 
     if (!response.ok) {
       throw new Error(response.statusText);
     }
++    const data = response.body;
++    if (!data) {
++      return;
++    }
++    const reader = data.getReader();
++    const decoder = new TextDecoder();
+    
 
+
++    while (!done) {
++      const { value, done: doneReading } = await reader.read();
++      done = doneReading;
++      const chunkValue = decoder.decode(value);
++      setGeneratedBlurb((prev) => prev + chunkValue);
+    }
   }
   ```
 
+You should now have a streaming response!!
 
-  ### Creating a Prompt
+### Prompt Engineering
+
+
 
 
   ### String manipulation to output multiple cards
