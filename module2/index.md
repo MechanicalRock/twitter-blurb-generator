@@ -167,6 +167,7 @@ Now lets update our frontend to receive the response from the API. For now, we w
    <summary><span style="color:red">Solution</summary>
 
 ```ts
+  const generateBlurb = useCallback(async () => {
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
@@ -183,6 +184,8 @@ Now lets update our frontend to receive the response from the API. For now, we w
 
     const answer = await response.json();
     console.log(answer);
+        }
+  , [blurbRef.current]);
 
 ```
 
@@ -695,6 +698,21 @@ Resources:
 -   Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a student Audience, and base them on this context: ${blurbRef.current}`;
 +   const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
 +   Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a ${audienceRef.current} Audience, and base them on this context: ${blurbRef.current}`;
+...
+
+    while (!done) {
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      const chunkValue = decoder.decode(value);
+      streamedText += chunkValue;
+      if (firstPost) {
+        setGeneratedBlurb(streamedText);
+      } else {
+        firstPost = streamedText.includes("1.");
+      }
+    }
+-  }, [blurbRef.current, audienceRef.current]);
++  }, [blurbRef.current, audienceRef.current]);
 
 ...
 
