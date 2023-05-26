@@ -6,7 +6,7 @@ In this module, our primary focus will be on establishing an API endpoint for yo
 
  We will then delve into the process of refining our input parameters for the OpenAI API, ensuring that the generated output aligns more closely with our desired context and requirements.
 
-If you've had issues so far, clone from this branch [Module1](https://github.com/MechanicalRock/latency-worksop-modules/tree/module-1) LINK NEEDS TO BE UPDATED!
+If you've had issues so far, clone from [Module1]().
 
 
 ## Contents
@@ -21,7 +21,7 @@ If you've had issues so far, clone from this branch [Module1](https://github.com
 <br>
 2.5 Prompt Engineering
 <br>
-2.6 Challenge
+2.6 Challenge: Add in dropdown choices to set the prompt vibe
 
 
 
