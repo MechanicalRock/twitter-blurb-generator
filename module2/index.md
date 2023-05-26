@@ -636,7 +636,9 @@ In short, the code splits a text string into parts at "1.", "2.", and "3.", and 
 
 </details>
 
-Challenge: you will note that at the beginning of the stream, there is a text been streamed in that is not part of the final output?
+<br>
+
+**Challenge:** you will note that at the beginning of the stream, there is a text been streamed in that is not part of the final output?
 
 Why is this occuring? Have a go and trying to fix it.
 
