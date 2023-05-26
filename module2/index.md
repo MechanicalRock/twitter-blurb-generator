@@ -17,16 +17,15 @@ If you've had issues so far, clone from this branch [Module1](https://github.com
 <br>
 2.3 Displaying our response as a Card
 <br>
-2.4 Prompt 
+2.4 Serverless VS Streaming
 <br>
-2.5 
+2.5 Prompt Engineering
 <br>
-2.6 
-<br>
-2.7 
+2.6 Challenge
 
 
-## Creating an api endpoint in Next.js
+
+### Creating an api endpoint in Next.js
 
 A great advantage of using Next.js is that we can handle both the frontend and backend in a single application. In Next.js, you can create APIs using API routes, a built-in feature that allows you to define server-side endpoints within your Next.js application. In order to create a new api route, you can simply add a file under ```./src/pages/api/``` folder and Next.js handles all the routing for you.
 
@@ -150,6 +149,12 @@ You will need the following things
 
 <details>
   <summary>Solution</summary>
+
+```diff
+                <Card>
+                  <CardContent>{generatedPost}</CardContent>
+                </Card>
+```
 
 </details>
 
