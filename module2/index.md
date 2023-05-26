@@ -49,12 +49,6 @@ Step 1: Create an API route
 Before we get to the development, let's find out what is OpenAI and how should you use it? <br/>
 OpenAI is known for developing advanced language models, such as GPT (Generative Pre-trained Transformer), which can generate human-like text based on given prompts or inputs. OpenAI also provides an API (Application Programming Interface) that allows developers to access and utilize the power of these language models in their own applications, products, or services.
 
-To use the OpenAI API, you need to follow these steps:
-
-* Sign up for an OpenAI account: Visit the OpenAI website and create an account. You may need to provide some information and agree to their terms and conditions.
-
-* Obtain API credentials: Once you have an account, you will need to obtain API credentials. OpenAI will provide you with an API key, which is a unique identifier that grants you access to the API services.
-
 For the purpose of this workshop, we have provided you with OpenAI credentials, saving you from the hustle of going through the sign-up process.
 
 #### Change generateBlurb.ts to call OpenAI
@@ -95,7 +89,47 @@ export default async function handler(req, res) {
 }
 ```
 
-Thats it! we've built the first version of our application. 
+Now lets update our frontend to receive the response from the API.
+
+```
+    const response = await fetch("/api/generateBlurb", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: blurbRef.current,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    const answer = await response.json();
+    console.log(answer);
+
+```
+
+Thats it! we've built the first version of our application. However we are only outputting to the console!
+
+Lets create a output now for this to display.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Change to streaming
 
 Whilst this approach works, there are limitations to a serverless function.
 
@@ -121,7 +155,7 @@ You can think of Edge Functions as serverless functions with a more lightweight 
 
 Now we have a basic udnerstanding of the benefits of edge functions, lets refactor our existing code to take advantage of the streaming utility
 
-The first thing we will do, is change our generate fucntion to run on the ```edge```. We will also enable in our payloadto openAI ```steam: true```/
+The first thing we will do, is change our generate fucntion to run on the ```edge```. We will also enable in our payloadto openAI ```stream: true```/
 
 As the last step, we will inotroduce a helper function ```OpenAIStream``` to allow for incremental loading of the chatGPT response
 
@@ -256,266 +290,28 @@ Lets see what we just did:
 ------------------
 ## Connecting frontend to our API [JOE CONTINUES FROM HERE]
 
-In the frontend, we need to change the generateBio function to accomandate these streaming changes. We accomplish this by using the native [getReader()](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReaderfunction), and progressibly add data to our state as its streamed in.
+We've updated our backend to stream, however our frontend dosnt know how to interpret the stream.
+
+```diff
+  async function generateBlurb() {
+    const response = await fetch("/api/generateBlurb", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: "Here is an empty body",
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
 
-
-
-
-3. Lets add in our intial prompt, first lets create a new folder ```components/fields/PostTextArea.ts```. 
-
-We're gonna set it up as below:
-
-INSERT LE IMAGE
-
-Lets get started by creating this file 
-
-```
-import { Box, TextField, Typography } from "@mui/material";
-import { MutableRefObject } from "react";
-
-interface Props {
-  bioRef: MutableRefObject<string>;
-}
-<!-- Explain the difference between ref and state -->
-export function PostTextArea({ bioRef }: Props) {
-  return (
-    <Box>
-      <Typography variant="body1">
-        What content do you want your post to be about?
-      </Typography>
-
-      <TextField
-        multiline
-        fullWidth
-        minRows={4}
-        sx={{ "& textarea": { boxShadow: "none !important" } }}
-        placeholder="e.g. I'm learning about NextJs and OpenAI GPT-3 api at the Latency Conference."
-        onChange={(e) => {
-          bioRef.current = e.target.value;
-        }}
-      />
-    </Box>
-  );
-}
-```
-
-
-Let’s quickly go over what we are doing here.
-
-- We are creating a new textfield using the MUI library.
-- Applying specific styling to remove box shadow
-- Placing placeholder htext
-- Pass in the prop {{bioRef}}
-
-
-Next Step is to create our ChatGPTForm. This is where we will populate our textboxt and the rest of our input components.
-
-Create ```components/forms/ChatGptForm.ts```
-
-```
-
-import { Stack } from "@mui/material";
-import { useRef } from "react";
-import { PostTextArea } from "../fields/PostTextArea";
-
-interface Props {
-  blurbsGenerated: boolean;
-  setBlurbsGenerated: (blurbsGenerated: boolean) => void;
-}
-export function ChatGPTForm({ blurbsGenerated, setBlurbsGenerated }: Props) {
-  const bioRef = useRef("");
-  return (
-    <Stack direction="column" spacing="1em" width="100%">
-      <PostTextArea bioRef={bioRef} />
-    </Stack>
-  );
-}
-```
-
-Let’s quickly go over what we are doing here.
-
-- Importing our PostTextArea component that we just created
-- Placing our component in a stack, and passing in the bioref prop
-
-
-Now lets go to our index file, and make the following changes.
-
-
-```
-...
-<ChatGPTForm
-  blurbsGenerated={blurbsGenerated}
-  setBlurbsGenerated={setBlurbsGenerated}
-/>
-...
-```
-
-Challenge: Can you set the width of the new component?
-
-### Adding a Dropdown Component.
-
-What are we going to be doing:
-- Creating a Generic Dropdown Component
-- Creating a Vibe Component
-- Then you'll go off and create your own component.
-
-#### Generic Dropdown component
-
-Create ```components/fields/DropDown.tsx```, and throw this code in their
-
-```
-import { Box, FormControl, MenuItem, Select, Typography } from "@mui/material";
-
-interface Props<T> {
-  value: T;
-  label: string;
-  options: string[];
-  setState: (value: T) => void;
-}
-
-export default function DropDown<T>({ value, label, options, setState }: Props<T>) {
-  return (
-    <Box>
-      <Typography variant="body1">{label}</Typography>
-      <FormControl fullWidth hiddenLabel>
-        <Select
-          notched={false}
-          value={value}
-          onChange={(e) => setState(e.target.value as T)}
-        >
-          {options.map((option) => (
-            <MenuItem key={option} value={option}>{option}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </Box>
-  );
-}
-```
-
-Let’s quickly go over what we are doing here:
-
-- This is a TypeScript React component that renders a dropdown menu with a label and a list of options.
-
-- It takes in four props: value, label, options, and setState.
-
-- It uses Material-UI components for its UI.
-
-- The value prop is the currently selected option in the dropdown.
-
-- The label prop is the text that appears above the dropdown.
-
-- The options prop is an array of strings that represent the available options in the dropdown.
-
-- The setState prop is a function that updates the state of the parent component when a new option is selected.
-
-- The component renders a Box component that contains a Typography component with the label prop as its text.
-
-- Below that is a FormControl component that wraps a Select component.
-
-- The Select component has the value prop set to the current value prop and an onChange event handler that calls the setState function with the new selected value.
-
-- The options prop is mapped over to create a list of MenuItem components, each with a unique key prop and a value prop set to the corresponding option string.
-
-
-
-Now, lets create a Vibe Component ```latencyworkshop/components/fields/VibeDropDown.tsx```
-
-Feel free to change up the names of the vibes, and add your own.
-
-```
-import DropDown from "./DropDown";
-
-export type Vibe = "Professional" | "Casual" | "Funny";
-export const vibes: Vibe[] = ["Professional", "Casual", "Funny"];
-
-interface Props {
-  vibe: Vibe;
-  setVibe: (vibe: Vibe) => void;
-}
-
-export function VibeDropDown({ vibe, setVibe }: Props) {
-  return (
-    <DropDown
-      value={vibe}
-      setState={setVibe}
-      label="Select your vibe"
-      options={vibes}
-    />
-  );
-}
-
-```
-Lets explain what we are doing here:
-- Create a typescript type for our vibe
-- Create a list of vibes of type Vibe
-- Create a Props interface that takes in a vibe and setVibe function
-- Create a VibeDropDown component that takes in the vibe and setVibe props
-
-Great, lets add that into our ChatGPTForm component
-
-```
-// import "react-circular-progressbar/dist/styles.css";
-
-import { Stack } from "@mui/material";
-import { useRef, useState } from "react";
-
-import { PostTextArea } from "../fields/PostTextArea";
-import { Vibe, VibeDropDown } from "../fields/VibeDropDown";
-
-interface Props {
-  blurbsGenerated: boolean;
-  setBlurbsGenerated: (blurbsGenerated: boolean) => void;
-}
-export function ChatGPTForm({ blurbsGenerated, setBlurbsGenerated }: Props) {
-  const bioRef = useRef("");
-  const [vibe, setVibe] = useState<Vibe>("Professional");
-
-  return (
-    <Stack direction="column" spacing="1em" width="100%">
-      <Stack
-        spacing="1em"
-        width="100%"
-        maxWidth="48em"
-        mx="auto"
-        alignItems="center"
-      >
-        <PostTextArea bioRef={bioRef} />
-        <VibeDropDown vibe={vibe} setVibe={(newVibe) => setVibe(newVibe)} />
-      </Stack>
-    </Stack>
-  );
-}
-```
-
-### Add your own dropdown component!
-
-front end confuses me
-
-GenerateBio.tsx
-```
-const generateBio = async (e: any) => {
-  e.preventDefault();
-  setGeneratedBios("");
-  setLoading(true);
-
-  const response = await fetch("/api/generate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      prompt,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(response.statusText);
   }
+  ```
 
-  let answer = await response.json();
-  setGeneratedBios(answer.choices[0].text);
-  setLoading(false);
-};
-```
+
+  ### Creating a Prompt
+
+
+  ### String manipulation to output multiple cards
 
