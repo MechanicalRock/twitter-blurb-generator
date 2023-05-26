@@ -10,6 +10,19 @@ Let's begin with some of the basic concepts about tools and technologies we are 
 
 Next.js is a popular React framework that provides built-in [server-side rendering (SSR)](https://nextjs.org/learn/foundations/how-nextjs-works/rendering) capabilities. It combines the power of server-side rendering, static site generation, and client-side rendering, offering a versatile framework for building performant and scalable web applications. Its simplicity, performance optimizations, and robust feature set make it a compelling choice for developers and organizations seeking to build modern web applications.
 
+
+#### ServerSide Rendering
+
+Recently Server side rendering has been getting more and more attraction among the web development community and that is thanks to React and its built-in server-side hydration features. Before we begin, let's just first step back to understand the difference. The main difference between the two is where the web content is rendered. On CSR approach the page content is rendered on the client browser using JavaScript for dynamic rendering vs with the SSR approach the content is fully rendered on the server and sent to the client.
+
+Why should you use Server Side Rendering?
+
+1. Server-side rendering delivers fully rendered HTML to the client, which leads to faster initial page loads compared to client-side rendering.
+2. Search engines typically have difficulty parsing and indexing client-rendered JavaScript content. With server-side rendering, the initial HTML is sent to the client, making it easier for search engine crawlers to read and index the content. This can positively impact the visibility and ranking of your website in search engine results.
+3. SSR enables code sharing between the client and the server, reducing duplication and improving  efficiency. It also simplifies the development by having to maintain one codebase for both frontend and backend.
+4. Server-side rendering can provide a better perceived performance. Users see fully rendered content immediately upon loading the page, reducing the time it takes to see meaningful content and interact with the application.
+5. Server-side rendering can be beneficial for users on low-end devices or with limited network connectivity. By offloading the rendering process to the server, the client device requires less processing power and memory, resulting in improved performance and reduced battery consumption.
+
 ### What is pnpm and why are we using it?
 
 Pnpm is a new nodejs package manager like npm and yarn. It stands out as an excellent package manager known for its remarkable speed, surpassing both yarn and npm in terms of performance. When using pnpm, you can truly experience its swift package installation process. Additionally, an advantageous aspect of pnpm is its compatibility with different versions of Node.js, resembling the convenience of nvm for managing nodejs versions. Following steps will take you through how to install Next.js with pnpm:
