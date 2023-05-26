@@ -166,26 +166,41 @@ Now lets update our frontend to receive the response from the API. For now, we w
 <details>
    <summary><span style="color:red">Solution</summary>
 
-```ts
-  const generateBlurb = useCallback(async () => {
-    const response = await fetch("/api/generateBlurb", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: blurbRef.current,
-      }),
-    });
+```diff
 
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
+- async function generateBlurb() {
+-  const response = await fetch("/api/generateBlurb", {
+-  method: "POST",
+-  headers: {
+-     "Content-Type": "application/json",
+-   },
+-   body: JSON.stringify({
+-     prompt: "This is an empty prompt",
+-   }),
+-  });
+-  const data = await response.json();
+-  console.log(data);
+-}
 
-    const answer = await response.json();
-    console.log(answer);
++  const generateBlurb = useCallback(async () => {
++   const response = await fetch("/api/generateBlurb", {
++     method: "POST",
++     headers: {
++       "Content-Type": "application/json",
++     },
++     body: JSON.stringify({
++       prompt: blurbRef.current,
++     }),
++   });
+
++  if (!response.ok) {
++    throw new Error(response.statusText);
++   }
+
++   const answer = await response.json();
++   console.log(answer);
         }
-  , [blurbRef.current]);
++ , [blurbRef.current]);
 
 ```
 
