@@ -6,7 +6,12 @@ In this module you will be learning about some of the web development technologi
 
 Let's begin with some of the basic concepts about tools and technologies we are using in this workshop:
 
-### Client Side Rendering vs Server Side Rendering
+### What is Next.js?
+
+Next.js is a popular React framework that provides built-in [server-side rendering (SSR)](https://nextjs.org/learn/foundations/how-nextjs-works/rendering) capabilities. It combines the power of server-side rendering, static site generation, and client-side rendering, offering a versatile framework for building performant and scalable web applications. Its simplicity, performance optimizations, and robust feature set make it a compelling choice for developers and organizations seeking to build modern web applications.
+
+
+#### ServerSide Rendering
 
 Recently Server side rendering has been getting more and more attraction among the web development community and that is thanks to React and its built-in server-side hydration features. Before we begin, let's just first step back to understand the difference. The main difference between the two is where the web content is rendered. On CSR approach the page content is rendered on the client browser using JavaScript for dynamic rendering vs with the SSR approach the content is fully rendered on the server and sent to the client.
 
@@ -17,10 +22,6 @@ Why should you use Server Side Rendering?
 3. SSR enables code sharing between the client and the server, reducing duplication and improving  efficiency. It also simplifies the development by having to maintain one codebase for both frontend and backend.
 4. Server-side rendering can provide a better perceived performance. Users see fully rendered content immediately upon loading the page, reducing the time it takes to see meaningful content and interact with the application.
 5. Server-side rendering can be beneficial for users on low-end devices or with limited network connectivity. By offloading the rendering process to the server, the client device requires less processing power and memory, resulting in improved performance and reduced battery consumption.
-
-### What is Next.js?
-
-Next.js is a popular React framework that provides built-in server-side rendering (SSR) capabilities. It combines the power of server-side rendering, static site generation, and client-side rendering, offering a versatile framework for building performant and scalable web applications. Its simplicity, performance optimizations, and robust feature set make it a compelling choice for developers and organizations seeking to build modern web applications.
 
 ### What is pnpm and why are we using it?
 
@@ -55,7 +56,7 @@ pnpm dev
 
 This command will start the development server and provide you with a local URL (e.g., http://localhost:3000) where you can view your app.
 
-![Hello world app](./content/vercel_splash.png)
+<!-- ![Hello world app](./content/vercel_splash.png) -->
 
 That's it! You've successfully created a new Next.js app using pnpm as the package manager. You can start building your app by modifying the files in the pages directory and exploring the Next.js documentation for more information on how to work with Next.js features and components.
 

@@ -227,7 +227,9 @@ You will need the following things
 - Implement a MUI card to display the response
 - Output OpenAI response into a state [UseState]()
 
+
 <details>
+
    <summary><span style="color:red">Solution</summary>
 
 Add the following to your code.
@@ -235,7 +237,7 @@ Add the following to your code.
 ```diff
 - import { useRef } from "react";
 + import { useRef, useState } from "react";
-export default function Home() {
+  export default function Home() {
   const blurbRef = useRef("");
 +  const [generatedBlurb, setGeneratedBlurb] = useState("");
 
