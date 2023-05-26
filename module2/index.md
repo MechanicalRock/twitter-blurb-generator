@@ -38,6 +38,9 @@ Let's now get started to create a [new API in NextJs](https://nextjs.org/learn/b
 ### <u>Step 1: Create an API route</u>
 
 <details>
+
+    > __Note__
+
    <summary><span style="color:red"><span style="color:red">Solution</summary>
 
 * In your Next.js project, navigate to the pages/api directory.
@@ -224,7 +227,9 @@ You will need the following things
 - Implement a MUI card to display the response
 - Output OpenAI response into a state [UseState]()
 
+
 <details>
+
    <summary><span style="color:red">Solution</summary>
 
   Add the following to your code.
@@ -232,7 +237,7 @@ You will need the following things
 ```diff
 - import { useRef } from "react";
 + import { useRef, useState } from "react";
-export default function Home() {
+  export default function Home() {
   const blurbRef = useRef("");
 +  const [generatedBlurb, setGeneratedBlurb] = useState("");
 
