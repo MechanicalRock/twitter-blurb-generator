@@ -38,9 +38,14 @@ Step 1: Create an API route
 * Create a new file named generateBlurb.ts (This file will represent your API route)
 * Define the API logic: Inside the API route file, you can define the logic for your API. You can handle HTTP requests, process data, and return responses.
 
-  ```typescript
-  const handler = async (req: Request): Promise<Response> => {
-    return new Response("This API is not implemented yet", { status: 400 });
+  ```ts
+  import { NextApiRequest, NextApiResponse } from "next";
+
+  const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    res.status(200);
+    res.send({
+      body: "Success response",
+    });
   };
 
   export default handler;
@@ -50,40 +55,51 @@ Step 1: Create an API route
 
   In your previous module, you have created a button in your homepage with an empty function click called ```generateBlurb()```. Let's now go and replace that function's implementation with a call to our api endpoint.
 
-  ```typescript
-    async function generateBlurb() {
-      const response = await fetch("/api/generateBlurb", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: "Here is an empty body",
-      });
-
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      console.log(response);
-    }
+  ```ts
+  async function generateBlurb() {
+    const response = await fetch("/api/generateBlurb", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: "This is an empty prompt",
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+  }
   ```
 
 ### Change your api to call OpenAI endpoint
 
-Before we get to the development, let's find out what is OpenAI and how should you use it? <br/>
+Before we get to the development, let's find out what is OpenAI and how should you use it? </br>
 OpenAI is known for developing advanced language models, such as GPT (Generative Pre-trained Transformer), which can generate human-like text based on given prompts or inputs. OpenAI also provides an API (Application Programming Interface) that allows developers to access and utilize the power of these language models in their own applications, products, or services.
 
 For the purpose of this workshop, we have provided you with OpenAI credentials, saving you from the hustle of going through the sign-up process.
 
+#### Place the OpenAI key into your environment variables
+
+Next.js provides native support for managing environment variables, offering the following capabilities:
+
+1. You can easily load your environment variables by storing them into a .env.local file
+2. You can expose your environment variables to the browser by prefixing them with NEXT_PUBLIC_
+
+In order to access the openAI key in your app, create a new file in the project root folder and name it .env.local.
+
+```text
+OPENAI_API_KEY=xyzxyzxyzxyz
+```
+
+Now you should be able to access this key in your app by using ```process.env.OPENAI_API_KEY```
+
 #### Change generateBlurb.ts to call OpenAI
 
-We get the prompt from the request body that is passed in from the frontend. In this payload we have to specifiy the api paramters needed by gpt3.5.
+We get the prompt from the request body that is passed in from the frontend. In this payload we have to specify the api parameters needed by gpt3.5.
 
-After the payload is constructed, we seend it in a POST request to OpenAI, await the result to get back the generated bios, then we send that back to the client as JSON
+After the payload is constructed, we send it in a POST request to OpenAI, await the result to get back the generated bios, then we send that back to the client as JSON
 
-
-generate.ts
-
-```
+```ts
 export default async function handler(req, res) {
   const { prompt } = req.body;
 
@@ -195,7 +211,7 @@ The first thing we will do, is change our generate fucntion to run on the ```edg
 
 As the last step, we will inotroduce a helper function ```OpenAIStream``` to allow for incremental loading of the chatGPT response
 
-```
+```typescript
 import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
 
 if (!process.env.OPENAI_API_KEY) {
@@ -236,7 +252,7 @@ export default handler;
 
 Create the below file in ```./utils/OpenAIStream.ts```
 
-```
+```typescript
 import {
   createParser,
   ParsedEvent,
