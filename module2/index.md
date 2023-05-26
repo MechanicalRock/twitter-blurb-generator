@@ -6,7 +6,7 @@ In this module, our primary focus will be on establishing an API endpoint for yo
 
  We will then delve into the process of refining our input parameters for the OpenAI API, ensuring that the generated output aligns more closely with our desired context and requirements.
 
-If you've had issues so far, clone from this branch [Module1](https://github.com/MechanicalRock/latency-worksop-modules/tree/module-1)
+If you've had issues so far, clone from this branch [Module1](https://github.com/MechanicalRock/latency-worksop-modules/tree/module-1) LINK NEEDS TO BE UPDATED!
 
 
 ## Contents
@@ -25,14 +25,20 @@ If you've had issues so far, clone from this branch [Module1](https://github.com
 
 
 
-### Creating an api endpoint in Next.js
+## 2.1: Creating an api endpoint in Next.js
 
-A great advantage of using Next.js is that we can handle both the frontend and backend in a single application. In Next.js, you can create APIs using API routes, a built-in feature that allows you to define server-side endpoints within your Next.js application. In order to create a new api route, you can simply add a file under ```./src/pages/api/``` folder and Next.js handles all the routing for you.
+---
+
+A great advantage of using Next.js is that we can handle both the frontend and backend in a single application. In Next.js, you can create APIs using API routes, a built-in feature that allows you to define server-side endpoints within your Next.js application.
 
 
 Let's now get started to create a [new API in NextJs](https://nextjs.org/learn/basics/api-routes/creating-api-routes):
 
-Step 1: Create an API route
+
+### <u>Step 1: Create an API route</u>
+
+<details>
+   <summary><span style="color:red"><span style="color:red">Solution</summary>
 
 * In your Next.js project, navigate to the pages/api directory.
 * Create a new file named generateBlurb.ts (This file will represent your API route)
@@ -50,10 +56,18 @@ Step 1: Create an API route
 
   export default handler;
   ```
+</details>
 
-* Make API requests: Now, you can make requests to your API from client-side code, server-side code, or any other applications. You can use JavaScript's built-in fetch function or any other HTTP client libraries to make requests to your API endpoint. </br></br>
+<br>
 
-  In your previous module, you have created a button in your homepage with an empty function click called ```generateBlurb()```. Let's now go and replace that function's implementation with a call to our api endpoint.
+### <u>Step2: Linking the frontend to our API</u>
+
+Now, you can make requests to your API from client-side code, server-side code, or any other applications. You can use JavaScript's built-in fetch function or any other HTTP client libraries to make requests to your API endpoint. </br></br>
+
+In your previous module, you have created a button in your homepage with an empty function click called ```generateBlurb()```. Let's now go and replace that function's implementation with a call to our api endpoint.
+
+<details>
+   <summary><span style="color:red">Solution</summary>
 
   ```ts
   async function generateBlurb() {
@@ -71,7 +85,11 @@ Step 1: Create an API route
   }
   ```
 
-### Change your api to call OpenAI endpoint
+</details>
+
+</br>
+
+### <u>Step 3: Connecting OpenAI to our API</u>
 
 Before we get to the development, let's find out what is OpenAI and how should you use it? 
 
@@ -94,11 +112,19 @@ OPENAI_API_KEY=xyzxyzxyzxyz
 
 Now you should be able to access this key in your app by using ```process.env.OPENAI_API_KEY```
 
-#### Change generateBlurb.ts to call OpenAI
+---
+
+## 2.2: Connecting generateBlurb.ts to call OpenAI
 
 We get the prompt from the request body that is passed in from the frontend. In this payload we have to specify the api parameters needed by gpt3.5.
 
 After the payload is constructed, we send it in a POST request to OpenAI, await the result to get back the generated bios, then we send that back to the client as JSON
+
+Resources:
+- [OpenAI API Reference](https://platform.openai.com/docs/api-reference)
+
+<details>
+   <summary><span style="color:red">Solution</summary>
 
 ```ts
 export default async function handler(req, res) {
@@ -129,7 +155,16 @@ export default async function handler(req, res) {
 }
 ```
 
-Now lets update our frontend to receive the response from the API.
+</details>
+
+--- 
+
+<br>
+
+Now lets update our frontend to receive the response from the API. For now, we will just log the output to the console.
+
+<details>
+   <summary><span style="color:red">Solution</summary>
 
 ```ts
     const response = await fetch("/api/generateBlurb", {
@@ -151,12 +186,19 @@ Now lets update our frontend to receive the response from the API.
 
 ```
 
+</details>
+
+<br>
+
 Thats it! we've built the first version of our application. However we are only outputting to the console!
 
 Lets create a output now for this to display.
 
+---
 
-### Creating a Card to display the OpenAI Output
+<br>
+
+## 2.3 Creating a Card to display the OpenAI Output
 
 Now we've got a actual response from openAI, lets display it in our app.
 
@@ -165,7 +207,7 @@ You will need the following things
 - Output OpenAI response into a state [UseState]()
 
 <details>
-  <summary>Solution</summary>
+   <summary><span style="color:red">Solution</summary>
 
   Add the following to your code.
 
@@ -194,7 +236,7 @@ Resources: [React Use State](https://www.w3schools.com/react/react_usestate.asp)
 
 
 <details>
-  <summary>Solution</summary>
+   <summary><span style="color:red">Solution</summary>
 
   Add the following to your code.
 
@@ -233,7 +275,7 @@ Congrats, you should now be seeing the response from OpenAI using our prompt
 
 
 
-## Streaming Vs Serverless
+## 2.4 Streaming Vs Serverless
 
 Whilst this approach works, there are limitations to a serverless function.
 
@@ -245,7 +287,7 @@ Whilst this approach works, there are limitations to a serverless function.
 
 #### Edge functions vs Serverless functions
 
-You can think of Edge Functions as serverless functions with a more lightweight runtime. They have a smaller code size limit, smaller memory, and don’t support all Node.js libraries. So you may be thinking—why would I want to use them?
+You can think of [Edge Functions](https://vercel.com/docs/concepts/functions/edge-functions) as serverless functions with a more lightweight runtime. They have a smaller code size limit, smaller memory, and don’t support all Node.js libraries. So you may be thinking—why would I want to use them?
 
 ##### Three answers: speed, UX, and longer timeouts
 
@@ -320,6 +362,11 @@ Lets have a look at the changes we've made above.
 Next step is to actually create our helper function:
 
 Create the below file and copy the contents into ```./utils/OpenAIStream.ts```
+
+You will also need to install an new dependency ```pnpm i eventsource-parser```
+
+<details>
+   <summary><span style="color:cyan">/utils/OpenAIStream.ts</summary>
 
 ```typescript
 import {
@@ -403,10 +450,15 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
   return stream;
 }
 ```
-Lets see what we just did:
-1 . It sends a post request to OpenAI with the payload like we did before with the serverless version.
 
-1. We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for ```[DONE]```. This will tell us the stream has completed.
+</details>
+
+<br>
+
+Lets see what we just did:
+
+1. It sends a post request to OpenAI with the payload like we did before with the serverless version.
+2.  We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for ```[DONE]```. This will tell us the stream has completed.
 
 ------------------
 ## Connecting frontend to our API 
@@ -420,9 +472,9 @@ Heres some hints to get you started.
 
 
 <details>
-  <summary>Solution</summary>
+   <summary><span style="color:red">Solution</summary>
   
-  ```src/index/ts```
+  ```pages/index/ts```
 
 ```diff
   async function generateBlurb() {
@@ -462,8 +514,11 @@ You should now have a streaming response!!
 
 <br>
 
+--- 
+<br>
 
-# Prompt Engineering
+##  Prompt Engineering
+
 
 So we have linked our textboxt to input, OpenAI and are displaying the response in a single card.
 
@@ -485,10 +540,12 @@ Prompt engineering can be quite complex because language models don't actually u
 
 
 
-### Challenge: Create a prompt that feeds into generate API, that will generate 3 clearly labelled twitter bios, using the input we have supplied from the textbox.
+#### Challenge: Create a prompt that feeds into generate API, that will generate 3 clearly labelled twitter bios, using the input we have supplied from the textbox.
+
+<br>
 
 <details>
-  <summary>Solution</summary>
+   <summary><span style="color:red">Solution</summary>
 
 ```diff
 
@@ -523,10 +580,12 @@ Feel free to manipulate and add in your own changes.
 
 </details>
 
-<br>
+
 <br>
 
-#  String manipulation to output multiple cards
+---
+##  String manipulation to output multiple cards
+
 
 So currently our output is generating 3 posts, however they all displaying into one card! To fix this we can use have to seperate each post into their own card.
 
@@ -538,7 +597,7 @@ Resources:
 
 
 <details>
-  <summary>Solution</summary>
+   <summary><span style="color:red">Solution</summary>
 
 ```diff
       {generatedBlurb && (
@@ -580,7 +639,7 @@ Why is this occuring? Have a go and trying to fix it.
 
 
 <details>
-  <summary>Solution</summary>
+   <summary><span style="color:red">Solution</summary>
 
 
 ```diff
