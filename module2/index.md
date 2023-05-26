@@ -1,4 +1,4 @@
-# Module 2
+# Module 2: Connecting to ChatGPT
 
 Welcome to the second module of this workshop. By this part of the workshop, you should already know about the main technologies we are using and have built and deployed your app with a basic home page.
 
@@ -273,7 +273,7 @@ Resources: [React Use State](https://www.w3schools.com/react/react_usestate.asp)
 Congrats, you should now be seeing the response from OpenAI using our prompt
 <br>
 
-
+---
 
 ## 2.4 Streaming Vs Serverless
 
