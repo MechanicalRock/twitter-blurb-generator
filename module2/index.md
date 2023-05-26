@@ -177,10 +177,11 @@ export default function Home() {
 +  const [generatedBlurb, setGeneratedBlurb] = useState("");
 
 ...
-
++ {generatedBlurb && (
 +    <Card>
 +      <CardContent>{generatedBlurb}</CardContent>
 +    </Card>
++ )}
 
 </Stack>
 ```
@@ -412,6 +413,11 @@ Lets see what we just did:
 
 We've updated our backend to stream, however our frontend dosnt know how to interpret the stream.
 
+Try and do this yourself!
+
+Heres some hints to get you started.
+- https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReader
+
 
 <details>
   <summary>Solution</summary>
@@ -426,7 +432,7 @@ We've updated our backend to stream, however our frontend dosnt know how to inte
       headers: {
         "Content-Type": "application/json",
       },
-      body: prompt,
+      prompt: prompt,
     });
 
     if (!response.ok) {
@@ -454,11 +460,147 @@ We've updated our backend to stream, however our frontend dosnt know how to inte
 <br>
 You should now have a streaming response!!
 
+<br>
+
 
 # Prompt Engineering
 
+So we have linked our textboxt to input, OpenAI and are displaying the response in a single card.
+
+Lets introuduce you to the concept of prompt engineering and how we will use that to generate our twitter responses, and generate 3 responses using a single call.
+
+Prompt engineering refers to the process of crafting prompts in a way that elicits the best, most accurate, or most insightful response from a language model like GPT-3.5. It involves understanding how the model interprets input and designing prompts that will direct the model towards producing the desired output.
+
+It's similar to how a question can be strategically asked to guide someone towards a particular response. For example, asking "What are the benefits of exercise?" will elicit a very different response than asking "What are the dangers of exercise?"
+
+When it comes to AI models, prompt engineering can involve many strategies, including:
+
+- Making the context clear: AI models often rely heavily on the prompt to understand what's being asked. Providing context helps the AI give a better response.
+
+- Specifying the format of the desired response: If the model knows how the response should be structured, it is more likely to provide what you want.
+
+- Providing examples: Some prompts work better if they include an example of what's being asked.
+
+Prompt engineering can be quite complex because language models don't actually understand language in the way humans do. They're trained on massive amounts of text data and learn to predict the next piece of text based on the input they're given. So, you're essentially trying to understand the model's 'thinking' and craft prompts that will guide it towards the answers you want.
 
 
+
+### Challenge: Create a prompt that feeds into generate API, that will generate 3 clearly labelled twitter bios, using the input we have supplied from the textbox.
+
+<details>
+  <summary>Solution</summary>
+
+```diff
+
+...
+  const [generatedBlurb, setGeneratedBlurb] = useState("");
+
++  const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
++      Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a Student Audience, and base them on this context: ${blurbRef.current}`;
+
+  async function generateBlurb() {
+    const response = await fetch("/api/generateBlurb", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+-       prompt: blurbRef.current
++       prompt: prompt,
+      }),
+    });
+    
+    ...
+
+
+```
+Lets explain what we just did:
+- Created a new value `prompt` that is taking a hardcoded text, and subsititing our textbox, bound to `blurbRef` into the text body.
+
+Remeber OpenAI, needs to return a response that we can parse, hence we have clearly prompted it to return each post clearly labelled, we then use this in the next section to seperate each blurb into its own output.
+
+Feel free to manipulate and add in your own changes.
+
+</details>
+
+<br>
+<br>
 
 #  String manipulation to output multiple cards
 
+So currently our output is generating 3 posts, however they all displaying into one card! To fix this we can use have to seperate each post into their own card.
+
+Have a go at doing this yourself, below are some hints to get you started.
+
+Resources: 
+- [String Splitting](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)
+
+
+
+<details>
+  <summary>Solution</summary>
+
+```diff
+      {generatedBlurb && (
+-    <Card>
+-      <CardContent>{generatedBlurb}</CardContent>
+-    </Card>
++       <>
++         {generatedBlurb
++          .substring(generatedBlurb.indexOf("1.") + 3)
++          .split(/2\.|3\./)
++          .map((generatedPost) => {
++            return (
++             <Card>
++               <CardContent>{generatedPost}</CardContent>
++             </Card>
++             );
++           })}
++       </>
++     )}
+
+```
+Lets explain what we just did.
+1. generatedBlurb.substring(generatedBlurb.indexOf("1.") + 3): This finds "1." in the string generatedBlurb and trims off the part before and including "1.".
+
+2. .split(/2\.|3\./): This divides the string into parts at "2." and "3." and makes an array (list) of these parts.
+
+3. .map((generatedPost) => {...}): This creates a new list. Each item in the old list is turned into a Card component.
+
+4. <Card>...<CardContent>{generatedPost}</CardContent>...</Card>: For each part of the string, it makes a Card with the text inside it.
+
+In short, the code splits a text string into parts at "1.", "2.", and "3.", and displays each part in a separate Card component.
+
+</details>
+
+Challenge: you will note that at the beginning of the stream, there is a text been streamed in that is not part of the final output?
+
+Why is this occuring? Have a go and trying to fix it.
+
+
+
+<details>
+  <summary>Solution</summary>
+
+
+```diff
+    let done = false
++   let firstPost = false;
++   let streamedText = "";
+
+    while (!done) {
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      const chunkValue = decoder.decode(value);
+-     setGeneratedBlurb((prev) => prev + chunkValue);
++     streamedText += chunkValue;
++     if (firstPost) {
++       setGeneratedBlurb(streamedText);
++     } else {
++       firstPost = streamedText.includes("1.");
+      }
+    }
+
+```
+
+</details>
