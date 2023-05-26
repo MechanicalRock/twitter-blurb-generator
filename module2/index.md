@@ -299,8 +299,10 @@ You can think of [Edge Functions](https://vercel.com/docs/concepts/functions/edg
 
 ##### Edge Functions and Streaming
 
-Now we have a basic udnerstanding of the benefits of edge functions, lets refactor our existing code to take advantage of the streaming utility
+Now we have a basic understanding of the benefits of edge functions, lets refactor our existing code to take advantage of the streaming utility
 
+<details>
+   <summary><span style="color:cyan">pages/index.html</summary>
 
 ```diff
 + import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
@@ -352,6 +354,8 @@ const handler = async (req: Request): Promise<Response> => {
 
 export default handler;
 ```
+
+</details>
 <br>
 
 Lets have a look at the changes we've made above.
@@ -461,7 +465,7 @@ Lets see what we just did:
 2.  We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for ```[DONE]```. This will tell us the stream has completed.
 
 ------------------
-## Connecting frontend to our API 
+### Connecting frontend to our API 
 
 We've updated our backend to stream, however our frontend dosnt know how to interpret the stream.
 
@@ -517,7 +521,7 @@ You should now have a streaming response!!
 --- 
 <br>
 
-##  Prompt Engineering
+## 2.4 Prompt Engineering
 
 
 So we have linked our textboxt to input, OpenAI and are displaying the response in a single card.
@@ -584,7 +588,7 @@ Feel free to manipulate and add in your own changes.
 <br>
 
 ---
-##  String manipulation to output multiple cards
+## 2.5 String manipulation to output multiple cards
 
 
 So currently our output is generating 3 posts, however they all displaying into one card! To fix this we can use have to seperate each post into their own card.
@@ -663,3 +667,9 @@ Why is this occuring? Have a go and trying to fix it.
 ```
 
 </details>
+
+
+--- 
+<br>
+
+## 2.6 Challenge: Add in dropdown choices to set the prompt Vibe
