@@ -6,7 +6,11 @@ In this module you will be learning about some of the web development technologi
 
 Let's begin with some of the basic concepts about tools and technologies we are using in this workshop:
 
-### Client Side Rendering vs Server Side Rendering
+### What is Next.js?
+
+Next.js is a popular React framework that provides built-in [server-side rendering (SSR)](https://nextjs.org/learn/foundations/how-nextjs-works/rendering) capabilities. It combines the power of server-side rendering, static site generation, and client-side rendering, offering a versatile framework for building performant and scalable web applications. Its simplicity, performance optimizations, and robust feature set make it a compelling choice for developers and organizations seeking to build modern web applications.
+
+#### ServerSide Rendering
 
 Recently Server side rendering has been getting more and more attraction among the web development community and that is thanks to React and its built-in server-side hydration features. Before we begin, let's just first step back to understand the difference. The main difference between the two is where the web content is rendered. On CSR approach the page content is rendered on the client browser using JavaScript for dynamic rendering vs with the SSR approach the content is fully rendered on the server and sent to the client.
 
@@ -14,13 +18,9 @@ Why should you use Server Side Rendering?
 
 1. Server-side rendering delivers fully rendered HTML to the client, which leads to faster initial page loads compared to client-side rendering.
 2. Search engines typically have difficulty parsing and indexing client-rendered JavaScript content. With server-side rendering, the initial HTML is sent to the client, making it easier for search engine crawlers to read and index the content. This can positively impact the visibility and ranking of your website in search engine results.
-3. SSR enables code sharing between the client and the server, reducing duplication and improving  efficiency. It also simplifies the development by having to maintain one codebase for both frontend and backend.
+3. SSR enables code sharing between the client and the server, reducing duplication and improving efficiency. It also simplifies the development by having to maintain one codebase for both frontend and backend.
 4. Server-side rendering can provide a better perceived performance. Users see fully rendered content immediately upon loading the page, reducing the time it takes to see meaningful content and interact with the application.
 5. Server-side rendering can be beneficial for users on low-end devices or with limited network connectivity. By offloading the rendering process to the server, the client device requires less processing power and memory, resulting in improved performance and reduced battery consumption.
-
-### What is Next.js?
-
-Next.js is a popular React framework that provides built-in server-side rendering (SSR) capabilities. It combines the power of server-side rendering, static site generation, and client-side rendering, offering a versatile framework for building performant and scalable web applications. Its simplicity, performance optimizations, and robust feature set make it a compelling choice for developers and organizations seeking to build modern web applications.
 
 ### What is pnpm and why are we using it?
 
@@ -34,9 +34,10 @@ npm install -g pnpm
 
 Create an app
 
-``` bash
+```bash
 pnpm create next-app latency-workshop-app --template typescript --use-pnpm
 ```
+
 The --use-pnpm flag ensures that pnpm is used as the package manager for the project. Make sure to follow the config as below:
 
 ![create app config](./content/pnpm_create_next.png)
@@ -55,7 +56,7 @@ pnpm dev
 
 This command will start the development server and provide you with a local URL (e.g., http://localhost:3000) where you can view your app.
 
-![Hello world app](./content/vercel_splash.png)
+<!-- ![Hello world app](./content/vercel_splash.png) -->
 
 That's it! You've successfully created a new Next.js app using pnpm as the package manager. You can start building your app by modifying the files in the pages directory and exploring the Next.js documentation for more information on how to work with Next.js features and components.
 
@@ -69,7 +70,7 @@ For this workshop we have decided to use [Material UI](https://mui.com/material-
 pnpm install @mui/material @emotion/react @emotion/styled
 ```
 
-Now let's go to pages/index.ts and replace everything with the following. Execute ```pnpm dev``` to check your latest changes
+Now let's go to pages/index.ts and replace everything with the following. Execute `pnpm dev` to check your latest changes
 
 ```typescript
 import { Typography } from "@mui/material";
@@ -85,14 +86,14 @@ export default function Home() {
 
 Obviously this doesn't look great, so lets add in some simple tailwind to make it look a bit nicer. Feel free to play around with it to get to look as you would like. [Tailwind](https://tailwindcss.com/) is a CSS library that comes with the app if you selected yes on tailwind setup when you were creating your Next.js app.
 
-```typescript
+```diff
 import { Typography } from "@mui/material";
 
 export default function Home() {
   return (
     <Typography
       variant="h1"
-      className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
++      className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
     >
       Generate your next Twitter post with ChatGPT
     </Typography>
@@ -100,30 +101,31 @@ export default function Home() {
 }
 ```
 
-This still is not looking quite right. So lets wrap this in a Stack to get it centred as we would like. 
+This still is not looking quite right. So lets wrap this in a Stack to get it centred as we would like.
 
-```typescript
-import { Typography, Stack } from "@mui/material";
+```diff
+- import { Typography } from "@mui/material";
++ import { Typography, Stack } from "@mui/material";
 
 export default function Home() {
   return (
-    <Stack
-      component="main"
-      direction="column"
-      maxWidth="50em"
-      mx="auto"
-      alignItems="center"
-      justifyContent="center"
-      py="1em"
-      spacing="1em"
-    >
++   <Stack
++     component="main"
++     direction="column"
++     maxWidth="50em"
++     mx="auto"
++     alignItems="center"
++     justifyContent="center"
++     py="1em"
++     spacing="1em"
++   >
       <Typography
         variant="h1"
         className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
       >
         Generate your next Twitter post with ChatGPT
       </Typography>
-    </Stack>
++   </Stack>
   );
 }
 ```
@@ -133,8 +135,9 @@ Let’s quickly go over what we have done. Your homepage should look like the be
 
 Next step is to add a textbox so people can type what blurb they would like to generate:
 
-```typescript
-import { Stack, TextField, Typography } from "@mui/material";
+```diff
+- import { Typography, Stack } from "@mui/material";
++ import { Stack, TextField, Typography } from "@mui/material";
 
 export default function Home() {
   return (
@@ -155,13 +158,13 @@ export default function Home() {
         Generate your next Twitter post with ChatGPT
       </Typography>
 
-      <TextField
-        multiline
-        fullWidth
-        minRows={4}
-        sx={{ "& textarea": { boxShadow: "none !important" } }}
-        placeholder="Key words on what you would like your blurb to be about"
-      ></TextField>
++     <TextField
++       multiline
++       fullWidth
++       minRows={4}
++       sx={{ "& textarea": { boxShadow: "none !important" } }}
++       placeholder="Key words on what you would like your blurb to be about"
++     ></TextField>
     </Stack>
   );
 }
@@ -169,13 +172,14 @@ export default function Home() {
 
 Let's now add a button that allows users to generate their blurb and have an empty function that is called when the button is clicked:
 
-```typescript
-import { Button, Stack, TextField, Typography } from "@mui/material";
+```diff
+- import { Typography, Stack } from "@mui/material";
++import { Button, Stack, TextField, Typography } from "@mui/material";
 
 export default function Home() {
-  function generateBlurb(): void {
-    throw new Error("Function not implemented.");
-  }
++  function generateBlurb(): void {
++    throw new Error("Function not implemented.");
++  }
 
   return (
     <Stack
@@ -203,7 +207,7 @@ export default function Home() {
         placeholder="Key words on what you would like your blurb to be about"
       ></TextField>
 
-      <Button onClick={generateBlurb}>Generate Blurb</Button>
++     <Button onClick={generateBlurb}>Generate Blurb</Button>
     </Stack>
   );
 }
@@ -258,16 +262,16 @@ If you wanted to deploy this application using AWS services, you would have had 
 3. Select `Hobby`. Enter your name. Click Continue
 4. Click `Continue with GitHub`
 5. Authorize Vercel to connect to your GitHub account <br/>
-  Make sure to configure the permissions correctly
-![github authorization](content/github-authorization.png)
+   Make sure to configure the permissions correctly
+   ![github authorization](content/github-authorization.png)
 6. Click `Import` next to your Git repository
 7. Click on the `Build and Output Settings` accordion.
 8. Under `Build Command`, enable the override toggle and enter `pnpm build`
 9. Under `Install Command`, enable the override toggle and enter `pnpm install`
-![vercel-settings](content/vercel-settings.png)
-11. Click `Deploy`
-12. Once the application has been deployed, click on the image below `Continue to Dashboard` to view your deployed application<br/>
-![deployed-app](content/deployed-app.png)
+   ![vercel-settings](content/vercel-settings.png)
+10. Click `Deploy`
+11. Once the application has been deployed, click on the image below `Continue to Dashboard` to view your deployed application<br/>
+    ![deployed-app](content/deployed-app.png)
 
 Congratulations you have now completed Module1 and ready to move on to the second module. Your completed app should look like this: [Module1-final demo](final-demo/latency-workshop-app/). <br/>
-If you have any issues finishing off module1, you can download the content in ```final-demo/latency-workshop-app``` and move onto the next module.
+If you have any issues finishing off module1, you can download the content in `final-demo/latency-workshop-app` and move onto the next module.

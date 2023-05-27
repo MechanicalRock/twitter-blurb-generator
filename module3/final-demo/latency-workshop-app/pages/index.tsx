@@ -1,27 +1,28 @@
 import {
+  Box,
   Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
+  Card,
+  CardContent,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import { useCallback, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Blurb } from "@/components/Blurbs/Blurb";
 
 export default function Home() {
   const blurbRef = useRef("");
-  const audienceRef = useRef<HTMLInputElement>();
+  const audienceRef = useRef("");
   const [generatingPosts, setGeneratingPosts] = useState("");
+  const [blurbsFinishedGenerating, setBlurbsFinishedGenerating] =
+    useState<boolean>(false);
 
-  const generateBlurb = useCallback(async () => {
-    const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
-    Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a ${audienceRef.current.value} Audience, and base them on this context: ${blurbRef.current}`;
+  const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
+      Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a Student Audience, and base them on this context: ${blurbRef.current}`;
 
-    console.log(prompt);
+  async function generateBlurb() {
+    setBlurbsFinishedGenerating(false);
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
@@ -57,7 +58,8 @@ export default function Home() {
         firstPost = streamedText.includes("1.");
       }
     }
-  }, [blurbRef.current, audienceRef.current]);
+    setBlurbsFinishedGenerating(true);
+  }
 
   return (
     <Stack
@@ -88,20 +90,22 @@ export default function Home() {
         placeholder="e.g. I'm learning about NextJs and OpenAI GPT-3 api at the Latency Conference."
       ></TextField>
 
-      <FormControl fullWidth>
+      {/* <FormControl fullWidth>
         <InputLabel id="Audience">Audience</InputLabel>
         <Select
           labelId="Audience"
           id="Audience"
           label="Audience"
-          inputRef={audienceRef}
-          defaultValue={"Student"}
+          onChange={(event) => {
+            audienceRef.current = event.target.value;
+          }}
+          value={audienceRef.current}
         >
-          <MenuItem value={"Student"}>Student</MenuItem>
-          <MenuItem value={"Profesional"}>Profesional</MenuItem>
-          <MenuItem value={"Monkey"}>Monkey</MenuItem>
+          <MenuItem value="Student">Student</MenuItem>
+          <MenuItem value="Profesional">Profesional</MenuItem>
+          <MenuItem value="Monkey">Monkey</MenuItem>
         </Select>
-      </FormControl>
+      </FormControl> */}
 
       <Button onClick={generateBlurb}>Generate Blurb</Button>
       {generatingPosts && (
@@ -111,7 +115,11 @@ export default function Home() {
             .split(/2\.|3\./)
             .map((generatingPost, index) => {
               return (
-                <Blurb key={index} generatingBlurb={generatingPost}></Blurb>
+                <Blurb
+                  key={index}
+                  generatingBlurb={generatingPost}
+                  blurbsFinishedGenerating={blurbsFinishedGenerating}
+                ></Blurb>
               );
             })}
         </>

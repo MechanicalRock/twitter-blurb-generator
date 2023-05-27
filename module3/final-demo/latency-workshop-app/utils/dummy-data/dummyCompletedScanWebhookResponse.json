@@ -1,0 +1,48 @@
+{
+  "developerPayload": "",
+  "results": {
+    "internet": [
+      {
+        "id": "23bdb116b0",
+        "introduction": "...",
+        "matchedWords": 5,
+        "metadata": {
+          "filename": "source"
+        },
+        "title": "Test Pattern History: How Color Bars Became a TV Staple",
+        "url": "https://tedium.co/2020/06/23/television-test-patterns-history/"
+      },
+      {
+        "id": "7e514eabb3",
+        "introduction": "Nurses Specialties ...",
+        "matchedWords": 5,
+        "metadata": {
+          "author": "Nursng_life",
+          "filename": "source",
+          "organization": "allnurses",
+          "publishDate": "2020-08-19T17:37:40.0000000Z"
+        },
+        "title": "CCRN Exam 2020 - MICU, SICU - allnurses",
+        "url": "https://allnurses.com/ccrn-exam-t724224/"
+      }
+    ],
+    "score": {
+      "aggregatedScore": 100,
+      "identicalWords": 5,
+      "minorChangedWords": 0,
+      "relatedMeaningWords": 0
+    }
+  },
+  "scannedDocument": {
+    "creationTime": "2023-03-23T06:14:32.166212Z",
+    "credits": 1,
+    "expectedCredits": 1,
+    "metadata": {
+      "filename": "file.txt"
+    },
+    "scanId": "f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2",
+    "totalExcluded": 0,
+    "totalWords": 5
+  },
+  "status": 0
+}
