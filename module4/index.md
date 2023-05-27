@@ -370,7 +370,7 @@ Error Handling
   <summary>Solution</summary>
 
 1. Create a file named `TweetPreview.ts` in `components/TweetPreview`.
-2. The component should declare a `blurb` parameter (which gets injected by the HoC).
+2. The component should declare a `blurb` parameter which gets injected by the Higher-ordered-Component, HoC. Higher-ordered-Components are parent components that wrap child components and inject props into them. In this case, the HoC is the `Home` component and the child component is the `TweetPreview` component. 
 3. The component should have 4 states to manage: 
 <br />`editableBlurb` should be initialised with the blurb parameter. It's purpose is to allow the user to edit the blurb in the preview itself.
 <br /><br />`loading` should be initialised with `false`. It's purpose is to show a loading indicator when the user clicks the tweet button.
