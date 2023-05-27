@@ -31,19 +31,19 @@ export default async function handler(req: NextRequest) {
   return NextResponse.json({ message: "Scan complete" });
 }
 
-type SourceResults = {
+type SourceResult = {
   resultId: string;
   matchedWords: number;
 };
 
 function getHighestSourceResult(
   completedScanWebhookResponse: any
-): SourceResults {
+): SourceResult {
   let matchedWords = 0;
   let resultId = "";
   if (completedScanWebhookResponse.results.internet) {
     const sortedResults = completedScanWebhookResponse.results.internet.sort(
-      (a, b) => a.matchedWords - b.matchedWords
+      (a: SourceResult, b: SourceResult) => a.matchedWords - b.matchedWords
     );
     const highestResult = sortedResults[0];
     resultId = highestResult.id;

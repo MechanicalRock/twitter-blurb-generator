@@ -373,7 +373,7 @@ Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has c
 7. Set the `plagiarismScore` to be `(matchedWords/totalWords) * 100` .
 
 ```ts
-import dummyScanResults from "utils/dummy-data/dummyScanResults.json";
+import dummyScanResults from "@/utils/dummy-data/dummyScanResults.json";
 ...
   const checkPlagiarism = async (streamedBlurb: string) => {
     setPlagiarismLoading(true);
@@ -754,19 +754,19 @@ A scan may return multiple sources where it thinks the plagiarised text comes fr
 Copy and paste this function into your `scan` webhook. This function will return the source with the highest number of `matchedWords`..
 
 ```ts
-type SourceResults = {
+type SourceResult = {
   resultId: string;
   matchedWords: number;
 };
 
 function getHighestSourceResult(
   completedScanWebhookResponse: any
-): SourceResults {
+): SourceResult {
   let matchedWords = 0;
   let resultId = "";
   if (completedScanWebhookResponse.results.internet) {
     const sortedResults = completedScanWebhookResponse.results.internet.sort(
-      (a, b) => a.matchedWords - b.matchedWords
+      (a: SourceResult, b: SourceResult) => a.matchedWords - b.matchedWords
     );
     const highestResult = sortedResults[0];
     resultId = highestResult.id;
@@ -964,8 +964,8 @@ The dummy data for this task can be found in `module3/utils/dummy-data/dummyComp
   <summary>Solution</summary>
 
 ```ts
-  import dummyCompletedExportResultsWebhookResponse from "utils/dummy-data/dummyCompletedExportResultsWebhookResponse.json";
-  import dummyCompletedScanWebhookResponse from "utils/dummy-data/dummyCompletedScanWebhookResponse.json";
+  import dummyCompletedExportResultsWebhookResponse from "@/utils/dummy-data/dummyCompletedExportResultsWebhookResponse.json";
+  import dummyCompletedScanWebhookResponse from "@/utils/dummy-data/dummyCompletedScanWebhookResponse.json";
 
 useEffect(() => {
 ...
@@ -1131,13 +1131,15 @@ The CopyLeaks class that we will be writing will be a wrapper around the CopyLea
 **3.6.3.1 Installing the CopyLeaks SDK Package**
 
 1. Install the CopyLeaks SDK Package - https://www.npmjs.com/package/plagiarism-checker.
-2. Install `uuid` package to generate Ids - https://www.npmjs.com/package/uuid
+2. Install the `uuid` package to generate Ids - https://www.npmjs.com/package/uuid
+3. Install the `types/uuid` package - https://www.npmjs.com/package/@types/uuid
 
 <details>
   <summary>Solution</summary>
 
 1. In your terminal run `pnpm i plagiarism-checker`
 2. In your terminal run `pnpm i uuid`
+3. In your terminal run `pnpm i --save-dev @types/uuid`
 
 </details>
 <br>

@@ -1,11 +1,4 @@
-import {
-  Box,
-  Card,
-  CardActions,
-  CardContent,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Box, Card, CardContent, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -13,9 +6,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import { FirebaseWrapper } from "@/lib/firebase/FireBaseWrapper";
 import { Plagiarism } from "@/components/Plagiarism/Plagiarism";
 import SaveIcon from "@mui/icons-material/Save";
-import dummyCompletedExportResultsWebhookResponse from "utils/dummy-data/dummyCompletedExportResultsWebhookResponse.json";
-import dummyCompletedScanWebhookResponse from "utils/dummy-data/dummyCompletedScanWebhookResponse.json";
-import dummyScanResults from "utils/dummy-data/dummyScanResults.json";
 import { onValue } from "firebase/database";
 
 interface Props {
