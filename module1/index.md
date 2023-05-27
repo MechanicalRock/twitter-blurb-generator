@@ -10,7 +10,6 @@ Let's begin with some of the basic concepts about tools and technologies we are 
 
 Next.js is a popular React framework that provides built-in [server-side rendering (SSR)](https://nextjs.org/learn/foundations/how-nextjs-works/rendering) capabilities. It combines the power of server-side rendering, static site generation, and client-side rendering, offering a versatile framework for building performant and scalable web applications. Its simplicity, performance optimizations, and robust feature set make it a compelling choice for developers and organizations seeking to build modern web applications.
 
-
 #### ServerSide Rendering
 
 Recently Server side rendering has been getting more and more attraction among the web development community and that is thanks to React and its built-in server-side hydration features. Before we begin, let's just first step back to understand the difference. The main difference between the two is where the web content is rendered. On CSR approach the page content is rendered on the client browser using JavaScript for dynamic rendering vs with the SSR approach the content is fully rendered on the server and sent to the client.
@@ -19,7 +18,7 @@ Why should you use Server Side Rendering?
 
 1. Server-side rendering delivers fully rendered HTML to the client, which leads to faster initial page loads compared to client-side rendering.
 2. Search engines typically have difficulty parsing and indexing client-rendered JavaScript content. With server-side rendering, the initial HTML is sent to the client, making it easier for search engine crawlers to read and index the content. This can positively impact the visibility and ranking of your website in search engine results.
-3. SSR enables code sharing between the client and the server, reducing duplication and improving  efficiency. It also simplifies the development by having to maintain one codebase for both frontend and backend.
+3. SSR enables code sharing between the client and the server, reducing duplication and improving efficiency. It also simplifies the development by having to maintain one codebase for both frontend and backend.
 4. Server-side rendering can provide a better perceived performance. Users see fully rendered content immediately upon loading the page, reducing the time it takes to see meaningful content and interact with the application.
 5. Server-side rendering can be beneficial for users on low-end devices or with limited network connectivity. By offloading the rendering process to the server, the client device requires less processing power and memory, resulting in improved performance and reduced battery consumption.
 
@@ -35,9 +34,10 @@ npm install -g pnpm
 
 Create an app
 
-``` bash
+```bash
 pnpm create next-app latency-workshop-app --template typescript --use-pnpm
 ```
+
 The --use-pnpm flag ensures that pnpm is used as the package manager for the project. Make sure to follow the config as below:
 
 ![create app config](./content/pnpm_create_next.png)
@@ -70,7 +70,7 @@ For this workshop we have decided to use [Material UI](https://mui.com/material-
 pnpm install @mui/material @emotion/react @emotion/styled
 ```
 
-Now let's go to pages/index.ts and replace everything with the following. Execute ```pnpm dev``` to check your latest changes
+Now let's go to pages/index.ts and replace everything with the following. Execute `pnpm dev` to check your latest changes
 
 ```typescript
 import { Typography } from "@mui/material";
@@ -101,9 +101,9 @@ export default function Home() {
 }
 ```
 
-This still is not looking quite right. So lets wrap this in a Stack to get it centred as we would like. 
+This still is not looking quite right. So lets wrap this in a Stack to get it centred as we would like.
 
-```diff 
+```diff
 - import { Typography } from "@mui/material";
 + import { Typography, Stack } from "@mui/material";
 
@@ -173,12 +173,13 @@ export default function Home() {
 Let's now add a button that allows users to generate their blurb and have an empty function that is called when the button is clicked:
 
 ```diff
-import { Button, Stack, TextField, Typography } from "@mui/material";
+- import { Typography, Stack } from "@mui/material";
++import { Button, Stack, TextField, Typography } from "@mui/material";
 
 export default function Home() {
-  function generateBlurb(): void {
-    throw new Error("Function not implemented.");
-  }
++  function generateBlurb(): void {
++    throw new Error("Function not implemented.");
++  }
 
   return (
     <Stack
@@ -261,16 +262,16 @@ If you wanted to deploy this application using AWS services, you would have had 
 3. Select `Hobby`. Enter your name. Click Continue
 4. Click `Continue with GitHub`
 5. Authorize Vercel to connect to your GitHub account <br/>
-  Make sure to configure the permissions correctly
-![github authorization](content/github-authorization.png)
+   Make sure to configure the permissions correctly
+   ![github authorization](content/github-authorization.png)
 6. Click `Import` next to your Git repository
 7. Click on the `Build and Output Settings` accordion.
 8. Under `Build Command`, enable the override toggle and enter `pnpm build`
 9. Under `Install Command`, enable the override toggle and enter `pnpm install`
-![vercel-settings](content/vercel-settings.png)
-11. Click `Deploy`
-12. Once the application has been deployed, click on the image below `Continue to Dashboard` to view your deployed application<br/>
-![deployed-app](content/deployed-app.png)
+   ![vercel-settings](content/vercel-settings.png)
+10. Click `Deploy`
+11. Once the application has been deployed, click on the image below `Continue to Dashboard` to view your deployed application<br/>
+    ![deployed-app](content/deployed-app.png)
 
 Congratulations you have now completed Module1 and ready to move on to the second module. Your completed app should look like this: [Module1-final demo](final-demo/latency-workshop-app/). <br/>
-If you have any issues finishing off module1, you can download the content in ```final-demo/latency-workshop-app``` and move onto the next module.
+If you have any issues finishing off module1, you can download the content in `final-demo/latency-workshop-app` and move onto the next module.
