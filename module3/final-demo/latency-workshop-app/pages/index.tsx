@@ -108,8 +108,14 @@ export default function Home() {
       </FormControl> */}
 
       <Button onClick={generateBlurb}>Generate Blurb</Button>
+
       {generatingPosts && (
         <>
+          <Stack direction="row-reverse" width="100%">
+            <Typography width="12em" textAlign="center">
+              Plagiarism Score
+            </Typography>
+          </Stack>
           {generatingPosts
             .substring(generatingPosts.indexOf("1.") + 3)
             .split(/2\.|3\./)

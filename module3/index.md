@@ -193,9 +193,11 @@ return (
 
 Copy and paste the `components` folder found in `module3/content/components` into the root of your project. The `CenterBox` component will help you center your plagiarism score component.
 
-1. Add a section next to each blurb which holds a `CircularProgress` bar and a value as a percent. It should look like this:
+1. Write a component called `Loading.tsx` in the `Plagiarism` folder in components. You will need need muis `CircularProgress` component for this
 
-![AnalysingPlagiarism](../module3/imgs/AnalysingPlagiarism.png)
+It should look like this:
+
+![Loading](../module3/imgs/Loading.png)
 
 <details>
   <summary>Solution</summary>
@@ -205,8 +207,6 @@ Copy and paste the `components` folder found in `module3/content/components` int
    2. Underneath this component add the text `Analysing Plagiarism`
 
 ```ts
-import "react-circular-progressbar/dist/styles.css";
-
 import { Box, CircularProgress } from "@mui/material";
 
 export function Loading() {
@@ -230,11 +230,20 @@ export function Loading() {
 }
 ```
 
-2. In a folder named `Plagiarism` in the `components` folder, add a file named `Score.tsx`
+</details>
+<br>
 
+2. In a folder named `Plagiarism` in the `components` folder, add a file named `Score.tsx`
    1. This will function will take a `value` number variable and a `label` string variable as parameters.
    2. Use muis `CircularProgress` component with the `determinate` variant with the `value` property set to `value`.
    3. Underneath this component add the text in `label`
+
+It should look like this:
+
+![Loading](../module3/imgs/Score.png)
+
+<details>
+  <summary>Solution</summary>
 
 ```ts
 import * as React from "react";
@@ -276,11 +285,17 @@ export function Score(
 }
 ```
 
+</details>
+<br>
+
 3. In a folder named `Plagiarism` in the `components` folder, add a file named `Plagiarism.tsx`
 
    1. This will function will take a `loading` boolean variable and a `score` number variable as parameters.
    2. If `loading` is true we will show our `Loading` component.
    3. If `loading` is false we will show our `Score` component.
+
+<details>
+  <summary>Solution</summary>
 
 ```ts
 import { Box } from "@mui/material";
@@ -315,12 +330,18 @@ export function Plagiarism({ loading, score }: Props) {
 }
 ```
 
+</details>
+<br>
+
 4. In `Blurb.tsx`
    1. Add a boolean state variable named `plagiarismLoading` with the default value of false.
    2. Add a number state variable named `plagiarisedScore` with the default value of 0.
    3. At the bottom of the HTML `Stack` add the `Plagiarism` component with the `loading` property having the value `plagiarismLoading` and the `score` property having the value `plagiarisedScore`.
 
 Your `Blurb.tsx` return statement should look like this:
+
+<details>
+  <summary>Solution</summary>
 
 ```ts
 ...
@@ -345,6 +366,46 @@ Your `Blurb.tsx` return statement should look like this:
 
 </details>
 <br>
+
+**3.1.4 Add Plagiarism Score Column Name**
+
+1. Add the heading `Plagiarism Score` above the plagiarism score components.
+
+<details>
+  <summary>Solution</summary>
+  
+```ts
+{
+  generatingPosts && (
+    <>
+      <Stack direction="row-reverse" width="100%">
+        <Typography width="12em" textAlign="center">
+          Plagiarism Score
+        </Typography>
+      </Stack>
+      {generatingPosts
+        .substring(generatingPosts.indexOf("1.") + 3)
+        .split(/2\.|3\./)
+        .map((generatingPost, index) => {
+          return (
+            <Blurb
+              key={index}
+              generatingBlurb={generatingPost}
+              blurbsFinishedGenerating={blurbsFinishedGenerating}
+            ></Blurb>
+          );
+        })}
+    </>
+  );
+}
+```
+
+</details>
+<br>
+
+Your finally component should look like this:
+
+![AnalysingPlagiarism](../module3/imgs/AnalysingPlagiarism.png)
 
 ---
 
