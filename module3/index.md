@@ -3,6 +3,8 @@
 In this module we learn how to check your blurb for plagiarism using the CopyLeaks API, Firebase Realtime Database and Webhooks.
 <br>
 
+![Plagiarism Flow](../module3/imgs/PlagiarismFlow.png)
+
 The flow for a plagiarism check is as follows:
 
 1. The frontend calls our Next.js `plagiarismCheck` API with some text to be checked. A `scanId` is returned. We then listen to Firebase for any changes on the node `scan/[scanId]`.
