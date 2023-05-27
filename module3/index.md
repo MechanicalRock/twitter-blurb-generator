@@ -764,7 +764,7 @@ function getHighestSourceResult(
 ): SourceResult {
   let matchedWords = 0;
   let resultId = "";
-  if (completedScanWebhookResponse.results.internet) {
+  if (completedScanWebhookResponse.results.internet.length > 0) {
     const sortedResults = completedScanWebhookResponse.results.internet.sort(
       (a: SourceResult, b: SourceResult) => a.matchedWords - b.matchedWords
     );

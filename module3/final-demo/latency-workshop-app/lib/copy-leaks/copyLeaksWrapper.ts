@@ -110,7 +110,6 @@ export class CopyLeaksWrapper {
       },
     };
     const access_token = await this.getAccessToken();
-    console.log(JSON.stringify(request));
     try {
       await fetch(
         `${this.baseCopyLeaksApiUrl}/downloads/${scanId}/export/${exportId}`,
