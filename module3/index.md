@@ -1119,12 +1119,14 @@ The CopyLeaks class that we will be writing will be a wrapper around the CopyLea
 
 **3.6.3.1 Installing the CopyLeaks SDK Package**
 
-1. Install the CopyLeaks SDK Package - https://www.npmjs.com/package/plagiarism-checker
+1. Install the CopyLeaks SDK Package - https://www.npmjs.com/package/plagiarism-checker.
+2. Install `uuid` package to generate Ids -
 
 <details>
   <summary>Solution</summary>
 
 1. In your terminal run `pnpm i plagiarism-checker`
+2. In your terminal run `pnpm i uuid`
 
 </details>
 <br>
