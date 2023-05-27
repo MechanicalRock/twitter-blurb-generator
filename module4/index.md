@@ -8,15 +8,12 @@ This module covers setting up Twitter authentication for this application which 
 
 4.1 [Twitter Auth Configuration](#twitter-auth-configuration)
 <br>
-4.1.1 [Signing up for Twitter Dev Account](#signing-up-for-twitter-dev-account)
-<br>
-4.1.2 [Setting Up Twitter API Consumer & Client Keys](#setting-up-twitter-api-consumer--client-keys)
-<br>
-4.2 [NextJS API](#nextjs-api)
+4.2 [NextJS APIs](#nextjs-apis)
 <br>
 4.3 [Configure NextAuth](#configure-nextauth)
 <br>
 4.4 [Frontend](#frontend)
+<br>
 
 ---
 
@@ -53,16 +50,16 @@ See https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twit
 
 ---
 
-## NextJS API
+## NextJS APIs
 
-In order to call the the Tweet function we need to create an API.
+In order to tweet your post to Twitter, we need to create a NextJS API which will be called by the frontend. This API will be responsible for posting the tweet to Twitter.
 
 ### Tweet API
 
 **Create a Tweet Post API**
 
 1. Create an Edge function named `tweetPost.ts`.
-2. Obtain and validate the JWT Token from the request (https://next-auth.js.org/configuration/options#jwt-helper)
+2. Obtain and validate the user's authentication (JWT) from the request (https://next-auth.js.org/configuration/options#jwt-helper)
 3. Validate the incoming request Body
 4. Post Tweet using the Twitter API (https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets)
 5. Deploy your API
@@ -80,10 +77,7 @@ In order to call the the Tweet function we need to create an API.
 ```ts
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { getEnvs } from "./utils";
 import { getToken } from "next-auth/jwt";
-
-const env = getEnvs("NEXTAUTH_SECRET");
 
 type TweetRequest = {
   message: string;
@@ -96,7 +90,7 @@ type TweetRequest = {
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     // Validate Token
-    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     if (!token) {
       throw new Error("Not authorised, please login to Twitter first");
     }
@@ -135,15 +129,25 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 ### Configure NextAuth
 
 Now that we've setup our Twitter API, we need to configure NextAuth to use Twitter as an authentication provider.
+NextAuth is a library that abstracts away the complexity of authentication and provides a simple API for us to use. It also provides a number of authentication providers out of the box which we can use. In this case, we will be using Twitter as our authentication provider.
+
+NextAuth is configured in the `pages/api/auth/[...nextauth].ts` file. This file is a dynamic route which means it will match any route that starts with `/api/auth/` and then anything after that. This is useful as it allows us to create multiple authentication providers in the same file. For example, we could have a Twitter and Facebook authentication provider in the same file.
+
+Authentication is important as it allows us to identify the user and also obtain an access token which we can use to make API calls on behalf of the user. In this case, we will be using the Twitter API to post a tweet on behalf of the user.
+
 
 Outline:
 
-1: Create a file named `[...nextauth].ts` in `pages/api/auth`<br />
-2: Configure NextAuth to use Twitter (https://next-auth.js.org/providers/twitter)<br />
-3: Ensure the Twitter Provider has scope `"users.read tweet.read tweet.write offline.access"`<br />
-4: Bind the Twitter Provider to the NextAuth configuration<br />
+1. Create a catch-all dynamic route named `[...nextauth].ts` in `pages/api/auth`<br />
+2. Configure NextAuth to use Twitter (https://next-auth.js.org/providers/twitter)<br />
+3. Ensure scope is set to `"users.read tweet.read tweet.write offline.access"` so the user's token will have access to get the user's Profile Picture, name and email as well as being able to write tweets<br />
+ * "users.read" - allows us to get the user's profile picture, name and email<br />
+ * "tweet.read" - allows us to read tweets<br />
+ * "tweet.write" - allows us to write tweets<br />
+ * "offline.access" - allows us to obtain a refresh token which can be used to obtain a new access token when the current one expires<br />
+4. Bind the Twitter Provider to the NextAuth configuration<br />
 
-Learn Dynamic Routes: https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes
+Learn more about NextJs Dynamic Routes (ie. [...nextauth]): https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes
 Learn NextAuth: https://next-auth.js.org/getting-started/introduction
 
 <details>
@@ -193,23 +197,88 @@ export default NextAuth({
 
 ## Frontend
 
-Finally, let's start creating the UI to show the user what their tweet will look like and before posting it to Twitter.
+Finally, let's start creating the UI to show the user what their tweet will look like before posting it to Twitter.
 
 
 ### Login / Logout with Twitter
 
 Outline:
 
+UI
 1. Create a file named `SigninToolbar.tsx` in `components`<br />
 2. Create a component named `SigninToolbar` which uses the `useSession` hook from next-auth to determine if the user is logged in or not<br />
-3. If the user is logged in, show a welcome message and a logout button<br />
-4. If the user is not logged in, show a login button<br />
-4.1 The login button should call the `signIn` function from next-auth (https://next-auth.js.org/getting-started/example#frontend---add-react-hook)<br />
-5. Add the `SigninToolbar` component to the `Layout` component<br />
-6. Deploy your changes<br />
-7. Login with Twitter<br />
-8. Logout<br />
-9. Login again<br />
+3. Add the `SigninToolbar` component to the `Home` page<br />
+
+<details>
+  <summary>Solution</summary>
+
+```ts
+// components/SigninToolbar.tsx
+import { Box, Button } from "@mui/material";
+import { useSession } from "next-auth/react";
+import * as React from "react";
+
+export default function SigninToolbar() {
+  const { data: session, status } = useSession();
+
+  return (
+    <Box position="absolute" top="1em" right="1em">
+      {status === "authenticated" ? "Logged in" : "Logged Out"}
+    </Box>
+  );
+}
+```
+</details>
+<br>
+
+Login
+1. If the user is not logged in, show a login button<br />
+2. The login button should call the `signIn` function from next-auth (https://next-auth.js.org/getting-started/example#frontend---add-react-hook)<br />
+
+
+<details>
+  <summary>Solution</summary>
+
+```ts
+// components/SigninToolbar.tsx
+import { Box, Button } from "@mui/material";
+import { useSession, signIn } from "next-auth/react";
+import * as React from "react";
+
+function UnauthenticatedContent() {
+  return (
+    <Button
+      variant="contained"
+      size="medium"
+      color="primary"
+      onClick={() => {
+        signIn("twitter", {
+          callbackUrl: process.env.NEXTAUTH_URL,
+        });
+      }}
+    >
+      Login With Twitter
+    </Button>
+  );
+}
+
+export default function SigninToolbar() {
+  const { data: session, status } = useSession();
+
+  return (
+    <Box position="absolute" top="1em" right="1em">
+      {status === "authenticated" ? "Logged in" : <UnauthenticatedContent />}
+    </Box>
+  );
+}
+```
+</details>
+<br>
+
+Logout
+1. If the user is logged in, show a welcome message and a logout button<br />
+2. The logout button should call the `signOut` function from next-auth (like you did in the Login step)<br />
+
 
 <details>
   <summary>Solution</summary>
@@ -272,24 +341,38 @@ export default function SigninToolbar() {
 }
 ```
 </details>
+<br>
+
+Test
+
+1. Deploy your changes<br />
+2. Login with Twitter<br />
+3. Logout<br />
+4. Login again<br />
+
 
 ### Tweet Preview and Post
 
 Outline:
 
-1: Create a TweetPreview Dialog component<br />
-2: Bind the tweet button to the new tweetPost API<br />
-3: Handle the response from the API<br />
-3.1: Show an error on error<br />
-3.2: Close the Dialog on success and show a success message<br />
+UI
+1. Create a TweetPreview Dialog component<br />
+
+Posting
+1. Create a button to tweet your blurb to the new tweetPost API<br />
+2. Close the Dialog on success and show a success message<br />
+
+Error Handling
+1. Handle the response from the API<br />
+2. Show an error on error<br />
 
 <details>
   <summary>Solution</summary>
 
 1. Create a file named `TweetPreview.ts` in `components/TweetPreview`.
-2. The component should declare a `bio` parameter (which gets injected by the HoC).
+2. The component should declare a `blurb` parameter (which gets injected by the HoC).
 3. The component should have 4 states to manage: 
-<br />`editableBio` should be initialised with the bio parameter. It's purpose is to allow the user to edit the bio in the preview itself.
+<br />`editableBlurb` should be initialised with the blurb parameter. It's purpose is to allow the user to edit the blurb in the preview itself.
 <br /><br />`loading` should be initialised with `false`. It's purpose is to show a loading indicator when the user clicks the tweet button.
 <br /><br />`showDialog` should be initialised with `false`. It's purpose is to show the dialog when the user clicks the tweet button; likewise hide the Dialog when the user clicks the close button.
 <br /><br />`error` should be initialised with `undefined`. It's purpose is to show an error message when the API call fails.
@@ -297,35 +380,12 @@ Outline:
 4. Tweet Handler should be async and do the following:
 <br />a. Set loading to true
 <br />b. Set error to undefined
-<br />c. Call the `tweetPost` API you created earlier with the `editableBio` value
+<br />c. Call the `tweetPost` API you created earlier with the `editableBlurb` value
 <br />d. If the API call fails, set error to the error message
 <br />e. If the API call succeeds, close the Dialog and show a success message
 <br />f. Set loading to false
 <br />**NOTE: On success, this will publish to your Twitter account!**
 
-```ts
-
-### Tweet Preview Dialog component
-
-<details>
-  <summary>Solution</summary>
-
-1. Create a file named `TweetPreview.ts` in `components/TweetPreview`.
-2. The component should declare a `bio` parameter (which gets injected by the HoC).
-3. The component should have 4 states to manage: 
-<br />`editableBio` should be initialised with the bio parameter. It's purpose is to allow the user to edit the bio in the preview itself.
-<br /><br />`loading` should be initialised with `false`. It's purpose is to show a loading indicator when the user clicks the tweet button.
-<br /><br />`showDialog` should be initialised with `false`. It's purpose is to show the dialog when the user clicks the tweet button; likewise hide the Dialog when the user clicks the close button.
-<br /><br />`error` should be initialised with `undefined`. It's purpose is to show an error message when the API call fails.
-
-4. Tweet Handler should be async and do the following:
-<br />a. Set loading to true
-<br />b. Set error to undefined
-<br />c. Call the `tweetPost` API you created earlier with the `editableBio` value
-<br />d. If the API call fails, set error to the error message
-<br />e. If the API call succeeds, close the Dialog and show a success message
-<br />f. Set loading to false
-<br />**NOTE: On success, this will publish to your Twitter account!**
 
 ```ts
 import "react-circular-progressbar/dist/styles.css";
@@ -347,8 +407,8 @@ import { CenterBox } from "../CenterBox";
 import { ProfilePicture } from "./ProfilePicture";
 import { toast } from "react-hot-toast";
 
-export const TweetPreview = ({ bio }: { bio: string }) => {
-  const [editableBio, setEditableBio] = useState(bio);
+export const TweetPreview = ({ blurb }: { blurb: string }) => {
+  const [editableBlurb, setEditableBlurb] = useState(blurb);
   const [loading, setLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [error, setError] = useState<string>();
@@ -360,7 +420,7 @@ export const TweetPreview = ({ bio }: { bio: string }) => {
       const res = await fetch("/api/tweetPost", {
         method: "POST",
         body: JSON.stringify({
-          message: bio,
+          message: blurb,
         }),
       });
 
@@ -411,9 +471,9 @@ export const TweetPreview = ({ bio }: { bio: string }) => {
                 fullWidth
                 minRows={4}
                 multiline
-                onChange={(e) => setEditableBio(e.target.value)}
+                onChange={(e) => setEditableBlurb(e.target.value)}
                 sx={{ "& textarea": { boxShadow: "none !important" } }}
-                value={editableBio}
+                value={editableBlurb}
                 variant="standard"
               />
             </Box>
@@ -444,7 +504,9 @@ export const TweetPreview = ({ bio }: { bio: string }) => {
 ### Create a ProfilePicture component
 
 1. Create a file named `ProfilePicture.ts` in `components/TweetPreview`.
-2. The component should show the logged in user's profile picture (https://next-auth.js.org/getting-started/client).
+2. The component should show the logged in user's profile picture (https://next-auth.js.org/getting-started/client). Since we're using Twitter, we can use the `image` property from the session object.
+3. The component should be a circular image with a height of 3em and a margin-right of 1em.
+4. The component should be important from `TweetPreview.ts` and used in the Dialog.
 
 <details>
   <summary>Solution</summary>
