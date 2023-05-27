@@ -111,6 +111,7 @@ export function Blurb({ generatingBlurb, blurbsFinishedGenerating }: Props) {
     if (blurbsFinishedGenerating) {
       checkPlagiarism(generatingBlurb);
       setBlurb(generatingBlurb);
+      setHighlightedHTMLBlurb(<>{generatingBlurb}</>);
     }
   }, [blurbsFinishedGenerating]);
 

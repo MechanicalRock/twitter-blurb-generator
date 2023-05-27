@@ -511,7 +511,18 @@ function handleScan(text: string, scan: any) {
 }
 ```
 
-3. Change the HTML to show the new `highlightedHTMLBlurb`.
+3. Change the `useEffect` hook to to set the `highlightedHTMLBlurb` to be the a HTML element with the finished Blurb as it's content
+
+```ts
+useEffect(() => {
+  if (blurbsFinishedGenerating) {
+    setBlurb(generatingBlurb);
+    setHighlightedHTMLBlurb(<>{generatingBlurb}</>);
+  }
+}, [blurbsFinishedGenerating]);
+```
+
+4. Change the HTML to show the new `highlightedHTMLBlurb`.
 
    1. Change the save buttons `onClick` callback to also set `highlightedHTMLBlurb` to be the new rephrasedBlurb. A rephrased blurb is NOT rechecked for plagiarism so this text will never be highlighted.
    2. Show the `highlightedHTMLBlurb` instead of the `rephrasedBlurb` in the blurb box.
@@ -1120,7 +1131,7 @@ The CopyLeaks class that we will be writing will be a wrapper around the CopyLea
 **3.6.3.1 Installing the CopyLeaks SDK Package**
 
 1. Install the CopyLeaks SDK Package - https://www.npmjs.com/package/plagiarism-checker.
-2. Install `uuid` package to generate Ids -
+2. Install `uuid` package to generate Ids - https://www.npmjs.com/package/uuid
 
 <details>
   <summary>Solution</summary>
