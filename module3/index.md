@@ -1070,15 +1070,18 @@ useEffect(() => {
 
 7. Change our `handleScan` function to take a scan as a parameter.
    1. Remove the `setPlagiarismLoading(false)` line from the `checkPlagiarism` function.
-   2. Add a check above the assignment of the `characterStarts` variable to check if `scan.results` exists. This is because a `scan` will return before `scan.results` is in the database as we are only writing the `scan.results` node once we have the `scan` information and the time between these calls will be close to 20 seconds. See our `api/copy-leaks/completed/[scanId].ts` for more information.
-   3. Add the `setPlagiarismLoading(true)` line after we recieve the results from Firebase.
+   2. Add a check to see og there are 0 `matchedWords` if this is the case none of our blurb will be highlighted.
+   3. Add a check above the assignment of the `characterStarts` variable to check if `scan.results` exists. This is because a `scan` will return before `scan.results` is in the database as we are only writing the `scan.results` node once we have the `scan` information and the time between these calls will be close to 40 seconds. See our `api/copy-leaks/completed/[scanId].ts` for more information.
+   4. Add the `setPlagiarismLoading(false)` line after we recieve the results from Firebase.
 
 ```ts
 function handleScan(text: string, scan) {
   const totalBlurbWords = text.split(" ").length;
   const matchedWords = scan.matchedWords;
   setPlagiarismScore((matchedWords / totalBlurbWords) * 100);
-  if (scan.results) {
+  if (matchedWords == 0) {
+    setPlagiarismLoading(false);
+  } else if (scan.results) {
     const characterStarts = scan.results.identical.source.chars.starts;
     const characterLengths = scan.results.identical.source.chars.lengths;
     const highlightedHTMLBlurb = getHighlightedHTMLBlurb(

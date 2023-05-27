@@ -54,7 +54,9 @@ export function Blurb({ generatingBlurb, blurbsFinishedGenerating }: Props) {
     const totalBlurbWords = text.split(" ").length;
     const matchedWords = scan.matchedWords;
     setPlagiarismScore((matchedWords / totalBlurbWords) * 100);
-    if (scan.results) {
+    if (matchedWords == 0) {
+      setPlagiarismLoading(false);
+    } else if (scan.results) {
       const characterStarts = scan.results.identical.source.chars.starts;
       const characterLengths = scan.results.identical.source.chars.lengths;
       const highlightedHTMLBlurb = getHighlightedHTMLBlurb(
