@@ -79,7 +79,7 @@ async function generateBlurb() {
     }),
   });
   const data = await response.json();
-  console.log(data);
+  console.log("Response was:", JSON.stringify(data));
 }
 ```
 
@@ -199,12 +199,12 @@ Next step is to connect your textbox to the blurbRef reference that you just cre
 
 </details>
 
-Now you need to change your button to pass the value of blurbRef into your API call
+Now you need to update your generateBlurb function to use the blurbRef.current value.
 
 <details>
    <summary><span style="color:red">Solution</summary>
 
-```ts
+```diff
   async function generateBlurb() {
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
@@ -212,7 +212,8 @@ Now you need to change your button to pass the value of blurbRef into your API c
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        prompt: blurbRef.current,
+-       prompt: "This is an empty prompt",
++       prompt: blurbRef.current,
       }),
     });
     if (!response.ok) {
