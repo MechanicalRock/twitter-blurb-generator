@@ -300,7 +300,8 @@ Add the following to your code.
 ```diff
 ...
 
-    const generateBlurb = useCallback(async () => {
+  async function generateBlurb() {
+    const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -313,12 +314,10 @@ Add the following to your code.
     if (!response.ok) {
       throw new Error(response.statusText);
     }
-
-    const answer = await response.text();
-    console.log(answer);
-
-+   setGeneratedBlurb(answer);
-}, [blurbRef.current]);
+    const data = await response.json();
+    console.log("Response was:", JSON.stringify(data));
++   setGeneratedBlurb(data.choices[0].message.content);
+  }
 
 ....
 ```
