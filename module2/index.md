@@ -521,7 +521,7 @@ Lets see what we just did:
 
 ### Connecting frontend to our API
 
-We've updated our backend to stream, however our frontend dosnt know how to interpret the stream.
+We've updated our backend to stream, however our frontend does not know how to interpret the stream.
 
 Try and do this yourself!
 
@@ -532,7 +532,7 @@ Heres some hints to get you started.
 <details>
    <summary><span style="color:red">Solution</summary>
   
-  ```pages/index/ts```
+  ```pages/index.ts```
 
 ```diff
   const generateBlurb = useCallback(async () => {
@@ -542,7 +542,7 @@ Heres some hints to get you started.
       headers: {
         "Content-Type": "application/json",
       },
-      prompt: prompt,
+      prompt: blurbRef.current,
     });
 
     if (!response.ok) {
