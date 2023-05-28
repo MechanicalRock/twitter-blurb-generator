@@ -167,33 +167,37 @@ export default handler;
 
 Now lets update our frontend to receive the response from the API. For now, we will just log the output to the console.
 
-Before we change our button click, we will need to extract the current value from our textbox and store it somewhere. To do this, we are using useRef function from react. 
+Before we change our button click, we will need to extract the current value from our textbox and store it somewhere. To do this, we are using useRef function from react.
 
 TODO: [WE NEED AN EXPLANATION on what is the difference between usestate and useref]
 
 Open your index.ts file. Add below line above your generateBlurb function.
+
 ```ts
 const blurbRef = useRef("");
 ```
+
 Make sure to import useRef from react. ```import { useRef } from "react";```
 
 Next step is to connect your textbox to the blurbRef reference that you just created.
 
 <details>
-  <summary><span style="color:red">Solution</span></summary>
+   <summary><span style="color:red">Solution</summary>
 
 ```ts
   <TextField
-        multiline
-        fullWidth
-        minRows={4}
-        onChange={(e) => {
-          blurbRef.current = e.target.value;
-        }}
-        sx={{ "& textarea": { boxShadow: "none !important" } }}
-        placeholder="Key words on what you would like your blurb to be about"
-      ></TextField>
+    multiline
+    fullWidth
+    minRows={4}
+    onChange={(e) => {
+      blurbRef.current = e.target.value;
+    }}
+    sx={{ "& textarea": { boxShadow: "none !important" } }}
+    placeholder="Key words on what you would like your blurb to be about"
+  ></TextField>
 ```
+
+</details>
 
 Now you need to change your button to pass the value of blurbRef into your API call
 
@@ -220,6 +224,7 @@ Now you need to change your button to pass the value of blurbRef into your API c
 ```
 
 Lets explain what we've just done
+
 - Added in a UseCallback so that the ref is updated when the function is called.
 
 </details>
@@ -242,7 +247,6 @@ You will need the following things
 
 - Implement a MUI card to display the response
 - Output OpenAI response into a state [UseState]()
-
 
 <details>
 
@@ -528,7 +532,7 @@ Try and do this yourself!
 
 Heres some hints to get you started.
 
-- https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReader
+- <https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReader>
 
 <details>
    <summary><span style="color:red">Solution</summary>
@@ -597,7 +601,7 @@ When it comes to AI models, prompt engineering can involve many strategies, incl
 
 Prompt engineering can be quite complex because language models don't actually understand language in the way humans do. They're trained on massive amounts of text data and learn to predict the next piece of text based on the input they're given. So, you're essentially trying to understand the model's 'thinking' and craft prompts that will guide it towards the answers you want.
 
-#### Challenge: Create a prompt that feeds into generate API, that will generate 3 clearly labelled twitter bios, using the input we have supplied from the textbox.
+#### Challenge: Create a prompt that feeds into generate API, that will generate 3 clearly labelled twitter bios, using the input we have supplied from the textbox
 
 <br>
 
