@@ -596,7 +596,7 @@ When it comes to AI models, prompt engineering can involve many strategies, incl
 
 Prompt engineering can be quite complex because language models don't actually understand language in the way humans do. They're trained on massive amounts of text data and learn to predict the next piece of text based on the input they're given. So, you're essentially trying to understand the model's 'thinking' and craft prompts that will guide it towards the answers you want.
 
-#### Challenge: Create a prompt that feeds into generate API, that will generate 3 clearly labelled twitter bios, using the input we have supplied from the textbox
+***Challenge: Create a prompt that feeds into generate API, that will generate 3 clearly labelled twitter bios, using the input we have supplied from the textbox***
 
 <br>
 
@@ -644,7 +644,7 @@ Feel free to manipulate and add in your own changes.
 
 ## 2.5 String manipulation to output multiple cards
 
-So currently our output is generating 3 posts, however they all displaying into one card! To fix this we can use have to seperate each post into their own card.
+So currently our output is generating 3 posts, however they all displaying into **one card!** To fix this we can use have to seperate each post into their own card.
 
 Have a go at doing this yourself, below are some hints to get you started.
 
