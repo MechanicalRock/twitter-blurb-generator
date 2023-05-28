@@ -128,6 +128,10 @@ Resources:
 ```ts
 import { NextApiRequest, NextApiResponse } from "next";
 
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("Missing env var from OpenAI");
+}
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { prompt } = req.body;
 
@@ -359,9 +363,10 @@ You can think of [Edge Functions](https://vercel.com/docs/concepts/functions/edg
 Now we have a basic understanding of the benefits of edge functions, lets refactor our existing code to take advantage of the streaming utility
 
 <details>
-   <summary><span style="color:cyan">pages/index.html</summary>
+   <summary><span style="color:cyan">pages/api/generateBlurb.ts</summary>
 
 ```diff
+import { NextApiRequest, NextApiResponse } from "next";
 + import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
 
 if (!process.env.OPENAI_API_KEY) {
@@ -372,19 +377,13 @@ if (!process.env.OPENAI_API_KEY) {
 +   runtime: "edge",
 + };
 
-const handler = async (req: Request): Promise<Response> => {
-  const { prompt } = (await req.json()) as {
-    prompt?: string;
-  };
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { prompt } = req.body;
 
-  if (!prompt) {
-    return new Response("No prompt in the request", { status: 400 });
-  }
-
-  const payload: OpenAIStreamPayload = {
+  const payload = {
     model: "gpt-3.5-turbo",
     messages: [{ role: "user", content: prompt }],
-    temperature: 1,
+    temperature: 0.7,
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
@@ -393,7 +392,10 @@ const handler = async (req: Request): Promise<Response> => {
     n: 1,
   };
 
--    const response = await fetch("https://api.openai.com/v1/chat/completions", {
++  const stream = await OpenAIStream(payload);
++  return new Response(stream);
+
+-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
 -    headers: {
 -      "Content-Type": "application/json",
 -      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
@@ -401,12 +403,10 @@ const handler = async (req: Request): Promise<Response> => {
 -    method: "POST",
 -    body: JSON.stringify(payload),
 -  });
-
--  const json = await response.json();
--  res.status(200).json(json);
-
-+  const stream = await OpenAIStream(payload);
-+  return new Response(stream);
+-
+-  const data = await response.json();
+-  res.status(200);
+-  res.send(data);
 };
 
 export default handler;
