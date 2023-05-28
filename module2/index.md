@@ -126,7 +126,9 @@ Resources:
    <summary><span style="color:red">Solution</summary>
 
 ```ts
-export default async function handler(req, res) {
+import { NextApiRequest, NextApiResponse } from "next";
+
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { prompt } = req.body;
 
   const payload = {
@@ -149,9 +151,12 @@ export default async function handler(req, res) {
     body: JSON.stringify(payload),
   });
 
-  const json = await response.json();
-  res.status(200).json(json);
-}
+  const data = await response.json();
+  res.status(200);
+  res.send(data);
+};
+
+export default handler;
 ```
 
 </details>
