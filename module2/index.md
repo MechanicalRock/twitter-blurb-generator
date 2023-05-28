@@ -201,9 +201,6 @@ Now lets update our frontend to receive the response from the API. For now, we w
         }
 + , [blurbRef.current]);
 
-  const answer = await response.json();
-  console.log(answer);
-}, [blurbRef.current]);
 ```
 
 Lets explain what we've just done
@@ -240,11 +237,26 @@ Add the following to your code.
 ```diff
 - import { useRef } from "react";
 + import { useRef, useState } from "react";
+
+
   export default function Home() {
   const blurbRef = useRef("");
 +  const [generatedBlurb, setGeneratedBlurb] = useState("");
 
 ...
+
+<TextField
+  multiline
+  fullWidth
+  minRows={4}
+  onChange={(e) => {
+    blurbRef.current = e.target.value;
+  }}
+  sx={{ "& textarea": { boxShadow: "none !important" } }}
+  placeholder="e.g. I'm learning about NextJs and OpenAI GPT-3 api at the Latency Conference."
+></TextField>
+
+
 + {generatedBlurb && (
 +    <Card>
 +      <CardContent>{generatedBlurb}</CardContent>
@@ -268,7 +280,7 @@ Add the following to your code.
 ```diff
 ...
 
-    const response = await fetch("/api/generateBlurb", {
+    const generateBlurb = useCallback(async () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -286,6 +298,7 @@ Add the following to your code.
     console.log(answer);
 
 +   setGeneratedBlurb(answer);
+}, [blurbRef.current]);
 
 ....
 ```
