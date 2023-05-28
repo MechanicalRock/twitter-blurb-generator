@@ -10,21 +10,17 @@ If you've had issues so far, clone from [Module1]().
 
 ## Contents
 
-2.1 Creating a NextJs API endpoint
+2.1 Creating a NextJs API endpoint and Connecting to ChatGPT
 <br>
-2.2 Connecting our API to OpenAI
+2.2 Serverless VS Streaming
 <br>
-2.3 Displaying our response as a Card
+2.3 Prompt Engineering
 <br>
-2.4 Serverless VS Streaming
+2.4 Refactoring into Components
 <br>
-2.5 Prompt Engineering
-<br>
-2.6 Refactoring into Components
-<br>
-2.7 Challenge: Add in dropdown choices to set the prompt vibe
+2.5 Challenge: Add in dropdown choices to set the prompt vibe
 
-## 2.1: Creating an api endpoint in Next.js
+## 2.1.1: Creating an api endpoint in Next.js
 
 ---
 
@@ -37,7 +33,7 @@ Let's now get started to create a [new API in NextJs](https://nextjs.org/learn/b
 <details>
    <summary><span style="color:red"><span style="color:red">Solution</summary>
 
-- In your Next.js project, navigate to the pages/api directory.
+- In your Next.js project, navigate to the `pages/api` directory.
 - Create a new file named generateBlurb.ts (This file will represent your API route)
 - Define the API logic: Inside the API route file, you can define the logic for your API. You can handle HTTP requests, process data, and return responses.
 
@@ -58,7 +54,7 @@ Let's now get started to create a [new API in NextJs](https://nextjs.org/learn/b
 
 <br>
 
-### <u>Step2: Linking the frontend to our API</u>
+### <u>2.1.2: Linking the frontend to our API</u>
 
 Now, you can make requests to your API from client-side code, server-side code, or any other applications. You can use JavaScript's built-in fetch function or any other HTTP client libraries to make requests to your API endpoint. </br></br>
 
@@ -87,7 +83,7 @@ async function generateBlurb() {
 
 </br>
 
-### <u>Step 3: Connecting OpenAI to our API</u>
+### <u>2.1.3: Connecting OpenAI to our API</u>
 
 Before we get to the development, let's find out what is OpenAI and how should you use it?
 
@@ -171,9 +167,11 @@ export default handler;
 
 Now lets update our frontend to receive the response from the API. For now, we will just log the output to the console.
 
-Before we change our button click, we will need to extract the current value from our textbox and store it somewhere. To do this, we are using useRef function from react.
+Before we change our generateBlurb function, we will need to extract the current value from our textbox and store it somewhere. To do this, we are using useRef function from react.
 
-TODO: [WE NEED AN EXPLANATION on what is the difference between usestate and useref]
+`useRef` is used to access properties of a DOM element directly and to store mutable variables that don't cause a re-render of the component when their values change. While useState causes a re-render with every change in state, changes in the value of a ref using useRef don't cause a re-render. This makes useRef handy for managing side effects and accessing DOM nodes directly, without causing unnecessary renders.
+
+In contrast, `useState` is a Hook in React that enables you to add state to functional components. When you update a state using useState, it triggers a re-render of the component. This is important because changes in state typically mean that the component's output might be different, so React needs to re-run the render method to check and reflect those changes in the UI.
 
 Open your index.ts file. Add below line above your generateBlurb function.
 
@@ -184,6 +182,8 @@ const blurbRef = useRef("");
 Make sure to import useRef from react. ```import { useRef } from "react";```
 
 Next step is to connect your textbox to the blurbRef reference that you just created.
+
+We accomplish this by adding a `onChange` event to the textbox, and updating the blurbRef.current value.  
 
 <details>
    <summary><span style="color:red">Solution</summary>
@@ -209,7 +209,8 @@ Now you need to update your generateBlurb function to use the blurbRef.current v
    <summary><span style="color:red">Solution</summary>
 
 ```diff
-  async function generateBlurb() {
+- async function generateBlurb() {
++ const generateBlurb = useCallback(async () => {
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
@@ -226,6 +227,7 @@ Now you need to update your generateBlurb function to use the blurbRef.current v
     const data = await response.json();
     console.log("Response was:", JSON.stringify(data));
   }
++  , [blurbRef.current]);
 ```
 
 Lets explain what we've just done
@@ -305,7 +307,7 @@ Add the following to your code.
 ```diff
 ...
 
-  async function generateBlurb() {
+  const generateBlurb = useCallback(async () => {
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
@@ -322,7 +324,7 @@ Add the following to your code.
     const data = await response.json();
     console.log("Response was:", JSON.stringify(data));
 +   setGeneratedBlurb(data.choices[0].message.content);
-  }
+  }, [blurbRef.current]);
 
 ....
 ```
@@ -331,7 +333,7 @@ Add the following to your code.
 
 <br>
 
-Congrats, you should now be seeing the response from OpenAI using our prompt
+Congrats, you should now be seeing the response from OpenAI using our prompt.
 <br>
 
 ---
@@ -365,51 +367,44 @@ Now we have a basic understanding of the benefits of edge functions, lets refact
 <details>
    <summary><span style="color:cyan">pages/api/generateBlurb.ts</summary>
 
-```diff
-import { NextApiRequest, NextApiResponse } from "next";
-+ import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
+```ts
+import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("Missing env var from OpenAI");
 }
 
-+ export const config = {
-+   runtime: "edge",
-+ };
+export const config = {
+  runtime: "edge",
+};
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { prompt } = req.body;
+const handler = async (req: Request): Promise<Response> => {
+  const { prompt } = (await req.json()) as {
+    prompt?: string;
+  };
 
-  const payload = {
+  if (!prompt) {
+    return new Response("No prompt in the request", { status: 400 });
+  }
+
+  const payload: OpenAIStreamPayload = {
     model: "gpt-3.5-turbo",
     messages: [{ role: "user", content: prompt }],
-    temperature: 0.7,
+    temperature: 1,
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
     max_tokens: 200,
-+   stream: true,
+    stream: true,
     n: 1,
   };
 
-+  const stream = await OpenAIStream(payload);
-+  return new Response(stream);
-
--  const response = await fetch("https://api.openai.com/v1/chat/completions", {
--    headers: {
--      "Content-Type": "application/json",
--      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
--    },
--    method: "POST",
--    body: JSON.stringify(payload),
--  });
--
--  const data = await response.json();
--  res.status(200);
--  res.send(data);
+  const stream = await OpenAIStream(payload);
+  return new Response(stream);
 };
 
 export default handler;
+
 ```
 
 </details>
@@ -417,7 +412,7 @@ export default handler;
 
 Lets have a look at the changes we've made above.
 
-- We've updated our config, so our API will run as a edge function.
+- We've updated our config, so our API will run as a `edge` function.
 - We will also enable in our [payload](https://platform.openai.com/docs/api-reference/completions) `stream:true` . This tells OpenAI to stream the response back, rather than waitng for the response to fully be completed.
 - In addtion, we have created a helper function called `OpenAIStream` to allow for incremental loading of the chatGPT response.
 
@@ -540,7 +535,7 @@ Heres some hints to get you started.
   ```pages/index/ts```
 
 ```diff
-  async function generateBlurb() {
+  const generateBlurb = useCallback(async () => {
 +   let done = false;
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
@@ -568,7 +563,7 @@ Heres some hints to get you started.
 +      const chunkValue = decoder.decode(value);
 +      setGeneratedBlurb((prev) => prev + chunkValue);
     }
-  }
+  }, [blurbRef.current]);
 ```
 
 </details>
@@ -795,13 +790,19 @@ Resources:
 <details>
    <summary><span style="color:red">Solution</summary>
 
-```diff
-...
 
--   const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.".
--   Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a student Audience, and base them on this context: ${blurbRef.current}`;
-+   const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.".
-+   Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a ${audienceRef.current} Audience, and base them on this context: ${blurbRef.current}`;
+Create a new ref for Audience Type
+```ts
+const audienceRef = useRef<HTMLInputElement>();
+
+```
+Change the prompt to include the audience type
+
+```ts
+Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a ${audienceRef.current} Audience, and base them on this context: ${blurbRef.current}`;
+```
+
+```diff
 ...
 
     while (!done) {
@@ -815,33 +816,30 @@ Resources:
         firstPost = streamedText.includes("1.");
       }
     }
--  }, [blurbRef.current, audienceRef.current]);
+-  }, [blurbRef.current]);
 +  }, [blurbRef.current, audienceRef.current]);
 
-...
+```
 
-      ></TextField>
+Add a new form control to the page (dropdown select)
 
-+      <FormControl fullWidth>
-+       <InputLabel id="Audience">Audience</InputLabel>
-+       <Select
-+          labelId="Audience"
-+          id="Audience"
-+          label="Audience"
-+          onChange={(event) => {
-+            audienceRef.current = event.target.value;
-+          }}
-+          value={audienceRef.current}
-+        >
-+          <MenuItem value="Student">Student</MenuItem>
-+          <MenuItem value="Profesional">Profesional</MenuItem>
-+          <MenuItem value="Monkey">Monkey</MenuItem>
-+        </Select>
-+      </FormControl>
-
-      <Button onClick={generateBlurb}>Generate Blurb</Button>
-
-      ...
+```ts
+      <FormControl fullWidth>
+       <InputLabel id="Audience">Audience</InputLabel>
+       <Select
+          labelId="Audience"
+          id="Audience"
+          label="Audience"
+          onChange={(event) => {
+            audienceRef.current = event.target.value;
+          }}
+          value={audienceRef.current}
+        >
+          <MenuItem value="Student">Student</MenuItem>
+          <MenuItem value="Profesional">Profesional</MenuItem>
+          <MenuItem value="Monkey">Monkey</MenuItem>
+        </Select>
+      </FormControl>
 
 ```
 
