@@ -206,6 +206,9 @@ Now lets update our frontend to receive the response from the API. For now, we w
 }, [blurbRef.current]);
 ```
 
+Lets explain what we've just done
+- Added in a UseCallback so that the ref is updated when the function is called.
+
 </details>
 
 <br>

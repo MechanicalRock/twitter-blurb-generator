@@ -138,8 +138,10 @@ Next step is to add a textbox so people can type what blurb they would like to g
 ```diff
 - import { Typography, Stack } from "@mui/material";
 + import { Stack, TextField, Typography } from "@mui/material";
++ import { useRef } from "react";
 
 export default function Home() {
++ const blurbRef = useRef("");
   return (
     <Stack
       component="main"
@@ -162,6 +164,9 @@ export default function Home() {
 +       multiline
 +       fullWidth
 +       minRows={4}
++       onChange={(e) => {
++         blurbRef.current = e.target.value;
++        }}
 +       sx={{ "& textarea": { boxShadow: "none !important" } }}
 +       placeholder="Key words on what you would like your blurb to be about"
 +     ></TextField>
@@ -175,6 +180,7 @@ Let's now add a button that allows users to generate their blurb and have an emp
 ```diff
 - import { Typography, Stack } from "@mui/material";
 +import { Button, Stack, TextField, Typography } from "@mui/material";
+import { useRef } from "react";
 
 export default function Home() {
 +  function generateBlurb(): void {
@@ -203,6 +209,9 @@ export default function Home() {
         multiline
         fullWidth
         minRows={4}
+        onChange={(e) => {
+        blurbRef.current = e.target.value;
+        }}
         sx={{ "& textarea": { boxShadow: "none !important" } }}
         placeholder="Key words on what you would like your blurb to be about"
       ></TextField>
