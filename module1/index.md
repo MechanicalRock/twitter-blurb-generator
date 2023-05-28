@@ -72,6 +72,7 @@ pnpm install @mui/material @emotion/react @emotion/styled
 
 Now let's go to pages/index.ts and replace everything with the following. Execute `pnpm dev` to check your latest changes
 
+
 ```typescript
 import { Typography } from "@mui/material";
 
@@ -84,7 +85,95 @@ export default function Home() {
 }
 ```
 
-Obviously this doesn't look great, so lets add in some simple tailwind to make it look a bit nicer. Feel free to play around with it to get to look as you would like. [Tailwind](https://tailwindcss.com/) is a CSS library that comes with the app if you selected yes on tailwind setup when you were creating your Next.js app.
+### Styling
+
+Firstly, lets change our theme to light mode, and add in our own styling.
+
+In `./styles`
+
+```diff
+-@media (prefers-color-scheme: dark) {
++@media (prefers-color-scheme: light) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+```
+
+Create file `./styles/globals.css`
+
+```css
+import { Roboto } from "next/font/google";
+import { createTheme } from "@mui/material/styles";
+import { red } from "@mui/material/colors";
+
+export const roboto = Roboto({
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  fallback: ["Helvetica", "Arial", "sans-serif"],
+});
+
+// Create a theme instance.
+const theme = createTheme({
+  palette: {
+    primary: {
+      light: "#98c1d9",
+      main: "#3d5a80",
+      dark: "#293241",
+    },
+    secondary: {
+      main: "#ee6c4d",
+    },
+    error: {
+      main: red.A400,
+    },
+  },
+  typography: {
+    fontFamily: roboto.style.fontFamily,
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        contained: ({ theme }) => ({
+          boxShadow: "none",
+          backgroundColor: theme.palette.primary.main + " !important",
+          borderRadius: "2em",
+          minHeight: "3em",
+        }),
+        sizeMedium: {
+          minHeight: "1.5em",
+        },
+      },
+    },
+  },
+});
+
+export default theme;
+
+```
+
+Now lets add in our theme to our app. In `./pages/_app.tsx`, replace the contents with the following:
+
+```ts
+import "@/styles/globals.css";
+import { ThemeProvider } from "@mui/material";
+import type { AppProps } from "next/app";
+import theme from "../styles/theme";
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <ThemeProvider theme={theme}>
+      <Component {...pageProps} />
+    </ThemeProvider>
+  );
+}
+
+```
+
+Lets add in addtion some simple tailwind to make it look a bit nicer. Feel free to play around with it to get to look as you would like. [Tailwind](https://tailwindcss.com/) is a CSS library that comes with the app if you selected yes on tailwind setup when you were creating your Next.js app.
 
 ```diff
 import { Typography } from "@mui/material";

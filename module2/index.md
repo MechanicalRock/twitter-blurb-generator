@@ -708,10 +708,10 @@ Why is this occuring? Have a go and trying to fix it.
       const { value, done: doneReading } = await reader.read();
       done = doneReading;
       const chunkValue = decoder.decode(value);
--     setGeneratedBlurb((prev) => prev + chunkValue);
+-     setGeneratedPosts((prev) => prev + chunkValue);
 +     streamedText += chunkValue;
 +     if (firstPost) {
-+       setGeneratedBlurb(streamedText);
++       setGeneratedPosts(streamedText);
 +     } else {
 +       firstPost = streamedText.includes("1.");
       }
@@ -750,7 +750,7 @@ interface Props {
 export function Blurb({ generatingBlurb }: Props) {
   return (
     <Card>
-      <CardContent>{generatingBlurb}</CardContent>
+      <CardContent>{generatingPost}</CardContent>
     </Card>
   );
 }
