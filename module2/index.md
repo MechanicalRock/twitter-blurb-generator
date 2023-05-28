@@ -268,7 +268,7 @@ Add the following to your code.
 
   export default function Home() {
   const blurbRef = useRef("");
-+  const [generatedBlurb, setGeneratedBlurb] = useState("");
++  const [generatedPosts, setGeneratedPosts] = useState("");
 
 ...
 
@@ -284,9 +284,9 @@ Add the following to your code.
 ></TextField>
 
 
-+ {generatedBlurb && (
++ {generatedPosts && (
 +    <Card>
-+      <CardContent>{generatedBlurb}</CardContent>
++      <CardContent>{generatedPosts}</CardContent>
 +    </Card>
 + )}
 
@@ -323,7 +323,7 @@ Add the following to your code.
     }
     const data = await response.json();
     console.log("Response was:", JSON.stringify(data));
-+   setGeneratedBlurb(data.choices[0].message.content);
++   setGeneratedPosts(data.choices[0].message.content);
   }, [blurbRef.current]);
 
 ....
@@ -561,7 +561,7 @@ Heres some hints to get you started.
 +      const { value, done: doneReading } = await reader.read();
 +      done = doneReading;
 +      const chunkValue = decoder.decode(value);
-+      setGeneratedBlurb((prev) => prev + chunkValue);
++      setGeneratedPosts((prev) => prev + chunkValue);
     }
   }, [blurbRef.current]);
 ```
@@ -606,12 +606,12 @@ Prompt engineering can be quite complex because language models don't actually u
 ```diff
 
 ...
-  const [generatedBlurb, setGeneratedBlurb] = useState("");
+  const [generatedPosts, setGeneratedPosts] = useState("");
 
 +  const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.".
 +      Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a Student Audience, and base them on this context: ${blurbRef.current}`;
 
-  async function generateBlurb() {
+  const generateBlurb = useCallback(async () => {
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
@@ -661,8 +661,8 @@ Resources:
 -      <CardContent>{generatedBlurb}</CardContent>
 -    </Card>
 +       <>
-+         {generatedBlurb
-+          .substring(generatedBlurb.indexOf("1.") + 3)
++         {generatedPosts
++          .substring(generatedPosts.indexOf("1.") + 3)
 +          .split(/2\.|3\./)
 +          .map((generatedPost) => {
 +            return (
