@@ -89,7 +89,7 @@ export default function Home() {
 
 Firstly, lets change our theme to light mode, and add in our own styling.
 
-In `./styles`
+In `./styles/globals.css`
 
 ```diff
 -@media (prefers-color-scheme: dark) {
@@ -102,7 +102,7 @@ In `./styles`
 }
 ```
 
-Create file `./styles/globals.css`
+Create a new file `./styles/theme.ts` and below codeblock in it.
 
 ```css
 import { Roboto } from "next/font/google";

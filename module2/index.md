@@ -368,7 +368,7 @@ Now we have a basic understanding of the benefits of edge functions, lets refact
    <summary><span style="color:cyan">pages/api/generateBlurb.ts</summary>
 
 ```ts
-import { OpenAIStream, OpenAIStreamPayload } from "../../utils/OpenAIStream";
+import { OpenAIStream, OpenAIStreamPayload } from "../../utils/openAIStream";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("Missing env var from OpenAI");
@@ -418,7 +418,7 @@ Lets have a look at the changes we've made above.
 
 Next step is to actually create our helper function:
 
-Create the below file and copy the contents into `./utils/OpenAIStream.ts`
+Create the below file and copy the contents into `./utils/openAIStream.ts`
 
 You will also need to install an new dependency `pnpm i eventsource-parser`
 
