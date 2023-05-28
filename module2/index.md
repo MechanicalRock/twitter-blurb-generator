@@ -542,7 +542,7 @@ Heres some hints to get you started.
       headers: {
         "Content-Type": "application/json",
       },
-      prompt: prompt,
+      prompt: blurbRef.current,
     });
 
     if (!response.ok) {
