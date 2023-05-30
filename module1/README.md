@@ -365,5 +365,7 @@ If you wanted to deploy this application using AWS services, you would have had 
 1. Once the application has been deployed, click on the image below `Continue to Dashboard` to view your deployed application<br/>
     ![deployed-app](content/deployed-app.png)
 
-Congratulations you have now completed Module1 and ready to move on to the second module. Your completed app should look like this: [Module1-final demo](final-demo/latency-workshop-app/). <br/>
-If you have any issues finishing off module1, you can download the content in `final-demo/latency-workshop-app` and move onto the next module.
+Congratulations you have now completed Module1 and ready to move on to the second module. If you have any issues finishing off module1, you can download the app from [Module1- Final Demo](final-demo/) and move on to the next module.
+
+**Module2** How to connect your frontend application to OpenAI APIs and passing custom prompts ->
+[Get started](/module2/README.md)
