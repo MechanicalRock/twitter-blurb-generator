@@ -18,24 +18,24 @@ Are you ready to get started?
 ### Module 1
 
 How to build a hello world application on NextJS and deploy it using Vercel ->
-[Get started](/module1/index.md)
+[Get started](/module1/README.md)
 
 ### Module 2
 
 How to connect your frontend application to OpenAI APIs and passing custom prompts ->
-[Get started](/module2/index.md)
+[Get started](/module2/README.md)
 
 ### Module 3
 
 Enabling Plagiarism checker ->
-[Get started](/module3/index.md)
+[Get started](/module3/README.md)
 
 ### Module 4
 
 Setting up Twitter Authentication and open graph preview ->
-[Get started](/module4/index.md)
+[Get started](/module4/README.md)
 
 ### Module 5 (Optional)
 
 Setting up image generator via custom AI tuning using AWS Sagemaker ->
-[Get started](/module5/index.md)
+[Get started](/module5/README.md)
