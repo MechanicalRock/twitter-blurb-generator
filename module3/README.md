@@ -473,7 +473,7 @@ Now that we tested that the loading spinner works. We can remove the timeout.
 
 **3.2.2 Handle Detailed Results**
 
-Lets extend your `handleScan` function to handle detailed results. Copy and paste this function into `index.tsx`. This should highlight the text in the blurb which has been plagiarised.
+Lets extend your `handleScan` function to handle detailed results. Copy and paste this function into `Blurb.tsx`. This should highlight the text in the blurb which has been plagiarised.
 
 ```ts
 function getHighlightedHTMLBlurb(
