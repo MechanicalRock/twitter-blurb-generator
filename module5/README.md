@@ -84,3 +84,7 @@ Change your OpenAI calls to use the available SDK instead of hitting the API dir
 ## Optimizing the prompt
 
 Now let's play with the image generation endpoint to optimize the image and make it the most relevant to the text.
+
+---
+
+### Allowing users to regenerate the photo
