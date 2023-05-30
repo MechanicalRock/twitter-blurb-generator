@@ -118,7 +118,7 @@ Now you should be able to access this key in your app by using `process.env.OPEN
 
 ### 2.1.4: Connecting generateBlurb.ts to call OpenAI
 
-We get the prompt from the request body that is passed in from the frontend. In this payload we have to specify the api parameters needed by gpt3.5.
+To do this, we have to get the prompt from the request body that is passed in from the frontend and send it to OpenAI call. We will also need to to specify the api parameters needed by gpt3.5.
 
 After the payload is constructed, we send it in a POST request to OpenAI, await the result to get back the generated bios, then we send that back to the client as JSON
 
