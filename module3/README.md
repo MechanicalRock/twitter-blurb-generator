@@ -335,12 +335,12 @@ export function Plagiarism({ loading, score }: Props) {
 </details>
 <br>
 
-4. In `index.tsx`
+4. In `Blurb.tsx`
    1. Add a boolean state variable named `plagiarismLoading` with the default value of false.
    2. Add a number state variable named `plagiarisedScore` with the default value of 0.
    3. At the bottom of the HTML `Stack` add the `Plagiarism` component with the `loading` property having the value `plagiarismLoading` and the `score` property having the value `plagiarisedScore`.
 
-Your `index.tsx` return statement should look like this:
+Your `Blurb.tsx` return statement should look like this:
 
 <details>
   <summary>Solution</summary>
@@ -427,7 +427,7 @@ Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has c
 <details>
   <summary>Solution</summary>
 
-1. In `index.tsx` create a function called `handleScan` which takes a `text` string variable as a parameter and a `scan` object parameter.
+1. In `Blurb.tsx` create a function called `handleScan` which takes a `text` string variable as a parameter and a `scan` object parameter.
 2. In `checkPlagiarism` set `plagiarismLoading` to be true.
 3. In `checkPlagiarism` assign a variable called `scan` to have the value of our dummy object.
 4. In `checkPlagiarism` call `handleScan` and set `plagiarismLoading` to be false.
