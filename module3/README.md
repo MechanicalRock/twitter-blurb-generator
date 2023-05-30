@@ -433,7 +433,7 @@ Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has c
 4. In `checkPlagiarism` call `handleScan` and set `plagiarismLoading` to be false.
 5. Calculate the total number of words in our blurb by doing a `string.split()` on our blurb and finding the length of this array.
 6. Get the total number of `matchedWords` from our scan.
-7. Set the `plagiarismScore` to be `(matchedWords/totalWords) * 100` .
+7. Set the `plagiarisedScore` to be `(matchedWords/totalWords) * 100` .
 
 ```ts
 import dummyScanResults from "@/utils/dummy-data/dummyScanResults.json";
@@ -450,7 +450,7 @@ import dummyScanResults from "@/utils/dummy-data/dummyScanResults.json";
 function handleScan(text: string, scan: any) {
   const totalBlurbWords = text.split(" ").length;
   const matchedWords = scan.matchedWords;
-  setPlagiarismScore((matchedWords / totalBlurbWords) * 100);
+  setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
 }
 ```
 
@@ -473,7 +473,7 @@ Now that we tested that the loading spinner works. We can remove the timeout.
 
 **3.2.2 Handle Detailed Results**
 
-Lets extend your `handleScan` function to handle detailed results. Copy and paste this function into `Blurb.tsx`. This should highlight the text in the blurb which has been plagiarised.
+Lets extend your `handleScan` function to handle detailed results. Copy and paste this function into `index.tsx`. This should highlight the text in the blurb which has been plagiarised.
 
 ```ts
 function getHighlightedHTMLBlurb(
