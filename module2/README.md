@@ -6,23 +6,25 @@ In this module, our primary focus will be on establishing an API endpoint for yo
 
 We will then delve into the process of refining our input parameters for the OpenAI API, ensuring that the generated output aligns more closely with our desired context and requirements.
 
-If you've had issues so far, clone from [Module1]().
+If you've had issues so far, clone from [Module1](/module1/final-demo).
 
 ---
 
 ## Contents
 
-2.1 [Creating a NextJs API endpoint and Connecting to ChatGPT](#creating-a-nextjs-api-endpoint-and-connecting-to-chatgpt)
+2.1 [Creating a NextJs API endpoint and Connecting to ChatGPT](#21-creating-a-nextjs-api-endpoint-and-connecting-to-chatgpt)
 </br>
-2.2 [Creating a Card to display the OpenAI Output](#creating-a-card-to-display-the-openai-output)
+2.2 [Creating a Card to display the OpenAI Output](#22-creating-a-card-to-display-the-openai-output)
 </br>
-2.3 [Serverless VS Streaming](#serverless-vs-streaming)
+2.3 [Serverless VS Streaming](#23-streaming-vs-serverless)
 </br>
-2.4 [Prompt Engineering](#prompt-engineering)
+2.4 [Prompt Engineering](#24-prompt-engineering)
 </br>
-2.5 [Refactoring into Components](#refactoring-into-components)
+2.5 [String manipulation to output multiple cards](25-string-manipulation-to-output-multiple-cards)
 </br>
-2.6 [Challenge: Add in dropdown choices to set the prompt vibe](#challenge)
+2.5 [Refactoring into Components](#26-refactoring-into-components)
+</br>
+2.6 [Challenge: Add in dropdown choices to set the prompt vibe](#27-challenge)
 
 ---
 
@@ -340,7 +342,7 @@ Congrats, you should now be seeing the response from OpenAI using our prompt.
 
 ---
 
-## 2.4 Streaming Vs Serverless
+## 2.3 Streaming Vs Serverless
 
 Whilst this approach works, there are limitations to a serverless function.
 
