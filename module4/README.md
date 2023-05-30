@@ -2,20 +2,20 @@
 
 This module covers setting up Twitter authentication for this application which acts as one of the last few steps in closing the loop, from generating your the blurb and running plagarism checks to finally posting the Tweet.
 
----
+</br>
 
 ## Contents
 
 4.1 [Twitter Auth Configuration](#twitter-auth-configuration)
-<br>
+</br>
 4.2 [NextJS APIs](#nextjs-apis)
-<br>
+</br>
 4.3 [Configure NextAuth](#configure-nextauth)
-<br>
+</br>
 4.4 [Frontend](#frontend)
-<br>
+</br>
 
----
+</br>
 
 ## Twitter Auth Configuration
 
@@ -48,7 +48,7 @@ See https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twit
 5. Click on the save button and you will be taken to a page with your client ID and client secret. Copy these values down and store somewhere safe as these keys will be required for the `.env.local` file for local development.
 6. Lastly, we need to set a value for `NEXTAUTH_SECRET` env variable used by nextauth.js library which is used to encrypt and decrypt JWT tokens. See here for more documentation on generating a good value: https://next-auth.js.org/configuration/options
 
----
+</br>
 
 ## NextJS APIs
 
@@ -124,7 +124,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 </details>
 <br>
 
----
+</br>
 
 ### Configure NextAuth
 
@@ -193,7 +193,7 @@ export default NextAuth({
 ```
 </details>
 
----
+</br>
 
 ## Frontend
 
@@ -386,7 +386,6 @@ Error Handling
 <br />f. Set loading to false
 <br />**NOTE: On success, this will publish to your Twitter account!**
 
-
 ```ts
 import "react-circular-progressbar/dist/styles.css";
 
@@ -498,8 +497,8 @@ export const TweetPreview = ({ blurb }: { blurb: string }) => {
 };
 
 ```
-</details>
 
+</details>
 
 ### Create a ProfilePicture component
 
@@ -537,4 +536,5 @@ export const ProfilePicture = () => {
 };
 
 ```
+
 </details>

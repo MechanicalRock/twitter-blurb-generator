@@ -171,7 +171,7 @@ export default handler;
 
 <br>
 
-Now lets update our frontend to receive the response from the API. For now, we will just log the output to the console.
+Now lets update our frontend to display the response from the API. So far we were just logging the output to the console.
 
 Before we change our generateBlurb function, we will need to extract the current value from our textbox and store it somewhere. To do this, we are using useRef function from react.
 
@@ -187,28 +187,66 @@ const blurbRef = useRef("");
 
 Make sure to import useRef from react. ```import { useRef } from "react";```
 
-Next step is to connect your textbox to the blurbRef reference that you just created.
-
-We accomplish this by adding a `onChange` event to the textbox, and updating the blurbRef.current value.  
+Next step is to connect your textbox to the blurbRef reference that you just created. We accomplish this by adding a `onChange` event to the textbox, and updating the blurbRef.current value.  
 
 <details>
    <summary>Solution</summary>
 
-```ts
-  <TextField
-    multiline
-    fullWidth
-    minRows={4}
-    onChange={(e) => {
-      blurbRef.current = e.target.value;
-    }}
-    sx={{ "& textarea": { boxShadow: "none !important" } }}
-    placeholder="Key words on what you would like your blurb to be about"
-  ></TextField>
+```diff
+import { Typography, Stack, TextField, Button } from "@mui/material";
++ import { useRef } from "react";
+
+export default function Home() {
++  const blurbRef = useRef("");
+  async function generateBlurb() {
+    const response = await fetch("/api/generateBlurb", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: "This is an empty prompt",
+      }),
+    });
+    const data = await response.json();
+    console.log("Response was:", JSON.stringify(data));
+  }
+
+  return (
+    <Stack
+      component="main"
+      direction="column"
+      maxWidth="50em"
+      mx="auto"
+      alignItems="center"
+      justifyContent="center"
+      py="1em"
+      spacing="1em"
+    >
+      <Typography
+        variant="h1"
+        className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
+      >
+        Generate your next Twitter post with ChatGPT
+      </Typography>
+      <TextField
+        multiline
+        fullWidth
+        minRows={4}
++        onChange={(e) => {
++          blurbRef.current = e.target.value;
++        }}
+        sx={{ "& textarea": { boxShadow: "none !important" } }}
+        placeholder="Key words on what you would like your blurb to be about"
+      ></TextField>
+      <Button onClick={generateBlurb}>Generate Blurb</Button>
+    </Stack>
+  );
+}
 ```
 
 </details>
-
+</br>
 Now you need to update your generateBlurb function to use the blurbRef.current value.
 
 <details>

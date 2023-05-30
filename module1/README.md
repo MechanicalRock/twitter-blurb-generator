@@ -225,20 +225,12 @@ Let’s quickly test what we have done. Your homepage should look like the below
 ![home page with the heading](./content/home-page.png)
 
 Next step is to add a textbox so people can type what blurb they would like to generate:
-In this codeblock, we are also capturing the current value of the textbox and storing it via useRef from react.
-
-Before we get to the code, let's go through what is useRef and useState and when should you use one or the other:
-
-In React, both useState and useRef are hooks that provide ways to manage state. However, they serve different purposes and have different behaviors. The main difference between the two is when the value of useState is updated, the page will re-render allowing the state value to effect in the UI. However useRef holds the latest value but it does not rerender the document. </br>
-In below example, we are only storing the value of the textbox to be able to use it later, however updating that value should not effect the render on the page.
 
 ```diff
 - import { Typography, Stack } from "@mui/material";
 + import { Stack, TextField, Typography } from "@mui/material";
-+ import { useRef } from "react";
 
 export default function Home() {
-+ const blurbRef = useRef("");
   return (
     <Stack
       component="main"
@@ -261,9 +253,6 @@ export default function Home() {
 +       multiline
 +       fullWidth
 +       minRows={4}
-+       onChange={(e) => {
-+         blurbRef.current = e.target.value;
-+        }}
 +       sx={{ "& textarea": { boxShadow: "none !important" } }}
 +       placeholder="Key words on what you would like your blurb to be about"
 +     ></TextField>
@@ -277,13 +266,12 @@ Let's now add a button that allows users to generate their blurb and have an emp
 ```diff
 - import { Typography, Stack } from "@mui/material";
 +import { Button, Stack, TextField, Typography } from "@mui/material";
-import { useRef } from "react";
 
 export default function Home() {
 +  function generateBlurb(): void {
 +    throw new Error("Function not implemented.");
 +  }
-  const blurbRef = useRef("");
+
   return (
     <Stack
       component="main"
@@ -306,9 +294,6 @@ export default function Home() {
         multiline
         fullWidth
         minRows={4}
-        onChange={(e) => {
-        blurbRef.current = e.target.value;
-        }}
         sx={{ "& textarea": { boxShadow: "none !important" } }}
         placeholder="Key words on what you would like your blurb to be about"
       ></TextField>
