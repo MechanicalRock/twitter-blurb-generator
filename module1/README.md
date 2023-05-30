@@ -95,14 +95,17 @@ In `./styles/globals.css`
 -@media (prefers-color-scheme: dark) {
 +@media (prefers-color-scheme: light) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
++    --foreground-rgb: 0, 0, 0;
++    --background-start-rgb: 214, 219, 220;
++    --background-end-rgb: 255, 255, 255;
+-    --foreground-rgb: 255, 255, 255;
+-    --background-start-rgb: 0, 0, 0;
+-    --background-end-rgb: 0, 0, 0;
   }
 }
 ```
 
-Create a new file `./styles/theme.ts` and below codeblock in it.
+Create a new file `./styles/theme.ts` and add below codeblock in it.
 
 ```css
 import { Roboto } from "next/font/google";
@@ -192,37 +195,42 @@ export default function Home() {
 
 This still is not looking quite right. So lets wrap this in a Stack to get it centred as we would like.
 
-```diff
-- import { Typography } from "@mui/material";
-+ import { Typography, Stack } from "@mui/material";
+```ts
+import { Typography, Stack } from "@mui/material";
 
 export default function Home() {
   return (
-+   <Stack
-+     component="main"
-+     direction="column"
-+     maxWidth="50em"
-+     mx="auto"
-+     alignItems="center"
-+     justifyContent="center"
-+     py="1em"
-+     spacing="1em"
-+   >
+    <Stack
+      component="main"
+      direction="column"
+      maxWidth="50em"
+      mx="auto"
+      alignItems="center"
+      justifyContent="center"
+      py="1em"
+      spacing="1em"
+    >
       <Typography
         variant="h1"
         className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
       >
         Generate your next Twitter post with ChatGPT
       </Typography>
-+   </Stack>
+   </Stack>
   );
 }
 ```
 
-Let’s quickly go over what we have done. Your homepage should look like the below:
-![home page with the heading](./content/image_1.png)
+Let’s quickly test what we have done. Your homepage should look like the below:</br></br>
+![home page with the heading](./content/home-page.png)
 
 Next step is to add a textbox so people can type what blurb they would like to generate:
+In this codeblock, we are also capturing the current value of the textbox and storing it via useRef from react.
+
+Before we get to the code, let's go through what is useRef and useState and when should you use one or the other:
+
+In React, both useState and useRef are hooks that provide ways to manage state. However, they serve different purposes and have different behaviors. The main difference between the two is when the value of useState is updated, the page will re-render allowing the state value to effect in the UI. However useRef holds the latest value but it does not rerender the document. </br>
+In below example, we are only storing the value of the textbox to be able to use it later, however updating that value should not effect the render on the page.
 
 ```diff
 - import { Typography, Stack } from "@mui/material";
@@ -315,7 +323,7 @@ Congratulations! Your homepage is now completed. It should look like below:
 
 ![Final home page design](content/final-homepage.png)
 
-In this workshop we are not focusing on learning about UI designs, if you are interested to learn more about [Tailwind](https://tailwindcss.com/) and [Material UI](https://mui.com/material-ui/getting-started/overview/) on your own time, feel free so.
+**Note:** In this workshop we are not focusing on learning about UI designs, if you are interested to learn more about [Tailwind](https://tailwindcss.com/) and [Material UI](https://mui.com/material-ui/getting-started/overview/) on your own time, feel free so.
 
 ## Deploying your application into production
 
