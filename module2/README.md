@@ -8,7 +8,7 @@ We will then delve into the process of refining our input parameters for the Ope
 
 If you've had issues so far, clone from [Module1](/module1/final-demo).
 
----
+</br>
 
 ## Contents
 
@@ -26,7 +26,7 @@ If you've had issues so far, clone from [Module1](/module1/final-demo).
 </br>
 2.6 [Challenge: Add in dropdown choices to set the prompt vibe](#27-challenge)
 
----
+</br>
 
 ## 2.1 Creating a NextJs API endpoint and Connecting to ChatGPT
 
@@ -248,7 +248,7 @@ Thats it! we've built the first version of our application. However we are only 
 
 Lets create a output now for this to display.
 
----
+</br>
 
 ## 2.2 Creating a Card to display the OpenAI Output
 
@@ -340,7 +340,7 @@ Add the following to your code.
 Congrats, you should now be seeing the response from OpenAI using our prompt.
 <br>
 
----
+</br>
 
 ## 2.3 Streaming Vs Serverless
 
@@ -575,7 +575,7 @@ You should now have a streaming response!!
 
 <br>
 
----
+</br>
 
 ## 2.4 Prompt Engineering
 
@@ -640,7 +640,7 @@ Feel free to manipulate and add in your own changes.
 </details>
 
 
----
+</br>
 
 ## 2.5 String manipulation to output multiple cards
 
@@ -721,7 +721,7 @@ Why is this occuring? Have a go and trying to fix it.
 
 </details>
 
----
+</br>
 
 ## 2.6 Refactoring into Components
 
