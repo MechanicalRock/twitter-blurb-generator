@@ -268,7 +268,7 @@ Add the following to your code.
 
   export default function Home() {
   const blurbRef = useRef("");
-+  const [generatedPosts, setGeneratedPosts] = useState("");
++  const [generatingPosts, setGeneratingPosts] = useState("");
 
 ...
 
@@ -284,9 +284,9 @@ Add the following to your code.
 ></TextField>
 
 
-+ {generatedPosts && (
++ {generatingPosts && (
 +    <Card>
-+      <CardContent>{generatedPosts}</CardContent>
++      <CardContent>{generatingPosts}</CardContent>
 +    </Card>
 + )}
 
@@ -323,7 +323,7 @@ Add the following to your code.
     }
     const data = await response.json();
     console.log("Response was:", JSON.stringify(data));
-+   setGeneratedPosts(data.choices[0].message.content);
++   setGeneratingPosts(data.choices[0].message.content);
   }, [blurbRef.current]);
 
 ....
@@ -362,7 +362,7 @@ You can think of [Edge Functions](https://vercel.com/docs/concepts/functions/edg
 
 ##### Edge Functions and Streaming
 
-Now we have a basic understanding of the benefits of edge functions, lets refactor our existing code to take advantage of the streaming utility
+Now we have a basic understanding of the benefits of edge functions, lets update our existing code to take advantage of the streaming utility
 
 <details>
    <summary><span style="color:cyan">pages/api/generateBlurb.ts</summary>
@@ -532,7 +532,7 @@ Heres some hints to get you started.
 <details>
    <summary><span style="color:red">Solution</summary>
   
-  ```pages/index.ts```
+  In ```pages/index.ts``` make the following changes in the ```generateBlurb``` function:
 
 ```diff
   const generateBlurb = useCallback(async () => {
@@ -561,7 +561,7 @@ Heres some hints to get you started.
 +      const { value, done: doneReading } = await reader.read();
 +      done = doneReading;
 +      const chunkValue = decoder.decode(value);
-+      setGeneratedPosts((prev) => prev + chunkValue);
++      setGeneratingPosts((prev) => prev + chunkValue);
     }
   }, [blurbRef.current]);
 ```
@@ -606,7 +606,7 @@ Prompt engineering can be quite complex because language models don't actually u
 ```diff
 
 ...
-  const [generatedPosts, setGeneratedPosts] = useState("");
+  const [generatingPosts, setGeneratingPosts] = useState("");
 
 +  const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.".
 +      Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a Student Audience, and base them on this context: ${blurbRef.current}`;
@@ -661,13 +661,13 @@ Resources:
 -      <CardContent>{generatedBlurb}</CardContent>
 -    </Card>
 +       <>
-+         {generatedPosts
-+          .substring(generatedPosts.indexOf("1.") + 3)
++         {generatingPosts
++          .substring(generatingPosts.indexOf("1.") + 3)
 +          .split(/2\.|3\./)
-+          .map((generatedPost) => {
++          .map((generatingPost) => {
 +            return (
 +             <Card>
-+               <CardContent>{generatedPost}</CardContent>
++               <CardContent>{generatingPost}</CardContent>
 +             </Card>
 +             );
 +           })}
@@ -682,9 +682,9 @@ Lets explain what we just did.
 
 2. .split(/2\.|3\./): This divides the string into parts at "2." and "3." and makes an array (list) of these parts.
 
-3. .map((generatedPost) => {...}): This creates a new list. Each item in the old list is turned into a Card component.
+3. .map((generatingPost) => {...}): This creates a new list. Each item in the old list is turned into a Card component.
 
-4. <Card>...<CardContent>{generatedPost}</CardContent>...</Card>: For each part of the string, it makes a Card with the text inside it.
+4. <Card>...<CardContent>{generatingPost}</CardContent>...</Card>: For each part of the string, it makes a Card with the text inside it.
 
 In short, the code splits a text string into parts at "1.", "2.", and "3.", and displays each part in a separate Card component.
 
@@ -708,10 +708,10 @@ Why is this occuring? Have a go and trying to fix it.
       const { value, done: doneReading } = await reader.read();
       done = doneReading;
       const chunkValue = decoder.decode(value);
--     setGeneratedPosts((prev) => prev + chunkValue);
+-     setGeneratingPosts((prev) => prev + chunkValue);
 +     streamedText += chunkValue;
 +     if (firstPost) {
-+       setGeneratedPosts(streamedText);
++       setGeneratingPosts(streamedText);
 +     } else {
 +       firstPost = streamedText.includes("1.");
       }
@@ -811,7 +811,7 @@ Make sure each generated post is less than 280 characters, has short sentences t
       const chunkValue = decoder.decode(value);
       streamedText += chunkValue;
       if (firstPost) {
-        setGeneratedBlurb(streamedText);
+        setGeneratingPosts(streamedText);
       } else {
         firstPost = streamedText.includes("1.");
       }
