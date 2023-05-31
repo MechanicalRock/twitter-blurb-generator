@@ -577,7 +577,9 @@ In order to receive the results of scans and exports from the Copy Leaks servers
 
 Firebase Realtime Database is a cloud-hosted NoSQL database provided by Google as part of the Firebase platform. It is a real-time, scalable database solution designed to store and synchronize data across multiple clients in real-time. This database will only be used to store the results from a CopyLeaks plagiarism check and then notify the front end that results have been returned.
 
-This link will be helpful when completing this section - https://firebase.google.com/docs/database/web/start
+Although our plagiarism call is not realtime, Copy Leaks API will send the response to a webhook. The webhook will then sends the response to the Firebase database and Firebase is connected to our UI to update the frontend as soon as any new data is available in the db. The main aim of this module is to show you how to connect your frontend with a realtime database and display the latest data in your application as soon as new data becomes available.
+
+ For more information on Firebase check their documentation [here](https://firebase.google.com/docs/database/web/start).
 
 ---
 
@@ -596,8 +598,6 @@ This link will be helpful when completing this section - https://firebase.google
 11. Select `Start in Test mode`. Click `Enable`
 12. Copy your database URL which will be something like `https://latency-blurb-workshop-default-rtdb.asia-southeast1.firebasedatabase.app/` depending on what you named your project in step 4.
 13. Add your database URL to .env.local for the variable `NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL`
-
-**Important all API calls must use `fetch` and not `axios`**
 
 ### Tasks
 
