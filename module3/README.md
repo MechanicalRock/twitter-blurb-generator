@@ -870,10 +870,10 @@ Ensure to use this `scanId` `f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2` and this `7e5
 
 **3.5.1 Manually call the Scan and Export Webook**
 
-The dummy data for this task can be found in `module3/utils/dummy-data/dummyCompletedExportResultsWebhookResponse.json` and `module3/utils/dummy-data/dummyCompletedScanWebhookResponse.json`.
+The dummy data for this task can be found in `/utils/dummy-data/dummyCompletedExportResultsWebhookResponse.json` and `/utils/dummy-data/dummyCompletedScanWebhookResponse.json`. You should have already downloaded those previously.
 
-1. In `Blurb.tsx` in `checkPlagiarism` make a manual API call to the `scan` webhook with a fake request body.
-2. In `Blurb.tsx` in `checkPlagiarism` make a manual API call to the `export` webhook with a fake request body.
+1. In `blurb.tsx` in `checkPlagiarism` make a manual API call to the `scan` webhook with a fake request body.
+2. In `blurb.tsx` in `checkPlagiarism` make a manual API call to the `export` webhook with a fake request body.
 
 <details>
   <summary>Solution</summary>
@@ -925,7 +925,7 @@ useEffect(() => {
 
 Now that we can send scan results and export results to the database via Webhook lets listen to Firebase for when the results are returned.
 
-1. Using the Firebase SDK listen for scan results on a specific node based on `scanId`. Use Firebases `onValue` function. Remember to use the `scanId` `f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2`.
+Using the Firebase SDK listen for scan results on a specific node based on `scanId`. Use Firebases `onValue` function. Remember to use the `scanId` `f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2`.
    </br>
    More information: https://firebase.google.com/docs/database/web/read-and-write#read_data
 
@@ -940,7 +940,9 @@ Now that we can send scan results and export results to the database via Webhook
 6. Call our `handleScan` function with the `scanRecord.val()` as a parameter.
 
 ```ts
-useEffect(() => {
+  import { FirebaseWrapper } from "../../lib/firebase/FirebaseWrapper";
+  import { onValue } from "firebase/database";
+  ...
   const checkPlagiarism = async (streamedBlurb: string) => {
     setPlagiarismLoading(true);
 
