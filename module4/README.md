@@ -41,25 +41,27 @@ See https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twit
 2. Scroll down to the `Apps` section and click on the button `+ Add App`. Then enter in a name and hit the next button
 3. This should create an application. Proceed by clicking on `App Settings` button as we now need to configure oauth2
 4. Under the section `User authentication settings` and click on `Set Up` button. Next do the following:  
-   a. Set App permissions to `Read and write`  
+   a. Set App permissions to `Read and write`
 
-   b. Type of App to `Web App`  
+   b. Type of App to `Web App`
 
    c. Callback URI to `http://127.0.0.1:3000/api/auth/callback/twitter`. This is because localhost is not accepted here as a valid callback.
 
    d. Website URL to i.e. (http://example.com). It doesn't really matter for local development and prorotyping
+
 5. Click on the save button and you will be taken to a page with your client ID and client secret. Copy these values down and store somewhere safe as these keys will be required for the `.env.local` file for local development.
 6. Lastly, we need to set a value for `NEXTAUTH_SECRET` env variable used by nextauth.js library which is used to encrypt and decrypt JWT tokens. See here for more documentation on generating a good value: https://next-auth.js.org/configuration/options
 
 Run the following command in your terminal and copy output to your `.env.local` file as `NEXTAUTH_SECRET` value:
 
-```bash 
+```bash
 openssl rand -base64 32
 ```
- Should look something like this:
 
- ```
- NEXTAUTH_SECRET=+77tjH9yNylsQMBTRIAjCiYfgdfFLFbkHxSL94Wo6aE=
+Should look something like this:
+
+```
+NEXTAUTH_SECRET=+77tjH9yNylsQMBTRIAjCiYfgdfFLFbkHxSL94Wo6aE=
 ```
 
 </br>
@@ -72,7 +74,7 @@ In order to tweet your post to Twitter, we need to create a NextJS API which wil
 
 **Create a Tweet Post API**
 
-1. Install the `next-auth` package. Command: ```pnpm i next-auth```
+1. Install the `next-auth` package. Command: `pnpm i next-auth`
 2. Create an Edge function named `tweetPost.ts` in `pages/api`.
 3. Obtain and validate the user's authentication (JWT) from the request (https://next-auth.js.org/configuration/options#jwt-helper)
 4. Validate the incoming request Body
@@ -286,8 +288,6 @@ export default function SigninToolbar() {
 }
 ```
 
-
-
 </details>
 <br>
 
@@ -383,7 +383,13 @@ return (
         Generate your next Twitter post with ChatGPT
       </Typography>
 ```
+
 <br>
+
+Once your app is deployed
+
+- Update the `NEXTAUTH_URL` environment variable to be your deployed site's URL.
+- In your Twitter developer account, update your callback URL to be ``<your_site_URL_here>/api/auth/callback/twitter`. To get to this setting see the step `4.c` in `Setting Up Twitter API Consumer & Client Keys`
 
 Test
 
@@ -391,7 +397,6 @@ Test
 2. Login with Twitter<br />
 3. Logout<br />
 4. Login again<br />
-
 
 ### Create a ProfilePicture component
 
@@ -454,9 +459,9 @@ Error Handling
 
 1. Create a file named `tweetPreview.tsx` in `components`.
 2. Install the `@mui/icons-material` and `react-hot-toast` packages:
-    ```bash
-      pnpm i @mui/icons-material react-hot-toast
-    ```
+   ```bash
+     pnpm i @mui/icons-material react-hot-toast
+   ```
 3. The component should declare a `blurb` parameter which gets injected by the Higher-ordered-Component, HoC. Higher-ordered-Components are parent components that wrap child components and inject props into them. In this case, the HoC is the `Home` component and the child component is the `TweetPreview` component.
 4. The component should have 4 states to manage:
    <br />`editableBlurb` should be initialised with the blurb parameter. It's purpose is to allow the user to edit the blurb in the preview itself.
@@ -472,8 +477,6 @@ Error Handling
    <br />e. If the API call succeeds, close the Dialog and show a success message
    <br />f. Set loading to false
    <br />**NOTE: On success, this will publish to your Twitter account!**
-
-
 
 ```ts
 import TwitterIcon from "@mui/icons-material/Twitter";
@@ -582,15 +585,13 @@ export const TweetPreview = ({ blurb }: { blurb: string }) => {
     </>
   );
 };
-
 ```
-
 
 </details>
 
 <br>
 
-  NextAuth.js provides a session provider that enables session management in Next.js applications. The session provider handles the creation, storage, and retrieval of session data, including user authentication status and related information. As the final step, we need to wrap our application in a Session Provider.
+NextAuth.js provides a session provider that enables session management in Next.js applications. The session provider handles the creation, storage, and retrieval of session data, including user authentication status and related information. As the final step, we need to wrap our application in a Session Provider.
 
 Make the following changes in `pages/_app.tsx`
 
@@ -598,7 +599,7 @@ Make the following changes in `pages/_app.tsx`
 import "@/styles/globals.css";
 
 import type { AppProps } from "next/app";
-import { SessionProvider } from "next-auth/react";
++ import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@mui/material";
 import theme from "../styles/theme";
 
@@ -613,4 +614,39 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 ```
 
+Finally add the `TweetPreview` component to your `blurb` component so that it shows after the blurbs have finished generating.
 
+The `blurb.tsx` component's return statement should look like this:
+
+```ts
+return (
+  <>
+    <Stack direction="row" spacing="1em">
+      <Card sx={{ width: "37em" }}>
+        <CardContent>
+          {!blurbsFinishedGenerating ? (
+            generatingPost
+          ) : (
+            <>
+              {highlightedHTMLBlurb}
+              <Box>
+                <Stack direction="row-reverse" spacing="0.5em">
+                  <TweetPreview blurb={generatingPost} />
+                </Stack>
+              </Box>
+            </>
+          )}
+        </CardContent>
+      </Card>
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        width="12em"
+        className="bg-white rounded-xl shadow-md p-4 border"
+      >
+        <Plagiarism loading={plagiarismLoading} score={plagiarisedScore} />
+      </Stack>
+    </Stack>
+  </>
+);
+```
