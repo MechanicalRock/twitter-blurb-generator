@@ -51,13 +51,43 @@ Ensure you running `pnpm dev` before solving the next tasks.
 
 **3.1.1 Plagiarism Progress Bar**
 
-Copy and paste the `components` folder found in `module3/content/components` into the root of your project. The `CenterBox` component will help you center your plagiarism score component.
+**Step 1:** Before we add the progress bar, we have to add a new component called `CenterBox` that allows you to keep your elements in the middle.
 
-1. Write a component called `Loading.tsx` in the `Plagiarism` folder in components. You will need need muis `CircularProgress` component for this
+<details>
+  <summary>Solution</summary>
 
-It should look like this:
+Under your `components` folder create a new file called `centerBox.tsx` and copy the code below into it.
 
-![Loading](../module3/imgs/Loading.png)
+```ts
+import { SxProps } from "@mui/material";
+import Box from "@mui/material/Box";
+import * as React from "react";
+
+export function CenterBox({ children, sx }: { children: React.ReactNode; sx?: SxProps }) {
+  return (
+    <Box
+      sx={{
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        position: "absolute",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        ...sx,
+      }}
+    >
+      {children}
+    </Box>
+  )
+}
+```
+
+</details>
+</br>
+
+**Step 2:** Now let's add another component for our progress bar. Write a component called `Loading.tsx` in the `components` folder. You will need MUI's `CircularProgress` component for this
 
 <details>
   <summary>Solution</summary>
@@ -91,16 +121,18 @@ export function Loading() {
 ```
 
 </details>
-<br>
-
-2. In a folder named `Plagiarism` in the `components` folder, add a file named `Score.tsx`
-   1. This will function will take a `value` number variable and a `label` string variable as parameters.
-   2. Use muis `CircularProgress` component with the `determinate` variant with the `value` property set to `value`.
-   3. Underneath this component add the text in `label`
-
+</br>
 It should look like this:
 
-![Loading](../module3/imgs/Score.png)
+![Loading](../module3/imgs/Loading.png)
+
+<br>
+
+**Step 3:** In the `components` folder, add a new component named `Score.tsx`
+
+   1. This function will take a `value` number variable and a `label` string variable as parameters.
+   2. Use Mui's `CircularProgress` component with the `determinate` variant with the `value` property set to `value`.
+   3. Underneath this component add the text in `label`
 
 <details>
   <summary>Solution</summary>
@@ -146,9 +178,12 @@ export function Score(
 ```
 
 </details>
-<br>
+</br>
+It should look like this:
 
-3. In a folder named `Plagiarism` in the `components` folder, add a file named `Plagiarism.tsx`
+![Loading](../module3/imgs/Score.png)
+
+**Step 4:** In the `components` folder, add a file named `Plagiarism.tsx`
 
    1. This will function will take a `loading` boolean variable and a `score` number variable as parameters.
    2. If `loading` is true we will show our `Loading` component.
@@ -191,9 +226,10 @@ export function Plagiarism({ loading, score }: Props) {
 ```
 
 </details>
-<br>
+</br>
 
-4. In `Blurb.tsx`
+**Step 5:** In `Blurb.tsx`
+
    1. Add a boolean state variable named `plagiarismLoading` with the default value of false.
    2. Add a number state variable named `plagiarisedScore` with the default value of 0.
    3. At the bottom of the HTML `Stack` add the `Plagiarism` component with the `loading` property having the value `plagiarismLoading` and the `score` property having the value `plagiarisedScore`.
@@ -225,7 +261,7 @@ Your `Blurb.tsx` return statement should look like this:
 ```
 
 </details>
-<br>
+</br>
 
 **3.1.2 Add Plagiarism Score Column Name**
 
