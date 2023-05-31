@@ -203,7 +203,7 @@ Outline:
 
 UI
 
-1. Create a file named `SigninToolbar.tsx` in `components`<br />
+1. Create a file named `signinToolbar.tsx` in `components`<br />
 2. Create a component named `SigninToolbar` which uses the `useSession` hook from next-auth to determine if the user is logged in or not<br />
 3. Add the `SigninToolbar` component to the `Home` page<br />
 
@@ -211,7 +211,7 @@ UI
   <summary>Solution</summary>
 
 ```ts
-// components/SigninToolbar.tsx
+// components/signinToolbar.tsx
 import { Box, Button } from "@mui/material";
 import { useSession } from "next-auth/react";
 import * as React from "react";
@@ -354,7 +354,7 @@ Test
 
 ### Create a ProfilePicture component
 
-1. Create a file named `ProfilePicture.ts` in `components/TweetPreview`.
+1. Create a file named `profilePicture.tsx` in `components`.
 2. The component should show the logged in user's profile picture (https://next-auth.js.org/getting-started/client). Since we're using Twitter, we can use the `image` property from the session object.
 3. The component should be a circular image with a height of 3em and a margin-right of 1em.
 4. The component should be important from `TweetPreview.ts` and used in the Dialog.
@@ -411,8 +411,11 @@ Error Handling
 <details>
   <summary>Solution</summary>
 
-1. Create a file named `TweetPreview.tsx` in `components/TweetPreview`.
-2. Install the `mui/icons-material/Twitter` package
+1. Create a file named `tweetPreview.tsx` in `components`.
+2. Install the `@mui/icons-material` and `react-hot-toast` packages:
+    ```bash
+      pnpm i @mui/icons-material react-hot-toast
+    ```
 3. The component should declare a `blurb` parameter which gets injected by the Higher-ordered-Component, HoC. Higher-ordered-Components are parent components that wrap child components and inject props into them. In this case, the HoC is the `Home` component and the child component is the `TweetPreview` component.
 4. The component should have 4 states to manage:
    <br />`editableBlurb` should be initialised with the blurb parameter. It's purpose is to allow the user to edit the blurb in the preview itself.
@@ -429,6 +432,8 @@ Error Handling
    <br />f. Set loading to false
    <br />**NOTE: On success, this will publish to your Twitter account!**
 
+
+
 ```ts
 import TwitterIcon from "@mui/icons-material/Twitter";
 import { useState } from "react";
@@ -443,8 +448,8 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { CenterBox } from "./CenterBox";
-import { ProfilePicture } from "./ProfilePicture";
+import { CenterBox } from "./centerBox";
+import { ProfilePicture } from "./profilePicture";
 import { toast } from "react-hot-toast";
 
 export const TweetPreview = ({ blurb }: { blurb: string }) => {
@@ -536,7 +541,34 @@ export const TweetPreview = ({ blurb }: { blurb: string }) => {
     </>
   );
 };
+
+```
+
+6. In `pages/app.tsx`
+
+```ts
+import "@/styles/globals.css";
+
+import type { AppProps } from "next/app";
+import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "@mui/material";
+import theme from "../styles/theme";
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <SessionProvider>
+      <ThemeProvider theme={theme}>
+        <Component {...pageProps} />
+      </ThemeProvider>
+    </SessionProvider>
+  );
+}
 ```
 
 </details>
 
+
+
+TODO
+
+add `<SignInToolBar>` to index
