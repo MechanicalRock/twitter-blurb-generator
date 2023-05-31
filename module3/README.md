@@ -370,9 +370,9 @@ export function Blurb({ generatingPost, blurbsFinishedGenerating }: Props) {
 
 **3.2.2 Handle Scan Results**
 
-Before getting into the backend and connecting Copy Leaks API, let's first get our frontend working with dummy response from our backend.
+Now connect our frontend to display the results from some dummy backend response. To do that:
 
-- Download the zip folder from [dummy-data](./content/utils/dummy-data.zip)
+- Download the zip folder from [dummy-data](./content/utils)
 - Unzip the folder
 - Copy the folder into your `./utils` folder
 
@@ -382,39 +382,47 @@ Write a function in `blurb.tsx` that uses the dummy results file to calculate th
   <summary>Solution</summary>
 
 1. In `blurb.tsx` create a function called `handleScan` which takes a `text` string variable as a parameter and a `scan` object parameter.
-2. In `checkPlagiarism` set `plagiarismLoading` to be true.
-3. In `checkPlagiarism` assign a variable called `scan` to have the value of our dummy object.
-4. In `checkPlagiarism` call `handleScan` and set `plagiarismLoading` to be false.
-5. Calculate the total number of words in our blurb by doing a `string.split()` on our blurb and finding the length of this array.
-6. Get the total number of `matchedWords` from our scan.
-7. Set the `plagiarisedScore` to be `(matchedWords/totalWords) * 100` .
+2. Calculate the total number of words in our blurb by doing a `string.split()` on our blurb and finding the length of this array.
+3. Get the total number of `matchedWords` from our scan.
+4. Set the `plagiarisedScore` to be `(matchedWords/totalWords) * 100` .
 
-```ts
-import dummyScanResults from "@/utils/dummy-data/dummyScanResults.json";
-...
-  const checkPlagiarism = async (streamedBlurb: string) => {
-    setPlagiarismLoading(true);
-    const scan = dummyScanResults;
-    handleScan(streamedBlurb, scan);
-    setPlagiarismLoading(false);
-  };
-```
+    ```ts
+    ...
+    const [plagiarismLoading, setPlagiarismLoading] = useState<boolean>(false);
+    const [plagiarisedScore, setPlagiarisedScore] = useState<number>(0);
 
-```ts
-function handleScan(text: string, scan: any) {
-  const totalBlurbWords = text.split(" ").length;
-  const matchedWords = scan.matchedWords;
-  setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
-}
-```
+    function handleScan(text: string, scan: any) {
+      const totalBlurbWords = text.split(" ").length;
+      const matchedWords = scan.matchedWords;
+      setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
+    }
+    ...
+    ```
+
+5. In `checkPlagiarism` set `plagiarismLoading` to be true.
+6. In `checkPlagiarism` assign a variable called `scan` to have the value of our dummy object.
+7. In `checkPlagiarism` call `handleScan` and set `plagiarismLoading` to be false.
+
+    ```ts
+    import dummyScanResults from "../../utils/dummy-data/dummyScanResults.json";
+    ...
+      const checkPlagiarism = async (streamedBlurb: string) => {
+        setPlagiarismLoading(true);
+        const scan = dummyScanResults;
+        handleScan(streamedBlurb, scan);
+        setPlagiarismLoading(false);
+      };
+
+      function handleScan(text: string, scan: any) {
+    ...
+    ```
 
 </details>
-<br>
+</br>
 
 It should look like this:
 
 ![ScanPercentage](../module3/imgs/ScanPercentage.png)
-
 
 **3.2.3 Using useEffect to Call checkPlagiarism**
 
