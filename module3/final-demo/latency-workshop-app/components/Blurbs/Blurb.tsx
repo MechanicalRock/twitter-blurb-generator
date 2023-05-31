@@ -9,7 +9,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import { onValue } from "firebase/database";
 
 interface Props {
-  generatingBlurb: string;
+  generatingPost: string;
   blurbsFinishedGenerating: boolean;
 }
 
@@ -17,7 +17,7 @@ type ScanResponse = {
   scanId: string;
 };
 
-export function Blurb({ generatingBlurb, blurbsFinishedGenerating }: Props) {
+export function Blurb({ generatingPost, blurbsFinishedGenerating }: Props) {
   const [blurb, setBlurb] = useState<string>();
   const [rephrasedBlurb, setRephrasedBlurb] = useState("");
   const [enableEditor, setEnableEditor] = useState<boolean>(false);
@@ -101,9 +101,9 @@ export function Blurb({ generatingBlurb, blurbsFinishedGenerating }: Props) {
 
   useEffect(() => {
     if (blurbsFinishedGenerating) {
-      checkPlagiarism(generatingBlurb);
-      setBlurb(generatingBlurb);
-      setHighlightedHTMLBlurb(<>{generatingBlurb}</>);
+      checkPlagiarism(generatingPost);
+      setBlurb(generatingPost);
+      setHighlightedHTMLBlurb(<>{generatingPost}</>);
     }
   }, [blurbsFinishedGenerating]);
 
@@ -113,7 +113,7 @@ export function Blurb({ generatingBlurb, blurbsFinishedGenerating }: Props) {
         <Card sx={{ width: "37em" }}>
           <CardContent>
             {!blurbsFinishedGenerating ? (
-              generatingBlurb
+              generatingPost
             ) : enableEditor ? (
               <>
                 <TextField

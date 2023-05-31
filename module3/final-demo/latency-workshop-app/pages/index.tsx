@@ -7,7 +7,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Blurb } from "@/components/Blurbs/Blurb";
 
@@ -21,8 +21,11 @@ export default function Home() {
   const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.". 
       Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a Student Audience, and base them on this context: ${blurbRef.current}`;
 
-  async function generateBlurb() {
+  const generateBlurb = useCallback(async () => {
     setBlurbsFinishedGenerating(false);
+    let done = false;
+    let firstPost = false;
+    let streamedText = "";
     const response = await fetch("/api/generateBlurb", {
       method: "POST",
       headers: {
@@ -36,17 +39,12 @@ export default function Home() {
     if (!response.ok) {
       throw new Error(response.statusText);
     }
-
     const data = response.body;
     if (!data) {
       return;
     }
     const reader = data.getReader();
     const decoder = new TextDecoder();
-    let done = false;
-    let firstPost = false;
-    let streamedText = "";
-
     while (!done) {
       const { value, done: doneReading } = await reader.read();
       done = doneReading;
@@ -59,7 +57,7 @@ export default function Home() {
       }
     }
     setBlurbsFinishedGenerating(true);
-  }
+  }, [blurbRef.current]);
 
   return (
     <Stack
@@ -123,7 +121,7 @@ export default function Home() {
               return (
                 <Blurb
                   key={index}
-                  generatingBlurb={generatingPost}
+                  generatingPost={generatingPost}
                   blurbsFinishedGenerating={blurbsFinishedGenerating}
                 ></Blurb>
               );

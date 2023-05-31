@@ -63,7 +63,7 @@ We can only start editing a blurb once all the blurbs have finished generating.
 const [blurbsFinishedGenerating, setBlurbsFinishedGenerating] = useState<boolean>(false);
 ...
 
-  async function generateBlurb() {
+  const generateBlurb = useCallback(async () => {
   setBlurbsFinishedGenerating(false);
   ...
   while(!done){
@@ -75,7 +75,7 @@ const [blurbsFinishedGenerating, setBlurbsFinishedGenerating] = useState<boolean
   ...
   <Blurb
   key={index}
-  generatingBlurb={generatingPost}
+  generatingPost={generatingPost}
   blurbsFinishedGenerating={blurbsFinishedGenerating}
   ></Blurb>
   ...
@@ -95,7 +95,7 @@ const [blurb, setBlurb] = useState<string>();
 
   useEffect(() => {
     if (blurbsFinishedGenerating) {
-      setBlurb(generatingBlurb);
+      setBlurb(generatingPost);
     }
   }, [blurbsFinishedGenerating]);
 ```
@@ -134,7 +134,7 @@ return (
     <Card>
       <CardContent>
         {blurbsFinishedGenerating ? (
-          generatingBlurb
+          generatingPost
         ) : enableEditor ? (
           <>
             <TextField
@@ -392,7 +392,7 @@ Your `Blurb.tsx` return statement should look like this:
           return (
             <Blurb
               key={index}
-              generatingBlurb={generatingPost}
+              generatingPost={generatingPost}
               blurbsFinishedGenerating={blurbsFinishedGenerating}
             ></Blurb>
           );
@@ -579,8 +579,8 @@ function handleScan(text: string, scan: any) {
 ```ts
 useEffect(() => {
   if (blurbsFinishedGenerating) {
-    setBlurb(generatingBlurb);
-    setHighlightedHTMLBlurb(<>{generatingBlurb}</>);
+    setBlurb(generatingPost);
+    setHighlightedHTMLBlurb(<>{generatingPost}</>);
   }
 }, [blurbsFinishedGenerating]);
 ```
@@ -593,7 +593,7 @@ useEffect(() => {
 ```ts
 <CardContent>
   {!blurbsFinishedGenerating ? (
-    generatingBlurb
+    generatingPost
   ) : enableEditor ? (
     <>
       <TextField
@@ -657,9 +657,9 @@ We should only check for plagiarism once the blurbs have finished generating.
 ```ts
 useEffect(() => {
   if (blurbsFinishedGenerating) {
-    checkPlagiarism(generatingBlurb);
-    setBlurb(generatingBlurb);
-    setHighlightedHTMLBlurb(<>{generatingBlurb}</>);
+    checkPlagiarism(generatingPost);
+    setBlurb(generatingPost);
+    setHighlightedHTMLBlurb(<>{generatingPost}</>);
   }
 }, [blurbsFinishedGenerating]);
 ```
