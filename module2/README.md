@@ -316,7 +316,7 @@ Add the following to your code.
 
   export default function Home() {
   const blurbRef = useRef("");
-+  const [blurb, setBlurb] = useState("");
++  const [generatingPosts, setGeneratingPosts] = useState("");
 
 ...
 
@@ -332,9 +332,9 @@ Add the following to your code.
 ></TextField>
 
 
-+ {blurb && (
++ {generatingPosts && (
 +    <Card>
-+      <CardContent>{blurb}</CardContent>
++      <CardContent>{generatingPosts}</CardContent>
 +    </Card>
 + )}
 
@@ -379,12 +379,11 @@ Add the following to your code.
 
 </details>
 
-<br>
-
-Congrats, you should now be seeing the response from OpenAI using our prompt.
-<br>
-
 </br>
+
+Congrats, you should now be seeing the response from OpenAI using our prompt. **Note:** the api response might take a couple of minutes to come back.
+</br>
+
 
 ## 2.3 Streaming Vs Serverless
 
