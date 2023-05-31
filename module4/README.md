@@ -42,11 +42,25 @@ See https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twit
 3. This should create an application. Proceed by clicking on `App Settings` button as we now need to configure oauth2
 4. Under the section `User authentication settings` and click on `Set Up` button. Next do the following:  
    a. Set App permissions to `Read and write`  
+
    b. Type of App to `Web App`  
+
    c. Callback URI to `http://127.0.0.1:3000/api/auth/callback/twitter`. This is because localhost is not accepted here as a valid callback.
+
    d. Website URL to i.e. (http://example.com). It doesn't really matter for local development and prorotyping
 5. Click on the save button and you will be taken to a page with your client ID and client secret. Copy these values down and store somewhere safe as these keys will be required for the `.env.local` file for local development.
 6. Lastly, we need to set a value for `NEXTAUTH_SECRET` env variable used by nextauth.js library which is used to encrypt and decrypt JWT tokens. See here for more documentation on generating a good value: https://next-auth.js.org/configuration/options
+
+Run the following command in your terminal and copy output to your `.env.local` file as `NEXTAUTH_SECRET` value:
+
+```bash 
+openssl rand -base64 32
+```
+ Should lok something like this:
+
+ ```
+ NEXTAUTH_SECRET=+77tjH9yNylsQMBTRIAjCiYfgdfFLFbkHxSL94Wo6aE=
+```
 
 </br>
 
@@ -271,6 +285,8 @@ export default function SigninToolbar() {
   );
 }
 ```
+
+You will need to import `SigninToolBar` into `pages/index.tsx` and add it to the page.
 
 </details>
 <br>
@@ -569,6 +585,3 @@ export default function App({ Component, pageProps }: AppProps) {
 
 
 
-TODO
-
-add `<SignInToolBar>` to index
