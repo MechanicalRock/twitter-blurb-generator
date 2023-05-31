@@ -1146,8 +1146,8 @@ Now that we know the UI works with dummy values, lets use real world values. **I
 
 **3.7.1 Calling the Scan API**
 
-1. In `Blurb.tsx`, remove the direct calls to the `scan` and the `export` Webhooks.
-2. the `Write a `useEfffect`function calls our`scan` API.
+1. In `blurb.tsx`, remove the direct calls to the `scan` and the `export` Webhooks.
+2. Write a `useEfffect` function call to our `scan` API.
 
 <details>
   <summary>Solution</summary>
@@ -1188,6 +1188,7 @@ type ScanResponse = {
         handleScan(streamedBlurb, scan);
       }
     });
+    setPlagiarismLoading(false);
   };
 ```
 
