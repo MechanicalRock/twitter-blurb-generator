@@ -324,7 +324,7 @@ Before we write our APIs, lets use some dummy objects to validate our changes. T
 
 We should only check for plagiarism once all the blurbs have finished generating.
 
-1. Create a boolean state variable in `index.tsx` that tracks if all the blurbs have finished generating. Then pass this value as a `prop` to the `Blurb` component.
+Create a boolean state variable in `index.tsx` that tracks if all the blurbs have finished generating. Then pass this value as a `prop` to the `Blurb` component.
 
 <details>
   <summary>Solution</summary>
@@ -370,16 +370,18 @@ export function Blurb({ generatingPost, blurbsFinishedGenerating }: Props) {
 
 **3.2.2 Handle Scan Results**
 
-Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has completed and we have the dummy scan results object found in `module3/content/utils/dummy-data/dummyScanResults.json` in Firebase. Copy and paste the entire `module/utils` folder into the root of your project.
+Before getting into the backend and connecting Copy Leaks API, let's first get our frontend working with dummy response from our backend.
 
-1. Write a function in `Blurb.tsx` that uses the dummy results file to calculate the percentage of the blurb which was plagiarised. It should look like this:
+- Download the zip folder from [dummy-data](./content/utils/dummy-data.zip)
+- Unzip the folder
+- Copy the folder into your `./utils` folder
 
-![ScanPercentage](../module3/imgs/ScanPercentage.png)
+Write a function in `blurb.tsx` that uses the dummy results file to calculate the percentage of the blurb which was plagiarised.
 
 <details>
   <summary>Solution</summary>
 
-1. In `Blurb.tsx` create a function called `handleScan` which takes a `text` string variable as a parameter and a `scan` object parameter.
+1. In `blurb.tsx` create a function called `handleScan` which takes a `text` string variable as a parameter and a `scan` object parameter.
 2. In `checkPlagiarism` set `plagiarismLoading` to be true.
 3. In `checkPlagiarism` assign a variable called `scan` to have the value of our dummy object.
 4. In `checkPlagiarism` call `handleScan` and set `plagiarismLoading` to be false.
@@ -408,6 +410,11 @@ function handleScan(text: string, scan: any) {
 
 </details>
 <br>
+
+It should look like this:
+
+![ScanPercentage](../module3/imgs/ScanPercentage.png)
+
 
 **3.2.3 Using useEffect to Call checkPlagiarism**
 
