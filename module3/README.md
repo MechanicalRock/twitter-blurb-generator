@@ -81,8 +81,22 @@ We can only start editing a blurb once all the blurbs have finished generating.
   ...
 ```
 
+Now let's update your Blurb component in blurb.tsx to also reflect the new prop.
+
+```ts
+...
+interface Props {
+  generatingPost: string;
+  blurbsFinishedGenerating: boolean;
+}
+
+export function Blurb({ generatingPost, blurbsFinishedGenerating }: Props) {
+...
+```
+
 </details>
-<br>
+</br>
+Next step we would like to store the final blurb value after it has finished streaming. To do this we are using react `useEffect` which essentially only effect the block of code inside the useEffect when its dependent state has been updated.
 
 In React, `useEffect` is a built-in hook that allows you to perform side effects in functional components. The `useEffect` hook takes two arguments: a function and an optional array of dependencies. The function passed as the first argument will be executed after the component renders, and it will run again if any of the dependencies change.
 
