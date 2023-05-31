@@ -324,7 +324,7 @@ export function Blurb({ generatingPost, blurbsFinishedGenerating }: Props) {
 </details>
 </br>
 
-**3.2.1 Handle Scan Results**
+**3.2.2 Handle Scan Results**
 
 Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has completed and we have the dummy scan results object found in `module3/content/utils/dummy-data/dummyScanResults.json` in Firebase. Copy and paste the entire `module/utils` folder into the root of your project.
 
@@ -365,7 +365,7 @@ function handleScan(text: string, scan: any) {
 </details>
 <br>
 
-**3.2.2 Using useEffect to Call checkPlagiarism**
+**3.2.3 Using useEffect to Call checkPlagiarism**
 
 Next step we would like to store the final blurb value after it has finished streaming. To do this we are using react `useEffect` which essentially only effect the block of code inside the useEffect when its dependent state has been updated.
 
@@ -402,7 +402,7 @@ const checkPlagiarism = async (streamedBlurb: string) => {
 
 Now that we tested that the loading spinner works. We can remove the timeout.
 
-**3.2.3 Handle Detailed Results**
+**3.2.4 Handle Detailed Results**
 
 Lets extend your `handleScan` function to handle detailed results. Copy and paste this function into `Blurb.tsx`. This should highlight the text in the blurb which has been plagiarised.
 
