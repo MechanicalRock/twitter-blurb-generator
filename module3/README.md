@@ -463,9 +463,11 @@ Now that we tested that the loading spinner works. We can remove the timeout.
 
 **3.2.4 Handle Detailed Results**
 
-Lets extend your `handleScan` function to handle detailed results. Copy and paste this function into `Blurb.tsx`. This should highlight the text in the blurb which has been plagiarised.
+Lets extend your `handleScan` function to handle detailed results. Copy and paste this function into `blurb.tsx`. This should highlight the text in the blurb which has been plagiarised.
 
 ```ts
+import { Card, CardContent, Stack, Box } from "@mui/material";
+...
 function getHighlightedHTMLBlurb(
   text: string,
   characterStarts: number[],
@@ -493,52 +495,16 @@ function getHighlightedHTMLBlurb(
   }
   return <Box dangerouslySetInnerHTML={{ __html: highlightedHTMLBlurb }}></Box>;
 }
+...
 ```
 
-Here is an example of how you should interpret the results from Copy Leaks:
-Given the blurb
-And the `characterStarts` array for the blurb
-And the `characterLengths` array for the blurb
-Then highlight the words in the blurb that have been plagiarised
+You can check the [Copy Leaks documentation](https://api.copyleaks.com/documentation/v3/webhooks/result) for more information about how to handle detailed results of plagiarism checker.
 
-- `characterStarts` is an array of character indexes in the blurb
-  which indicate the beginning of the plagiarised text. This
-  has a 1-1 relationship with `characterLengths`
-- `characterLengths` is an array of lengths after a `characterStarts`
-  element for text that has been plagiarised
-
-Example:
-
-text = "The quick brown fox jumped over the lazy dog."
-<br>
-`characterStarts`: [4, 16]
-<br>
-`characterLengths`: [5, 10]
-
-1.  characterStart = 4 & characterLength = 5
-    <br>
-    characterEnd = 4 + 5 = 9
-    <br>
-    plagiarisedText = text[4] + text[5] + text[6] + text[7] + text[8]
-    <br>
-    = "quick"
-
-2.  characterStart = 16 & characterLength = 10
-    <br>
-    characterEnd = 16 + 10 = 26
-    <br>
-    plagiarisedText = text[16] + text[17] + text[18] + ... + text[25]
-    <br>
-    = "fox jumped"
-
-More information on `characterStart` and `characterLength` under chars.starts and chars.lengths:
-https://api.copyleaks.com/documentation/v3/webhooks/result
-
-This is what is should look like:
+This is what it should look like:
 
 ![BlurbHighlighting](../module3/imgs/BlurbHighlighting.png)
 
-1. Extend your `handleScan` function to use the `getHighlightedHTMLBlurb` function.
+Now extend your `handleScan` function to use the `getHighlightedHTMLBlurb` function.
 
 <details>
   <summary>Solution</summary>
@@ -548,57 +514,57 @@ This is what is should look like:
 3. In the `handleScan` function set the `characterLengths` variable to be `scan.results.identical.source.chars.lengths`
 4. Call the `getHighlightedHTMLBlurb` function with `blurb`, `characterStarts` and `characterLengths`.
 
-```ts
-function handleScan(text: string, scan: any) {
-  const totalBlurbWords = text.split(" ").length;
-  const matchedWords = scan.matchedWords;
-  setPlagiarismScore((matchedWords / totalBlurbWords) * 100);
-  const characterStarts = scan.results.identical.source.chars.starts;
-  const characterLengths = scan.results.identical.source.chars.lengths;
-  const highlightedHTMLBlurb = getHighlightedHTMLBlurb(
-    text,
-    characterStarts,
-    characterLengths
-  );
-  setHighlightedHTMLBlurb(highlightedHTMLBlurb);
-}
-```
+    ```ts
+    function handleScan(text: string, scan: any) {
+      const totalBlurbWords = text.split(" ").length;
+      const matchedWords = scan.matchedWords;
+      setPlagiarismScore((matchedWords / totalBlurbWords) * 100);
+      const characterStarts = scan.results.identical.source.chars.starts;
+      const characterLengths = scan.results.identical.source.chars.lengths;
+      const highlightedHTMLBlurb = getHighlightedHTMLBlurb(
+        text,
+        characterStarts,
+        characterLengths
+      );
+      setHighlightedHTMLBlurb(highlightedHTMLBlurb);
+    }
+    ```
 
-3. Change the `useEffect` hook to to set the `highlightedHTMLBlurb` to be the a HTML element with the finished Blurb as it's content
+5. Change the `useEffect` hook to to set the `highlightedHTMLBlurb` to be the a HTML element with the finished Blurb as it's content
 
-```ts
-useEffect(() => {
-  if (blurbsFinishedGenerating) {
-    checkPlagiarism(generatingPost);
-    setHighlightedHTMLBlurb(<>{generatingPost}</>);
-  }
-}, [blurbsFinishedGenerating]);
-```
+    ```ts
+    useEffect(() => {
+      if (blurbsFinishedGenerating) {
+        checkPlagiarism(generatingPost);
+        setHighlightedHTMLBlurb(<>{generatingPost}</>);
+      }
+    }, [blurbsFinishedGenerating]);
+    ```
 
-4. Change the HTML to show the new `highlightedHTMLBlurb` instead or the `generatingPost` only when `blurbsFinishedGenerating` is true.
+6. Change the HTML to show the new `highlightedHTMLBlurb` instead or the `generatingPost` only when `blurbsFinishedGenerating` is true.
 
-```ts
-<>
-  <Stack direction="row" spacing="1em">
-    <Card sx={{ width: "37em" }}>
-      <CardContent>
-        {!blurbsFinishedGenerating ? generatingPost : highlightedHTMLBlurb}
-      </CardContent>
-    </Card>
-    <Stack
-      alignItems="center"
-      justifyContent="center"
-      width="12em"
-      className="bg-white rounded-xl shadow-md p-4 border"
-    >
-      <Plagiarism loading={plagiarismLoading} score={plagiarismScore} />
-    </Stack>
-  </Stack>
-</>
-```
+    ```ts
+    <>
+      <Stack direction="row" spacing="1em">
+        <Card sx={{ width: "37em" }}>
+          <CardContent>
+            {!blurbsFinishedGenerating ? generatingPost : highlightedHTMLBlurb}
+          </CardContent>
+        </Card>
+        <Stack
+          alignItems="center"
+          justifyContent="center"
+          width="12em"
+          className="bg-white rounded-xl shadow-md p-4 border"
+        >
+          <Plagiarism loading={plagiarismLoading} score={plagiarismScore} />
+        </Stack>
+      </Stack>
+    </>
+    ```
 
 </details>
-<br>
+</br>
 
 ---
 
