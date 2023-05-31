@@ -615,8 +615,8 @@ In Next.js, dynamic routes allow you to create pages with dynamic content based 
 
 In our case we want a dynamic route for the `scanId` and the `exportId` as this will be constantly changing for each scan that we do.
 
-1. Create a dynamic route Edge function named `[exportId].ts` in `pages/api/copy-leaks/export/[scanId]/` which receives the results of an export and returns a response with `{message: "Result exported successfully"}`. This should also write the results to the database using the Firebase PUT API under the node `scans/<scanId>/results.json`. We only need the object in `text.comparison`. Instead of writing the actual results to the database.
-   <br>
+1. Create a dynamic route Edge function named `[exportId].ts` in `pages/api/copy-leaks/export/[scanId]/` which receives the results of an export and returns a response with `{message: "Result exported successfully"}`. This should also write the results to the database using the Firebase PUT API under the node `scans/<scanId>/results.json`. We only need the object in `text.comparison`.
+   </br>
    More information:
 
 - Copy Leaks: https://api.copyleaks.com/documentation/v3/webhooks/result.
@@ -668,7 +668,7 @@ export default async function handler(req: NextRequest) {
 
 Now lets write the `scan` Webhook, mentioned in step 4. The `scan` webhook is called by CopyLeaks with the number of words in our blurb which have been plagiarised.
 
-1. Create a dynamic route Edge function named `[scanId].ts` in `pages/api/copy-leaks/completed` which receives the results of a scan and returns a response with `{message: "Scan Completed"}`. This should also write the scan to the database using the Firebase PUT API under the node `scans/<scanId>.json`. Instead of writing the actual results to the database.
+1. Create a dynamic route Edge function named `[scanId].ts` in `pages/api/copy-leaks/completed` which receives the results of a scan and returns a response with `{message: "Scan Completed"}`. This should also write the scan to the database using the Firebase PUT API under the node `scans/<scanId>.json`.
 
 More information:
 
@@ -678,13 +678,10 @@ More information:
 <details>
   <summary>Solution</summary>
 
+This webhook receives the scanned results from multiple sources, we then pickup a source with highest plagiarism found and we make an api call to that source to retrieve which words were plagiarised.
+
 1. Create a file named `[scanId].ts` in `pages/api/copy-leaks/completed`.
-2. Create a handler which takes a `req` parameter.
-3. Get the scan results from the `req` parameter.
-4. Get the scan Id from the scan results.
-5. Write the scan to the database.
-6. Return the `{message: "Scan Completed"}` as a response.
-7. Push your code to main to deploy your Webhook.
+2. Copy below code into your webhook
 
 ```ts
 import { NextRequest, NextResponse } from "next/server";
@@ -694,36 +691,6 @@ export const config = {
   regions: ["syd1"],
 };
 
-export default async function handler(req: NextRequest) {
-  const body = await req.json();
-  const scanId = body.scannedDocument.scanId;
-  try {
-    await fetch(
-      `${process.env.NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL}/scans/${scanId}.json`,
-      {
-        method: "PUT",
-        body: JSON.stringify({ body.scannedDocument}),
-      }
-    );
-  } catch (e) {
-    console.error("Error writing to Firebase Database", e);
-    throw e;
-  }
-
-  return NextResponse.json({ message: "Scan complete" });
-}
-```
-
-</details>
-<br>
-
-**3.3.2.3 Get the Highest Matched Words**
-
-A scan may return multiple sources where it thinks the plagiarised text comes from. For the amount of text we are scanning it is safe to assume we should get a response back from Copy Leaks in 2 minutes. Looking at the scan results we receive from Copy Leaks, there is a lot of information we are not interested in for this workshop: https://api.copyleaks.com/documentation/v3/webhooks/completed#1-example. We are only interested in the result in `results.internet` which has the highest amount of `matchedWords`. That is to say we are only interested in the source which has the most amount of plagiarised text.
-
-Copy and paste this function into your `scan` webhook. This function will return the source with the highest number of `matchedWords`..
-
-```ts
 type SourceResult = {
   resultId: string;
   matchedWords: number;
@@ -748,23 +715,16 @@ function getHighestSourceResult(
     matchedWords: matchedWords,
   };
 }
-```
 
-1. Edit your webhook to find the scan result which has the highest number of `matchedWords`. Instead of writing the entire scan to firebase, write only the number of `matchedWords`.
-
-<details>
-  <summary>Solution</summary>
-
-1. Set the initial number of `matchedWords` to be 0. If no plagiarism is found there will be 0 `matchedWords`.
-2. Sort the `results.internet` array in descending order based on `matchedWords`.
-3. Get the ID and the number of matched words for the top result.
-4. Return the `{message: "Scan Completed"}` as a response.
-
-```ts
 export default async function handler(req: NextRequest) {
-  const body = dummyCompletedScanWebhookResponse;
+  const body = await req.json();
   const scanId = body.scannedDocument.scanId;
-  const matchedWords = getHighestMatchedWords(body);
+  const matchedWords = getHighestSourceResult(body);
+
+  if (matchedWords != 0) {
+    const copyLeaks = new CopyLeaksWrapper();
+    await copyLeaks.getDetailedResults(scanId, resultI);
+  }
 
   try {
     await fetch(
@@ -784,7 +744,7 @@ export default async function handler(req: NextRequest) {
 ```
 
 </details>
-<br>
+</br>
 
 ---
 
@@ -1159,49 +1119,7 @@ export default async function handler(req: NextRequest) {
 ```
 
 </details>
-<br>
-
-**3.6.2.3 Calling the Export Function from the Scan Webhook**
-
-Once the `scan` Webhook receives a result we want to immediately call the CopyLeaksWrapper function `getDetailedResults` in order to get more details on the source with the highest number of matched words. This is step 4.2 in our workflow.
-
-**Important: When CopyLeaks.getDetailedResults is called, this request returns an HTTP Code of 201. This function does not return the results directly, instead when the results are ready, CopyLeaks sends a response to one of our APIs via webhook. The webhook will only be called on a deployed public website. ie. Having localhost as the webhook domain will not work as localhost will not have a publicly accessible IP.**
-
-1. Edit your `scan` webhook to call the `CopyLeaksWrapper.getDetailedResults` function with the `scanId` and `resultId` on the source with the highest number of matched words.
-
-<details>
-  <summary>Solution</summary>
-
-4. Instantiate the `CopyLeaksWrapper`.
-5. Call `CopyLeaksWrapper.getDetailedResults` with the `scanId` and `resultId`.
-
-```ts
-export default async function handler(req: NextRequest) {
-  const body = dummyCompletedScanWebhookResponse;
-  const scanId = body.scannedDocument.scanId;
-  if (matchedWords != 0) {
-    const copyLeaks = new CopyLeaksWrapper();
-    await copyLeaks.getDetailedResults(scanId, resultId);
-  }
-  try {
-    await fetch(
-      `${process.env.NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL}/scans/${scanId}.json`,
-      {
-        method: "PUT",
-        body: JSON.stringify({ matchedWords: matchedWords }),
-      }
-    );
-  } catch (e) {
-    console.error("Error writing to Firebase Database", e);
-    throw e;
-  }
-
-  return NextResponse.json({ message: "Scan complete" });
-}
-```
-
-</details>
-<br>
+</br>
 
 ---
 
