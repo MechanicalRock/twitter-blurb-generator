@@ -351,6 +351,45 @@ Test
 3. Logout<br />
 4. Login again<br />
 
+
+### Create a ProfilePicture component
+
+1. Create a file named `ProfilePicture.ts` in `components/TweetPreview`.
+2. The component should show the logged in user's profile picture (https://next-auth.js.org/getting-started/client). Since we're using Twitter, we can use the `image` property from the session object.
+3. The component should be a circular image with a height of 3em and a margin-right of 1em.
+4. The component should be important from `TweetPreview.ts` and used in the Dialog.
+
+<details>
+  <summary>Solution</summary>
+
+```ts
+import { useSession } from "next-auth/react";
+
+export const ProfilePicture = () => {
+  const { data: session } = useSession();
+  const twitterImage = session?.user?.image;
+
+  return (
+    <>
+      {twitterImage && (
+        <img
+          src={twitterImage}
+          alt="User's Twitter Profile Picture"
+          style={{
+            height: "3em",
+            width: "auto",
+            borderRadius: "50%",
+            marginRight: "1em",
+          }}
+        />
+      )}
+    </>
+  );
+};
+```
+
+</details>
+
 ### Tweet Preview and Post
 
 Outline:
@@ -391,8 +430,6 @@ Error Handling
    <br />**NOTE: On success, this will publish to your Twitter account!**
 
 ```ts
-import "react-circular-progressbar/dist/styles.css";
-
 import TwitterIcon from "@mui/icons-material/Twitter";
 import { useState } from "react";
 import {
@@ -406,7 +443,7 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { CenterBox } from "../CenterBox";
+import { CenterBox } from "./CenterBox";
 import { ProfilePicture } from "./ProfilePicture";
 import { toast } from "react-hot-toast";
 
@@ -503,40 +540,3 @@ export const TweetPreview = ({ blurb }: { blurb: string }) => {
 
 </details>
 
-### Create a ProfilePicture component
-
-1. Create a file named `ProfilePicture.ts` in `components/TweetPreview`.
-2. The component should show the logged in user's profile picture (https://next-auth.js.org/getting-started/client). Since we're using Twitter, we can use the `image` property from the session object.
-3. The component should be a circular image with a height of 3em and a margin-right of 1em.
-4. The component should be important from `TweetPreview.ts` and used in the Dialog.
-
-<details>
-  <summary>Solution</summary>
-
-```ts
-import { useSession } from "next-auth/react";
-
-export const ProfilePicture = () => {
-  const { data: session } = useSession();
-  const twitterImage = session?.user?.image;
-
-  return (
-    <>
-      {twitterImage && (
-        <img
-          src={twitterImage}
-          alt="User's Twitter Profile Picture"
-          style={{
-            height: "3em",
-            width: "auto",
-            borderRadius: "50%",
-            marginRight: "1em",
-          }}
-        />
-      )}
-    </>
-  );
-};
-```
-
-</details>
