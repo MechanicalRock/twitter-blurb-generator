@@ -269,9 +269,9 @@ Now you need to update your generateBlurb function to use the blurbRef.current v
 +       prompt: blurbRef.current,
       }),
     });
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
++    if (!response.ok) {
++      throw new Error(response.statusText);
++    }
     const data = await response.json();
     console.log("Response was:", JSON.stringify(data));
   }
@@ -584,8 +584,7 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
 Lets see what we just did:
 
 1. It sends a post request to OpenAI with the payload like we did before with the serverless version.
-2. We then create a stream to contionly parse the data we're recieving from OpenAi, continoisly checking for `[DONE]`. This will tell us the stream has completed.
-
+2. We then create a stream to continuously parse the data we're receiving from OpenAi, continuously checking for `[DONE]`. This will tell us the stream has completed.
 
 ### Connecting frontend to our API
 
@@ -616,6 +615,9 @@ Heres some hints to get you started.
     if (!response.ok) {
       throw new Error(response.statusText);
     }
+-    const data = await response.json();
+-    console.log("Response was:", JSON.stringify(data));
+-    setGeneratingPosts(data.choices[0].message.content);
 +    const data = response.body;
 +    if (!data) {
 +      return;
@@ -630,23 +632,21 @@ Heres some hints to get you started.
 +      done = doneReading;
 +      const chunkValue = decoder.decode(value);
 +      setGeneratingPosts((prev) => prev + chunkValue);
-    }
++    }
   }, [blurbRef.current]);
 ```
 
 </details>
-<br>
-You should now have a streaming response!!
-
-<br>
+</br>
+Run your app and you should now have a streaming response!
 
 </br>
 
 ## 2.4 Prompt Engineering
 
-So we have linked our textboxt to input, OpenAI and are displaying the response in a single card.
+So far we have linked our textbox to send the input prompt to OpenAI and we are displaying the response in a single card.
 
-Lets introuduce you to the concept of prompt engineering and how we will use that to generate our twitter responses, and generate 3 responses using a single call.
+Lets introduce you to the concept of prompt engineering and how we will use that to generate our twitter responses, we then try to generate 3 responses using a single call.
 
 Prompt engineering refers to the process of crafting prompts in a way that elicits the best, most accurate, or most insightful response from a language model like GPT-3.5. It involves understanding how the model interprets input and designing prompts that will direct the model towards producing the desired output.
 
@@ -696,9 +696,9 @@ Prompt engineering can be quite complex because language models don't actually u
 
 Lets explain what we just did:
 
-- Created a new value `prompt` that is taking a hardcoded text, and subsititing our textbox, bound to `blurbRef` into the text body.
+- Created a new value `prompt` that is taking a hardcoded text, and substituting our textbox, bound to `blurbRef` into the text body.
 
-Remeber OpenAI, needs to return a response that we can parse, hence we have clearly prompted it to return each post clearly labelled, we then use this in the next section to seperate each blurb into its own output.
+Remember OpenAI, needs to return a response that we can parse, hence we have clearly prompted it to return each post clearly labelled, we then use this in the next section to separate each blurb into its own output.
 
 Feel free to manipulate and add in your own changes.
 
@@ -709,7 +709,7 @@ Feel free to manipulate and add in your own changes.
 
 ## 2.5 String manipulation to output multiple cards
 
-So currently our output is generating 3 posts, however they all displaying into **one card!** To fix this we can use have to seperate each post into their own card.
+So currently our output is generating 3 posts, however they all displaying into **one card!** To fix this we have to separate each post into their own card.
 
 Have a go at doing this yourself, below are some hints to get you started.
 
@@ -721,23 +721,23 @@ Resources:
    <summary>Solution</summary>
 
 ```diff
-      {generatedBlurb && (
--    <Card>
--      <CardContent>{generatedBlurb}</CardContent>
--    </Card>
-+       <>
-+         {generatingPosts
+-      {generatingPosts && (
+-        <Card>
+-          <CardContent>{generatingPosts}</CardContent>
+-        </Card>
+-      )}
++      <>
++        {generatingPosts
 +          .substring(generatingPosts.indexOf("1.") + 3)
 +          .split(/2\.|3\./)
 +          .map((generatingPost) => {
 +            return (
-+             <Card>
-+               <CardContent>{generatingPost}</CardContent>
-+             </Card>
-+             );
-+           })}
-+       </>
-+     )}
++              <Card>
++                <CardContent>{generatingPost}</CardContent>
++              </Card>
++            );
++          })}
++      </>
 
 ```
 
@@ -755,7 +755,7 @@ In short, the code splits a text string into parts at "1.", "2.", and "3.", and 
 
 </details>
 
-<br>
+</br>
 
 **Challenge:** you will note that at the beginning of the stream, there is a text been streamed in that is not part of the final output?
 
