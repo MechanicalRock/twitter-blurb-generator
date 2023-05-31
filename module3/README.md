@@ -276,41 +276,38 @@ export default function Blurb({ generatingPost }: Props) {
 
 **3.1.2 Add Plagiarism Score Column Name**
 
-1. In `index.tsx`, add the heading `Plagiarism Score` above the plagiarism score components.
-
-Your `index.tsx` should look like this:
+In `index.tsx`, add the heading `Plagiarism Score` above the plagiarism score components.
 
 <details>
   <summary>Solution</summary>
-  
+
+Your `index.tsx` should look like this:
+
 ```ts
-{
-  generatingPosts && (
-    <>
-      <Stack direction="row-reverse" width="100%">
-        <Typography width="12em" textAlign="center">
-          Plagiarism Score
-        </Typography>
-      </Stack>
-      {generatingPosts
-        .substring(generatingPosts.indexOf("1.") + 3)
-        .split(/2\.|3\./)
-        .map((generatingPost, index) => {
-          return (
-            <Blurb
-              key={index}
-              generatingPost={generatingPost}
-              blurbsFinishedGenerating={blurbsFinishedGenerating}
-            ></Blurb>
-          );
-        })}
-    </>
-  );
-}
+...
+      {generatingPosts && (
+        <>
+          <Stack direction="row-reverse" width="100%">
+            <Typography width="12em" textAlign="center">
+              Plagiarism Score
+            </Typography>
+          </Stack>
+          {generatingPosts
+            .substring(generatingPosts.indexOf("1.") + 3)
+            .split(/2\.|3\./)
+            .map((generatingPost, index) => {
+              return (
+                <Blurb key={index} generatingPost={generatingPost}></Blurb>
+              );
+            })}
+        </>
+      )}
+...
+
 ```
 
 </details>
-<br>
+</br>
 
 Your final component should look like this:
 
