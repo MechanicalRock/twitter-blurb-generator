@@ -56,7 +56,7 @@ Run the following command in your terminal and copy output to your `.env.local` 
 ```bash 
 openssl rand -base64 32
 ```
- Should lok something like this:
+ Should look something like this:
 
  ```
  NEXTAUTH_SECRET=+77tjH9yNylsQMBTRIAjCiYfgdfFLFbkHxSL94Wo6aE=
@@ -72,8 +72,8 @@ In order to tweet your post to Twitter, we need to create a NextJS API which wil
 
 **Create a Tweet Post API**
 
-1. Install the `next-auth` package
-2. Create an Edge function named `tweetPost.ts`.
+1. Install the `next-auth` package. Command: ```pnpm i next-auth```
+2. Create an Edge function named `tweetPost.ts` in `pages/api`.
 3. Obtain and validate the user's authentication (JWT) from the request (https://next-auth.js.org/configuration/options#jwt-helper)
 4. Validate the incoming request Body
 5. Post Tweet using the Twitter API (https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets)
@@ -286,7 +286,7 @@ export default function SigninToolbar() {
 }
 ```
 
-You will need to import `SigninToolBar` into `pages/index.tsx` and add it to the page.
+
 
 </details>
 <br>
@@ -358,6 +358,31 @@ export default function SigninToolbar() {
 ```
 
 </details>
+
+<br>
+
+You will also need to import `SigninToolBar` into `pages/index.tsx` and add it to the page.
+
+```diff
+return (
+    <Stack
+      component="main"
+      direction="column"
+      maxWidth="50em"
+      mx="auto"
+      alignItems="center"
+      justifyContent="center"
+      py="1em"
+      spacing="1em"
+    >
++     <SigninToolbar />
+      <Typography
+        variant="h1"
+        className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
+      >
+        Generate your next Twitter post with ChatGPT
+      </Typography>
+```
 <br>
 
 Test
@@ -373,7 +398,7 @@ Test
 1. Create a file named `profilePicture.tsx` in `components`.
 2. The component should show the logged in user's profile picture (https://next-auth.js.org/getting-started/client). Since we're using Twitter, we can use the `image` property from the session object.
 3. The component should be a circular image with a height of 3em and a margin-right of 1em.
-4. The component should be important from `TweetPreview.ts` and used in the Dialog.
+4. The component should be imported from `TweetPreview.ts` and used in the Dialog.
 
 <details>
   <summary>Solution</summary>
@@ -560,9 +585,16 @@ export const TweetPreview = ({ blurb }: { blurb: string }) => {
 
 ```
 
-6. In `pages/app.tsx`
 
-```ts
+</details>
+
+<br>
+
+  NextAuth.js provides a session provider that enables session management in Next.js applications. The session provider handles the creation, storage, and retrieval of session data, including user authentication status and related information. As the final step, we need to wrap our application in a Session Provider.
+
+Make the following changes in `pages/_app.tsx`
+
+```diff
 import "@/styles/globals.css";
 
 import type { AppProps } from "next/app";
@@ -572,16 +604,13 @@ import theme from "../styles/theme";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <SessionProvider>
++   <SessionProvider>
       <ThemeProvider theme={theme}>
         <Component {...pageProps} />
       </ThemeProvider>
-    </SessionProvider>
++   </SessionProvider>
   );
 }
 ```
-
-</details>
-
 
 
