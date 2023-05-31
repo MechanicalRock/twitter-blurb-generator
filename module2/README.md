@@ -22,10 +22,7 @@ If you've had issues so far, clone from [Module1](/module1/final-demo).
 </br>
 2.5 [String manipulation to output multiple cards](25-string-manipulation-to-output-multiple-cards)
 </br>
-2.5 [Refactoring into Components](#26-refactoring-into-components)
-</br>
-2.6 [Challenge: Add in dropdown choices to set the prompt vibe](#27-challenge)
-
+2.6 [Refactoring into Components](#26-refactoring-into-components)
 </br>
 
 ## 2.1 Creating a NextJs API endpoint and Connecting to ChatGPT
@@ -795,21 +792,21 @@ Currently, our `index.tsx` is quite messy. Let's try and refactor the `Card` Com
 
 **2.6.1 Refactor index.tsx**
 
-1. Move the card component which holds the blurb into a separate component file called `Blurb.tsx`
+1. create a new folder called `component` and move the card which holds the blurb into a separate component file called `components/blurb.tsx`
 
 <details>
    <summary>Solution</summary>
 
-Your `Blurb` component should now look like this:
+Your `component/blurb.ts` should now look like this:
 
 ```ts
 import { Card, CardContent } from "@mui/material";
 
 interface Props {
-  generatingBlurb: string;
+  generatingPost: string;
 }
 
-export function Blurb({ generatingBlurb }: Props) {
+export function Blurb({ generatingPost }: Props) {
   return (
     <Card>
       <CardContent>{generatingPost}</CardContent>
@@ -821,90 +818,21 @@ export function Blurb({ generatingBlurb }: Props) {
 `index.tsx` should now look like this:
 
 ```ts
+import Blurb from "./components/blurb";
 ...
-      <Button onClick={generateBlurb}>Generate Blurb</Button>
-      {generatingPosts && (
-        <>
-          {generatingPosts
-            .substring(generatingPosts.indexOf("1.") + 3)
-            .split(/2\.|3\./)
-            .map((generatingPost, index) => {
-              return (
-                <Blurb key={index} generatingBlurb={generatingPost}></Blurb>
-              );
-            })}
-        </>
-      )}
-      ...
+    <Button onClick={generateBlurb}>Generate Blurb</Button>
+    {generatingPosts &&
+      generatingPosts
+        .substring(generatingPosts.indexOf("1.") + 3)
+        .split(/2\.|3\./)
+        .map((generatingPost, index) => {
+          return <Blurb key={index} generatingPost={generatingPost} />;
+        })}
+...
 ```
 
 </details>
 
-## 2.7 Challenge
+Congratulations you have now completed module2 and ready to move on to the third module. If you have any issues finishing off module2, you can download the app from [Module2- Final Demo](final-demo/) and move on to the next module.
 
-### Add in dropdown choices dynamically change the audience type
-
-Currently, the student audience is hardcoded into our prompt. Can you create a drop down to dynamically change the audience type?
-
-Resources:
-
-- [MUI Dropdown Component](https://mui.com/material-ui/react-select/)
-- [React Use Ref](https://www.w3schools.com/react/react_useref.asp)
-
-<details>
-   <summary>Solution</summary>
-
-Create a new ref for Audience Type
-```ts
-const audienceRef = useRef<HTMLInputElement>();
-
-```
-
-Change the prompt to include the audience type
-
-```ts
-Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a ${audienceRef.current} Audience, and base them on this context: ${blurbRef.current}`;
-```
-
-```diff
-...
-
-    while (!done) {
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      const chunkValue = decoder.decode(value);
-      streamedText += chunkValue;
-      if (firstPost) {
-        setGeneratingPosts(streamedText);
-      } else {
-        firstPost = streamedText.includes("1.");
-      }
-    }
--  }, [blurbRef.current]);
-+  }, [blurbRef.current, audienceRef.current]);
-
-```
-
-Add a new form control to the page (dropdown select)
-
-```ts
-      <FormControl fullWidth>
-       <InputLabel id="Audience">Audience</InputLabel>
-       <Select
-          labelId="Audience"
-          id="Audience"
-          label="Audience"
-          onChange={(event) => {
-            audienceRef.current = event.target.value;
-          }}
-          value={audienceRef.current}
-        >
-          <MenuItem value="Student">Student</MenuItem>
-          <MenuItem value="Profesional">Profesional</MenuItem>
-          <MenuItem value="Monkey">Monkey</MenuItem>
-        </Select>
-      </FormControl>
-
-```
-
-</details>
+**Module3** Enabling Plagiarism checker -> [Get started](/module3/README.md)
