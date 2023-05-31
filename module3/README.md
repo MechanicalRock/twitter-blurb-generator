@@ -58,25 +58,25 @@ We can only start editing a blurb once all the blurbs have finished generating.
 <details>
   <summary>Solution</summary>
 
-```ts
+```diff
 ...
-const [blurbsFinishedGenerating, setBlurbsFinishedGenerating] = useState<boolean>(false);
++ const [blurbsFinishedGenerating, setBlurbsFinishedGenerating] = useState<boolean>(false);
 ...
 
   const generateBlurb = useCallback(async () => {
-  setBlurbsFinishedGenerating(false);
++  setBlurbsFinishedGenerating(false);
   ...
   while(!done){
     ...
   }
 
-  setBlurbsFinishedGenerating(true);
++  setBlurbsFinishedGenerating(true);
 
   ...
   <Blurb
   key={index}
   generatingPost={generatingPost}
-  blurbsFinishedGenerating={blurbsFinishedGenerating}
++  blurbsFinishedGenerating={blurbsFinishedGenerating}
   ></Blurb>
   ...
 ```
