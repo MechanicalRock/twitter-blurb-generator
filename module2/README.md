@@ -384,18 +384,18 @@ Add the following to your code.
 Congrats, you should now be seeing the response from OpenAI using our prompt. **Note:** the api response might take a couple of minutes to come back.
 </br>
 
-
 ## 2.3 Streaming Vs Serverless
 
+So far for our Next.js api we have been using a serverless function. In Next.js, a serverless function refers to an API endpoint or server-side function that is created and deployed as part of your Next.js application. It leverages the serverless computing model to handle the execution and scaling of these functions.
 Whilst this approach works, there are limitations to a serverless function.
 
-1. If we are building a app that we want to wait for longer responses, this will likely take longer than 10 seconds which can lead to a timeout issue on the vercel free tier.
+1. If we are building an app that we want to wait for longer responses, this will likely take longer than 10 seconds which can lead to a timeout issue on the vercel free tier.
 
 2. Waiting several seconds before seeing any data is poor UX design. Ideally we want to have a incremental load to do this.
 
 3. Cold start times from the serverless function can effect UX
 
-#### Edge functions vs Serverless functions
+#### Edge functions vs Serverless functions in Next.js
 
 You can think of [Edge Functions](https://vercel.com/docs/concepts/functions/edge-functions) as serverless functions with a more lightweight runtime. They have a smaller code size limit, smaller memory, and don’t support all Node.js libraries. So you may be thinking—why would I want to use them?
 
@@ -409,21 +409,43 @@ You can think of [Edge Functions](https://vercel.com/docs/concepts/functions/edg
 
 ##### Edge Functions and Streaming
 
-Now we have a basic understanding of the benefits of edge functions, lets update our existing code to take advantage of the streaming utility
+Now we have a basic understanding of the benefits of serverless vs edge functions, lets convert our existing api to an edge function.
+
+Open api/generateBlurb.ts and change the runtime to edge.
 
 <details>
-   <summary><span style="color:cyan">pages/api/generateBlurb.ts</summary>
+   <summary>Solution</summary>
+
+```diff
+import { OpenAIStream, OpenAIStreamPayload } from "../../utils/openAIStream";
+
++ export const config = {
++  runtime: "edge",
++ };
+...
+```
+
+</details>
+
+</br>
+
+Since you have updated your function to an edge function, you can also take advantage of OpenAI streaming. Streaming allows you to perform real-time, interactive generation of text by sending input in chunks or segments rather than as a complete prompt all at once. This enables a more dynamic and responsive conversation with the model.
+
+<details>
+   <summary>Solution</summary>
+
+Open pages/api/generateBlurb.ts and replace your content with below code:
 
 ```ts
 import { OpenAIStream, OpenAIStreamPayload } from "../../utils/openAIStream";
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("Missing env var from OpenAI");
-}
-
 export const config = {
   runtime: "edge",
 };
+
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("Missing env var from OpenAI");
+}
 
 const handler = async (req: Request): Promise<Response> => {
   const { prompt } = (await req.json()) as {
@@ -455,7 +477,7 @@ export default handler;
 ```
 
 </details>
-<br>
+</br>
 
 Lets have a look at the changes we've made above.
 
@@ -465,12 +487,12 @@ Lets have a look at the changes we've made above.
 
 Next step is to actually create our helper function:
 
-Create the below file and copy the contents into `./utils/openAIStream.ts`
-
-You will also need to install an new dependency `pnpm i eventsource-parser`
-
 <details>
-   <summary><span style="color:cyan">/utils/OpenAIStream.ts</summary>
+   <summary>Solution</summary>
+
+- Create a new folder in the project root call it `utils`, now create a new file called `openAIStream.ts` under the `./utils` folder and copy the content below into it.
+
+- You will also need to install an new dependency `pnpm i eventsource-parser`
 
 ```typescript
 import {
@@ -557,7 +579,7 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
 
 </details>
 
-<br>
+</br>
 
 Lets see what we just did:
 
