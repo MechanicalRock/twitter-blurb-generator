@@ -63,7 +63,7 @@ import { SxProps } from "@mui/material";
 import Box from "@mui/material/Box";
 import * as React from "react";
 
-export function CenterBox({ children, sx }: { children: React.ReactNode; sx?: SxProps }) {
+export default function CenterBox({ children, sx }: { children: React.ReactNode; sx?: SxProps }) {
   return (
     <Box
       sx={{
@@ -87,19 +87,19 @@ export function CenterBox({ children, sx }: { children: React.ReactNode; sx?: Sx
 </details>
 </br>
 
-**Step 2:** Now let's add another component for our progress bar. Write a component called `Loading.tsx` in the `components` folder. You will need MUI's `CircularProgress` component for this
+**Step 2:** Now let's add another component for our progress bar. Write a component called `loading.tsx` in the `components` folder. You will need MUI's `CircularProgress` component for this
 
 <details>
   <summary>Solution</summary>
 
-1. In a folder named `Plagiarism` in the `components` folder, add a file named `Loading.tsx`
+1. In the `components` folder, add a file named `loading.tsx`
    1. This will return muis `CircularProgress` component.
    2. Underneath this component add the text `Analysing Plagiarism`
 
 ```ts
 import { Box, CircularProgress } from "@mui/material";
 
-export function Loading() {
+export default function Loading() {
   return (
     <>
       <Box
@@ -128,7 +128,7 @@ It should look like this:
 
 <br>
 
-**Step 3:** In the `components` folder, add a new component named `Score.tsx`
+**Step 3:** In the `components` folder, add a new component named `score.tsx`
 
    1. This function will take a `value` number variable and a `label` string variable as parameters.
    2. Use Mui's `CircularProgress` component with the `determinate` variant with the `value` property set to `value`.
@@ -145,10 +145,10 @@ import CircularProgress, {
 } from "@mui/material/CircularProgress";
 
 import Box from "@mui/material/Box";
-import { CenterBox } from "../CenterBox";
+import CenterBox from "./centerBox";
 import Typography from "@mui/material/Typography";
 
-export function Score(
+export default function Score(
   props: CircularProgressProps & { value: number; label: string }
 ) {
   return (
@@ -183,7 +183,7 @@ It should look like this:
 
 ![Loading](../module3/imgs/Score.png)
 
-**Step 4:** In the `components` folder, add a file named `Plagiarism.tsx`
+**Step 4:** In the `components` folder, add a file named `plagiarism.tsx`
 
    1. This will function will take a `loading` boolean variable and a `score` number variable as parameters.
    2. If `loading` is true we will show our `Loading` component.
@@ -194,15 +194,15 @@ It should look like this:
 
 ```ts
 import { Box } from "@mui/material";
-import { Loading } from "./Loading";
-import { Score } from "./Score";
+import Loading from "./loading";
+import Score from "./score";
 
 interface Props {
   loading: boolean;
   score?: number;
 }
 
-export function Plagiarism({ loading, score }: Props) {
+export default function Plagiarism({ loading, score }: Props) {
   return (
     <Box
       sx={{
@@ -228,19 +228,29 @@ export function Plagiarism({ loading, score }: Props) {
 </details>
 </br>
 
-**Step 5:** In `Blurb.tsx`
+**Step 5:** In `blurb.tsx` component
 
    1. Add a boolean state variable named `plagiarismLoading` with the default value of false.
    2. Add a number state variable named `plagiarisedScore` with the default value of 0.
    3. At the bottom of the HTML `Stack` add the `Plagiarism` component with the `loading` property having the value `plagiarismLoading` and the `score` property having the value `plagiarisedScore`.
 
-Your `Blurb.tsx` return statement should look like this:
+Your `blurb.tsx` should look like this:
 
 <details>
   <summary>Solution</summary>
 
 ```ts
-...
+import { Card, CardContent, Stack } from "@mui/material";
+import Plagiarism from "./plagiarism";
+import { useState } from "react";
+
+interface Props {
+  generatingPost: string;
+}
+
+export default function Blurb({ generatingPost }: Props) {
+  const [plagiarismLoading, setPlagiarismLoading] = useState<boolean>(false);
+  const [plagiarisedScore, setPlagiarisedScore] = useState<number>(0);
   return (
     <>
       <Stack direction="row" spacing="1em">
@@ -253,11 +263,12 @@ Your `Blurb.tsx` return statement should look like this:
           width="12em"
           className="bg-white rounded-xl shadow-md p-4 border"
         >
-          <Plagiarism loading={plagiarismLoading} score={plagiarismScore} />
+          <Plagiarism loading={plagiarismLoading} score={plagiarisedScore} />
         </Stack>
       </Stack>
     </>
-);
+  );
+}
 ```
 
 </details>
