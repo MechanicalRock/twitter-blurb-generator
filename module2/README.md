@@ -41,7 +41,7 @@ Let's now get started to create a [new API in NextJs](https://nextjs.org/learn/b
    <summary>Solution</summary>
 
 - In your Next.js project, navigate to the `pages/api` directory.
-- Create a new file named generateBlurb.ts - This file will represent your API route (feel free to delete hello.ts)
+- Create a new file named `generateBlurb.ts` - This file will represent your API route (feel free to delete hello.ts)
 - Define the API logic: Inside the API route file, you can define the logic for your API. You can handle HTTP requests, process data, and return responses.
 
   ```ts
@@ -102,10 +102,10 @@ For the purpose of this workshop, we have provided you with OpenAI credentials, 
 
 Next.js provides native support for managing environment variables, offering the following capabilities:
 
-1. You can easily load your environment variables by storing them into a .env.local file
+1. You can easily load your environment variables by storing them into a `.env.local` file
 2. You can expose your environment variables to the browser by prefixing them with NEXT*PUBLIC*
 
-In order to access the openAI key in your app, create a new file in the project root folder and name it .env.local
+In order to access the openAI key in your app, create a new file in the project root folder and name it `.env.local`
 
 ```text
 OPENAI_API_KEY=xyzxyzxyzxyz
@@ -170,13 +170,13 @@ export default handler;
 
 Now lets update our frontend to display the response from the API. So far we were just logging the output to the console.
 
-Before we change our generateBlurb function, we will need to extract the current value from our textbox and store it somewhere. To do this, we are using useRef function from react.
+Before we change our generateBlurb function, we will need to extract the current value from our textbox and store it somewhere. To do this, we are using `useRef` function from react.
 
-`useRef` is used to access properties of a DOM element directly and to store mutable variables that don't cause a re-render of the component when their values change. While useState causes a re-render with every change in state, changes in the value of a ref using useRef don't cause a re-render. This makes useRef handy for managing side effects and accessing DOM nodes directly, without causing unnecessary renders.
+`useRef` is used to access properties of a DOM element directly and to store mutable variables that don't cause a re-render of the component when their values change. While useState causes a re-render with every change in state, changes in the value of a ref using `useRef` don't cause a re-render. This makes `useRef` handy for managing side effects and accessing DOM nodes directly, without causing unnecessary renders.
 
-In contrast, `useState` is a Hook in React that enables you to add state to functional components. When you update a state using useState, it triggers a re-render of the component. This is important because changes in state typically mean that the component's output might be different, so React needs to re-run the render method to check and reflect those changes in the UI.
+In contrast, `useState` is a Hook in React that enables you to add state to functional components. When you update a state using `useState`, it triggers a re-render of the component. This is important because changes in state typically mean that the component's output might be different, so React needs to re-run the render method to check and reflect those changes in the UI.
 
-Open your index.ts file. Add below line above your generateBlurb function.
+Open your `index.ts` file. Add below line above your generateBlurb function.
 
 ```ts
 const blurbRef = useRef("");
@@ -245,7 +245,7 @@ export default function Home() {
 </details>
 </br>
 
-Now you need to update your generateBlurb function to use the blurbRef.current value.
+Now you need to update your `generateBlurb` function to use the `blurbRef.current` value.
 
 <details>
    <summary>Solution</summary>
@@ -277,7 +277,7 @@ Now you need to update your generateBlurb function to use the blurbRef.current v
 
 Lets explain what we've just done
 
-- Added in a UseCallback so that the ref is updated when the function is called. You can now run your app and test out your new api call!
+- Added in a `useCallback` so that the ref is updated when the function is called. You can now run your app and test out your new api call!
 
 </details>
 
@@ -409,7 +409,7 @@ You can think of [Edge Functions](https://vercel.com/docs/concepts/functions/edg
 
 Now we have a basic understanding of the benefits of serverless vs edge functions, lets convert our existing api to an edge function.
 
-Open api/generateBlurb.ts and change the runtime to edge.
+Open `pages/api/generateBlurb.ts` and change the runtime to edge.
 
 <details>
    <summary>Solution</summary>
@@ -432,7 +432,7 @@ Since you have updated your function to an edge function, you can also take adva
 <details>
    <summary>Solution</summary>
 
-Open pages/api/generateBlurb.ts and replace your content with below code:
+Open `pages/api/generateBlurb.ts` and replace your content with below code:
 
 ```ts
 import { OpenAIStream, OpenAIStreamPayload } from "../../utils/openAIStream";
@@ -755,7 +755,7 @@ In short, the code splits a text string into parts at "1.", "2.", and "3.", and 
 
 **Challenge:** you will note that at the beginning of the stream, there is a text been streamed in that is not part of the final output?
 
-Why is this occuring? Have a go and trying to fix it.
+Why is this occurring? Have a go and try to fix it.
 
 <details>
    <summary>Solution</summary>
@@ -792,12 +792,12 @@ Currently, our `index.tsx` is quite messy. Let's try and refactor the `Card` Com
 
 **2.6.1 Refactor index.tsx**
 
-1. create a new folder called `component` and move the card which holds the blurb into a separate component file called `components/blurb.tsx`
+1. create a new folder called `components` and move the card which holds the blurb into a separate component file called `components/blurb.tsx`
 
 <details>
    <summary>Solution</summary>
 
-Your `component/blurb.ts` should now look like this:
+Your `components/blurb.ts` should now look like this:
 
 ```ts
 import { Card, CardContent } from "@mui/material";
