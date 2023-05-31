@@ -49,163 +49,7 @@ Firstly, let's start creating the UI to show our plagiarism results.
 
 Ensure you running `pnpm dev` before solving the next tasks.
 
-**3.1.1 Track When Blurb Has Finished Generating**
-
-We can only start editing a blurb once all the blurbs have finished generating.
-
-1. Create a boolean state variable in `index.tsx` that tracks if all the blurbs have finished generating. Then pass this value as a `prop` to the `Blurb` component.
-
-<details>
-  <summary>Solution</summary>
-
-```diff
-...
-+ const [blurbsFinishedGenerating, setBlurbsFinishedGenerating] = useState<boolean>(false);
-...
-
-  const generateBlurb = useCallback(async () => {
-+  setBlurbsFinishedGenerating(false);
-  ...
-  while(!done){
-    ...
-  }
-
-+  setBlurbsFinishedGenerating(true);
-
-  ...
-  <Blurb
-  key={index}
-  generatingPost={generatingPost}
-+  blurbsFinishedGenerating={blurbsFinishedGenerating}
-  ></Blurb>
-  ...
-```
-
-Now let's update your Blurb component in blurb.tsx to also reflect the new prop.
-
-```ts
-...
-interface Props {
-  generatingPost: string;
-  blurbsFinishedGenerating: boolean;
-}
-
-export function Blurb({ generatingPost, blurbsFinishedGenerating }: Props) {
-...
-```
-
-</details>
-</br>
-Next step we would like to store the final blurb value after it has finished streaming. To do this we are using react `useEffect` which essentially only effect the block of code inside the useEffect when its dependent state has been updated.
-
-In React, `useEffect` is a built-in hook that allows you to perform side effects in functional components. The `useEffect` hook takes two arguments: a function and an optional array of dependencies. The function passed as the first argument will be executed after the component renders, and it will run again if any of the dependencies change.
-
-2. Create a new state variable called `blurb` which is set to the completed generated blurb. You should use `useEffect` for this while having `blurbsFinishedGenerating` as a dependency.
-
-```ts
-...
-const [blurb, setBlurb] = useState<string>();
-...
-
-  useEffect(() => {
-    if (blurbsFinishedGenerating) {
-      setBlurb(generatingPost);
-    }
-  }, [blurbsFinishedGenerating]);
-```
-
-</details>
-<br>
-
-**3.1.2 Editing a Blurb**
-
-1. Enable your blurb to be reworded and saved. Use `mui/icons-material` package for this.
-   **Important once the blurb is rephrased we will NOT recheck the blurb for plagiarism**
-   It should look like this:
-
-![Edit](../module3/imgs/Edit-1.png)
-![Save](../module3/imgs/Edit-2.png)
-
-<details>
-  <summary>Solution</summary>
-
-1. Install `mui/icons-material` using `pnpm i @mui/icons-material`
-2. In `Blurb.tsx` add a boolean state variable named `enableEditor` and set the default value to false.
-3. Add a string state variable named `rephrasedBlurb`.
-4. Add a conditional in the blurb HTML based on `enableEditor`.
-   1. If `enableEditor` is true
-      1. Change the blurb box to be a `TextField`.
-      2. Add a close button using muis `CloseIcon` and set the `onClick` property to change `enableEditor` to be false.
-      3. Add a save button using muis `SaveIcon` and set the `onClick` property to change the blurb to be the `repharasedBlurb` and to change the `enableEditor` property to be false.
-   2. If `enableEditor` is false
-      1. Add an edit button using muis `EditIcon` and set the `onClick` property to change `enableEditor` to be true.
-
-Your `Blurb.tsx` should look something like this:
-
-```ts
-return (
-  <>
-    <Card>
-      <CardContent>
-        {blurbsFinishedGenerating ? (
-          generatingPost
-        ) : enableEditor ? (
-          <>
-            <TextField
-              className="bg-white rounded-xl"
-              defaultValue={blurb}
-              onChange={(event) => {
-                setRephrasedBlurb(event.target.value);
-              }}
-              multiline
-              style={{ width: "100%" }}
-            ></TextField>
-          </>
-        ) : (
-          blurb
-        )}
-      </CardContent>
-      <CardActions>
-        {blurbsFinishedGenerating && enableEditor ? (
-          <Stack direction="row-reverse" spacing="0.5em">
-            <Box>
-              <CloseIcon
-                className="cursor-pointer"
-                onClick={() => {
-                  setEnableEditor(false);
-                }}
-              ></CloseIcon>
-            </Box>
-            <Box>
-              <SaveIcon
-                className="cursor-pointer"
-                onClick={() => {
-                  setBlurb(rephrasedBlurb);
-                  setEnableEditor(false);
-                }}
-              ></SaveIcon>
-            </Box>
-          </Stack>
-        ) : (
-          <Stack direction="row-reverse" spacing="0.5em">
-            <Box>
-              <EditIcon
-                className="cursor-pointer"
-                onClick={() => setEnableEditor(true)}
-              />
-            </Box>
-          </Stack>
-        )}
-      </CardActions>
-    </Card>
-  </>
-);
-```
-
-</details>
-<br>
-
-**3.1.3 Plagiarism Progress Bar**
+**3.1.1 Plagiarism Progress Bar**
 
 Copy and paste the `components` folder found in `module3/content/components` into the root of your project. The `CenterBox` component will help you center your plagiarism score component.
 
@@ -361,31 +205,33 @@ Your `Blurb.tsx` return statement should look like this:
 
 ```ts
 ...
-      <Button onClick={generateBlurb}>Generate Blurb</Button>
-      {generatedBlurb && (
-        <>
-        ...
-        </>
-      )}
-      <Stack
-        alignItems="center"
-        justifyContent="center"
-        width="15em"
-        className="bg-white rounded-xl shadow-md p-4 border"
-      >
-        <Plagiarism loading={plagiarismLoading} score={plagiarisedScore} />
+  return (
+    <>
+      <Stack direction="row" spacing="1em">
+        <Card sx={{ width: "37em" }}>
+          <CardContent>{generatingPost}</CardContent>
+        </Card>
+        <Stack
+          alignItems="center"
+          justifyContent="center"
+          width="12em"
+          className="bg-white rounded-xl shadow-md p-4 border"
+        >
+          <Plagiarism loading={plagiarismLoading} score={plagiarismScore} />
+        </Stack>
       </Stack>
-    </Stack>
-  </>
+    </>
 );
 ```
 
 </details>
 <br>
 
-**3.1.4 Add Plagiarism Score Column Name**
+**3.1.2 Add Plagiarism Score Column Name**
 
-1. Add the heading `Plagiarism Score` above the plagiarism score components.
+1. In `index.tsx`, add the heading `Plagiarism Score` above the plagiarism score components.
+
+Your `index.tsx` should look like this:
 
 <details>
   <summary>Solution</summary>
@@ -419,7 +265,7 @@ Your `Blurb.tsx` return statement should look like this:
 </details>
 <br>
 
-Your finally component should look like this:
+Your final component should look like this:
 
 ![AnalysingPlagiarism](../module3/imgs/AnalysingPlagiarism.png)
 
@@ -430,11 +276,59 @@ Your finally component should look like this:
 Before we write our APIs, lets use some dummy objects to validate our changes. This will allow us to avoid using time consuming APIs and provide us with quicker feedback. Lets assume for now that our database already has results. We will work backwards starting from step 6 in our flow mentioned at the top of this page.
 <br>
 
+**3.2.1 Check For Plagiarism When Blurb Has Finished Generating**
+
+We should only check for plagiarism once all the blurbs have finished generating.
+
+1. Create a boolean state variable in `index.tsx` that tracks if all the blurbs have finished generating. Then pass this value as a `prop` to the `Blurb` component.
+
+<details>
+  <summary>Solution</summary>
+
+```diff
+...
++ const [blurbsFinishedGenerating, setBlurbsFinishedGenerating] = useState<boolean>(false);
+...
+
+  const generateBlurb = useCallback(async () => {
++  setBlurbsFinishedGenerating(false);
+  ...
+  while(!done){
+    ...
+  }
+
++  setBlurbsFinishedGenerating(true);
+
+  ...
+  <Blurb
+  key={index}
+  generatingPost={generatingPost}
++  blurbsFinishedGenerating={blurbsFinishedGenerating}
+  ></Blurb>
+  ...
+```
+
+Now let's update your Blurb component in `Blurb.tsx` to also reflect the new prop.
+
+```ts
+...
+interface Props {
+  generatingPost: string;
+  blurbsFinishedGenerating: boolean;
+}
+
+export function Blurb({ generatingPost, blurbsFinishedGenerating }: Props) {
+...
+```
+
+</details>
+</br>
+
 **3.2.1 Handle Scan Results**
 
 Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has completed and we have the dummy scan results object found in `module3/content/utils/dummy-data/dummyScanResults.json` in Firebase. Copy and paste the entire `module/utils` folder into the root of your project.
 
-1. Write a function that uses the dummy results file to calculate the percentage of the blurb which was plagiarised. It should look like this:
+1. Write a function in `Blurb.tsx` that uses the dummy results file to calculate the percentage of the blurb which was plagiarised. It should look like this:
 
 ![ScanPercentage](../module3/imgs/ScanPercentage.png)
 
@@ -471,6 +365,29 @@ function handleScan(text: string, scan: any) {
 </details>
 <br>
 
+**3.2.2 Using useEffect to Call checkPlagiarism**
+
+Next step we would like to store the final blurb value after it has finished streaming. To do this we are using react `useEffect` which essentially only effect the block of code inside the useEffect when its dependent state has been updated.
+
+In React, `useEffect` is a built-in hook that allows you to perform side effects in functional components. The `useEffect` hook takes two arguments: a function and an optional array of dependencies. The function passed as the first argument will be executed after the component renders, and it will run again if any of the dependencies change.
+
+1. As we can only check for plagiarism once all the blurbs have finished generating. You should use `useEffect` to call our `checkPlagiarism` function while having `blurbsFinishedGenerating` as a dependency.
+
+<details>
+  <summary>Solution</summary>
+
+```ts
+...
+  useEffect(() => {
+    if (blurbsFinishedGenerating) {
+      checkPlagiarism(generatingPost);
+    }
+  }, [blurbsFinishedGenerating]);
+```
+
+</details>
+<br>
+
 As this runs pretty quickly we don't actually get to see our loading spinner. Let's put a timeout for 5 seconds in our `checkPlagiarism` function to force our loading spinner to show. Your function should look like this:
 
 ```ts
@@ -485,7 +402,7 @@ const checkPlagiarism = async (streamedBlurb: string) => {
 
 Now that we tested that the loading spinner works. We can remove the timeout.
 
-**3.2.2 Handle Detailed Results**
+**3.2.3 Handle Detailed Results**
 
 Lets extend your `handleScan` function to handle detailed results. Copy and paste this function into `Blurb.tsx`. This should highlight the text in the blurb which has been plagiarised.
 
@@ -593,89 +510,32 @@ function handleScan(text: string, scan: any) {
 ```ts
 useEffect(() => {
   if (blurbsFinishedGenerating) {
-    setBlurb(generatingPost);
-    setHighlightedHTMLBlurb(<>{generatingPost}</>);
-  }
-}, [blurbsFinishedGenerating]);
-```
-
-4. Change the HTML to show the new `highlightedHTMLBlurb`.
-
-   1. Change the save buttons `onClick` callback to also set `highlightedHTMLBlurb` to be the new rephrasedBlurb. A rephrased blurb is NOT rechecked for plagiarism so this text will never be highlighted.
-   2. Show the `highlightedHTMLBlurb` instead of the `rephrasedBlurb` in the blurb box.
-
-```ts
-<CardContent>
-  {!blurbsFinishedGenerating ? (
-    generatingPost
-  ) : enableEditor ? (
-    <>
-      <TextField
-        className="bg-white rounded-xl"
-        defaultValue={blurb}
-        onChange={(event) => {
-          setRephrasedBlurb(event.target.value);
-        }}
-        multiline
-        style={{ width: "100%" }}
-      ></TextField>
-      <Stack direction="row-reverse" spacing="0.5em">
-        <Box>
-          <CloseIcon
-            className="cursor-pointer"
-            onClick={() => {
-              setEnableEditor(false);
-            }}
-          ></CloseIcon>
-        </Box>
-        <Box>
-          <SaveIcon
-            className="cursor-pointer"
-            onClick={() => {
-              setBlurb(rephrasedBlurb);
-              setHighlightedHTMLBlurb(<>{rephrasedBlurb}</>);
-              setEnableEditor(false);
-            }}
-          ></SaveIcon>
-        </Box>
-      </Stack>
-    </>
-  ) : (
-    <>
-      {highlightedHTMLBlurb}
-      <Stack direction="row-reverse" spacing="0.5em">
-        <Box>
-          <EditIcon
-            className="cursor-pointer"
-            onClick={() => setEnableEditor(true)}
-          />
-        </Box>
-      </Stack>
-    </>
-  )}
-</CardContent>
-```
-
-</details>
-<br>
-
-**3.2.3 Check for Plagiarism**
-
-We should only check for plagiarism once the blurbs have finished generating.
-
-1. Amend the `useEffect` function to check call our `checkPlagiarism` function once our blurbs have finished generating.
-
-<details>
-  <summary>Solution</summary>
-
-```ts
-useEffect(() => {
-  if (blurbsFinishedGenerating) {
     checkPlagiarism(generatingPost);
-    setBlurb(generatingPost);
     setHighlightedHTMLBlurb(<>{generatingPost}</>);
   }
 }, [blurbsFinishedGenerating]);
+```
+
+4. Change the HTML to show the new `highlightedHTMLBlurb` instead or the `generatingPost` only when `blurbsFinishedGenerating` is true.
+
+```ts
+<>
+  <Stack direction="row" spacing="1em">
+    <Card sx={{ width: "37em" }}>
+      <CardContent>
+        {!blurbsFinishedGenerating ? generatingPost : highlightedHTMLBlurb}
+      </CardContent>
+    </Card>
+    <Stack
+      alignItems="center"
+      justifyContent="center"
+      width="12em"
+      className="bg-white rounded-xl shadow-md p-4 border"
+    >
+      <Plagiarism loading={plagiarismLoading} score={plagiarismScore} />
+    </Stack>
+  </Stack>
+</>
 ```
 
 </details>
