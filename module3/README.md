@@ -882,7 +882,6 @@ The dummy data for this task can be found in `/utils/dummy-data/dummyCompletedEx
   import dummyCompletedExportResultsWebhookResponse from "@/utils/dummy-data/dummyCompletedExportResultsWebhookResponse.json";
   import dummyCompletedScanWebhookResponse from "@/utils/dummy-data/dummyCompletedScanWebhookResponse.json";
 
-useEffect(() => {
 ...
 
   const checkPlagiarism = async (streamedBlurb: string) => {
@@ -895,9 +894,7 @@ useEffect(() => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          text: dummyCompletedScanWebhookResponse,
-        }),
+        body: JSON.stringify(dummyCompletedScanWebhookResponse),
       }
     );
 
@@ -908,9 +905,7 @@ useEffect(() => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          text: dummyCompletedExportResultsWebhookResponse,
-        }),
+        body: JSON.stringify(dummyCompletedExportResultsWebhookResponse),
       }
     );
     handleScan(streamedBlurb, scan);
@@ -954,9 +949,7 @@ Using the Firebase SDK listen for scan results on a specific node based on `scan
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          text: dummyCompletedScanWebhookResponse,
-        }),
+        body: JSON.stringify(dummyCompletedScanWebhookResponse),
       }
     );
 
@@ -967,9 +960,7 @@ Using the Firebase SDK listen for scan results on a specific node based on `scan
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          text: dummyCompletedExportResultsWebhookResponse,
-        }),
+        body: JSON.stringify(dummyCompletedExportResultsWebhookResponse),
       }
     );
 
@@ -989,13 +980,13 @@ Using the Firebase SDK listen for scan results on a specific node based on `scan
    1. Remove the `setPlagiarismLoading(false)` line from the `checkPlagiarism` function.
    2. Add a check to see og there are 0 `matchedWords` if this is the case none of our blurb will be highlighted.
    3. Add a check above the assignment of the `characterStarts` variable to check if `scan.results` exists. This is because a `scan` will return before `scan.results` is in the database as we are only writing the `scan.results` node once we have the `scan` information and the time between these calls will be close to 40 seconds. See our `api/copy-leaks/completed/[scanId].ts` for more information.
-   4. Add the `setPlagiarismLoading(false)` line after we recieve the results from Firebase.
+   4. Add the `setPlagiarismLoading(false)` line after we receive the results from Firebase.
 
 ```ts
 function handleScan(text: string, scan) {
   const totalBlurbWords = text.split(" ").length;
   const matchedWords = scan.matchedWords;
-  setPlagiarismScore((matchedWords / totalBlurbWords) * 100);
+  setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
   if (matchedWords == 0) {
     setPlagiarismLoading(false);
   } else if (scan.results) {
@@ -1014,7 +1005,7 @@ function handleScan(text: string, scan) {
 
 </details>
 </br>
-
+You can now test your application and see the dummy results being returned by the Firebase database.
 ---
 
 ## 3.6 Next.js Plagiarism Check API
