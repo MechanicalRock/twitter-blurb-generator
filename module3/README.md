@@ -51,9 +51,9 @@ Ensure you running `pnpm dev` before solving the next tasks.
 
 **3.1.1 Track When Blurb Has Finished Generating**
 
-We can only start edit a blurb for once all the blurbs have finished generating.
+We can only start editing a blurb once all the blurbs have finished generating.
 
-1. Create a boolean state variable that tracks if all the blurbs have finished generating. Then pass this value as a `prop` to the `Blurb` component.
+1. Create a boolean state variable in `index.tsx` that tracks if all the blurbs have finished generating. Then pass this value as a `prop` to the `Blurb` component.
 
 <details>
   <summary>Solution</summary>
@@ -70,7 +70,7 @@ const [blurbsFinishedGenerating, setBlurbsFinishedGenerating] = useState<boolean
     ...
   }
 
-  setBlurbsFinishedGenerating(false);
+  setBlurbsFinishedGenerating(true);
 
   ...
   <Blurb
@@ -418,9 +418,9 @@ Before we write our APIs, lets use some dummy objects to validate our changes. T
 
 **3.2.1 Handle Scan Results**
 
-Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has completed and we have the dummy scan results object found in `module3/content/utils/dummy-data-dummyScanResults.json` in Firebase. Copy and paste the `module/utils` folder into the root of your project.
+Let's assume the `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook has completed and we have the dummy scan results object found in `module3/content/utils/dummy-data/dummyScanResults.json` in Firebase. Copy and paste the entire `module/utils` folder into the root of your project.
 
-1. Write a function that uses the results to calculate the percentage of the blurb which was plagiarised. It should look like this:
+1. Write a function that uses the dummy results file to calculate the percentage of the blurb which was plagiarised. It should look like this:
 
 ![ScanPercentage](../module3/imgs/ScanPercentage.png)
 
@@ -659,6 +659,7 @@ useEffect(() => {
   if (blurbsFinishedGenerating) {
     checkPlagiarism(generatingBlurb);
     setBlurb(generatingBlurb);
+    setHighlightedHTMLBlurb(<>{generatingBlurb}</>);
   }
 }, [blurbsFinishedGenerating]);
 ```
