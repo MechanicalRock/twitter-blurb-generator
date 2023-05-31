@@ -63,7 +63,13 @@ import { SxProps } from "@mui/material";
 import Box from "@mui/material/Box";
 import * as React from "react";
 
-export default function CenterBox({ children, sx }: { children: React.ReactNode; sx?: SxProps }) {
+export default function CenterBox({
+  children,
+  sx,
+}: {
+  children: React.ReactNode;
+  sx?: SxProps;
+}) {
   return (
     <Box
       sx={{
@@ -80,7 +86,7 @@ export default function CenterBox({ children, sx }: { children: React.ReactNode;
     >
       {children}
     </Box>
-  )
+  );
 }
 ```
 
@@ -130,9 +136,9 @@ It should look like this:
 
 **Step 3:** In the `components` folder, add a new component named `score.tsx`
 
-   1. This function will take a `value` number variable and a `label` string variable as parameters.
-   2. Use Mui's `CircularProgress` component with the `determinate` variant with the `value` property set to `value`.
-   3. Underneath this component add the text in `label`
+1.  This function will take a `value` number variable and a `label` string variable as parameters.
+2.  Use Mui's `CircularProgress` component with the `determinate` variant with the `value` property set to `value`.
+3.  Underneath this component add the text in `label`
 
 <details>
   <summary>Solution</summary>
@@ -185,9 +191,9 @@ It should look like this:
 
 **Step 4:** In the `components` folder, add a file named `plagiarism.tsx`
 
-   1. This will function will take a `loading` boolean variable and a `score` number variable as parameters.
-   2. If `loading` is true we will show our `Loading` component.
-   3. If `loading` is false we will show our `Score` component.
+1.  This will function will take a `loading` boolean variable and a `score` number variable as parameters.
+2.  If `loading` is true we will show our `Loading` component.
+3.  If `loading` is false we will show our `Score` component.
 
 <details>
   <summary>Solution</summary>
@@ -230,9 +236,9 @@ export default function Plagiarism({ loading, score }: Props) {
 
 **Step 5:** In `blurb.tsx` component
 
-   1. Add a boolean state variable named `plagiarismLoading` with the default value of false.
-   2. Add a number state variable named `plagiarisedScore` with the default value of 0.
-   3. At the bottom of the HTML `Stack` add the `Plagiarism` component with the `loading` property having the value `plagiarismLoading` and the `score` property having the value `plagiarisedScore`.
+1.  Add a boolean state variable named `plagiarismLoading` with the default value of false.
+2.  Add a number state variable named `plagiarisedScore` with the default value of 0.
+3.  At the bottom of the HTML `Stack` add the `Plagiarism` component with the `loading` property having the value `plagiarismLoading` and the `score` property having the value `plagiarisedScore`.
 
 Your `blurb.tsx` should look like this:
 
@@ -386,36 +392,36 @@ Write a function in `blurb.tsx` that uses the dummy results file to calculate th
 3. Get the total number of `matchedWords` from our scan.
 4. Set the `plagiarisedScore` to be `(matchedWords/totalWords) * 100` .
 
-    ```ts
-    ...
-    const [plagiarismLoading, setPlagiarismLoading] = useState<boolean>(false);
-    const [plagiarisedScore, setPlagiarisedScore] = useState<number>(0);
+   ```ts
+   ...
+   const [plagiarismLoading, setPlagiarismLoading] = useState<boolean>(false);
+   const [plagiarisedScore, setPlagiarisedScore] = useState<number>(0);
 
-    function handleScan(text: string, scan: any) {
-      const totalBlurbWords = text.split(" ").length;
-      const matchedWords = scan.matchedWords;
-      setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
-    }
-    ...
-    ```
+   function handleScan(text: string, scan: any) {
+     const totalBlurbWords = text.split(" ").length;
+     const matchedWords = scan.matchedWords;
+     setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
+   }
+   ...
+   ```
 
 5. In `checkPlagiarism` set `plagiarismLoading` to be true.
 6. In `checkPlagiarism` assign a variable called `scan` to have the value of our dummy object.
 7. In `checkPlagiarism` call `handleScan` and set `plagiarismLoading` to be false.
 
-    ```ts
-    import dummyScanResults from "../../utils/dummy-data/dummyScanResults.json";
-    ...
-      const checkPlagiarism = async (streamedBlurb: string) => {
-        setPlagiarismLoading(true);
-        const scan = dummyScanResults;
-        handleScan(streamedBlurb, scan);
-        setPlagiarismLoading(false);
-      };
+   ```ts
+   import dummyScanResults from "../../utils/dummy-data/dummyScanResults.json";
+   ...
+     const checkPlagiarism = async (streamedBlurb: string) => {
+       setPlagiarismLoading(true);
+       const scan = dummyScanResults;
+       handleScan(streamedBlurb, scan);
+       setPlagiarismLoading(false);
+     };
 
-      function handleScan(text: string, scan: any) {
-    ...
-    ```
+     function handleScan(text: string, scan: any) {
+   ...
+   ```
 
 </details>
 </br>
@@ -511,60 +517,60 @@ Now extend your `handleScan` function to use the `getHighlightedHTMLBlurb` funct
 
 1. Create a state variable called `highlightedHTMLBlurb` of type `JSX.Element`
 
-    ```ts
-    const [highlightedHTMLBlurb, setHighlightedHTMLBlurb] =
-    useState<JSX.Element>();
-    ```
+   ```ts
+   const [highlightedHTMLBlurb, setHighlightedHTMLBlurb] =
+     useState<JSX.Element>();
+   ```
 
 2. Replace your `handleScan` function with below code
 
-    ```ts
-    function handleScan(text: string, scan: any) {
-      const totalBlurbWords = text.split(" ").length;
-      const matchedWords = scan.matchedWords;
-      setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
-      const characterStarts = scan.results.identical.source.chars.starts;
-      const characterLengths = scan.results.identical.source.chars.lengths;
-      const highlightedHTMLBlurb = getHighlightedHTMLBlurb(
-        text,
-        characterStarts,
-        characterLengths
-      );
-      setHighlightedHTMLBlurb(highlightedHTMLBlurb);
-    }
-    ```
+   ```ts
+   function handleScan(text: string, scan: any) {
+     const totalBlurbWords = text.split(" ").length;
+     const matchedWords = scan.matchedWords;
+     setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
+     const characterStarts = scan.results.identical.source.chars.starts;
+     const characterLengths = scan.results.identical.source.chars.lengths;
+     const highlightedHTMLBlurb = getHighlightedHTMLBlurb(
+       text,
+       characterStarts,
+       characterLengths
+     );
+     setHighlightedHTMLBlurb(highlightedHTMLBlurb);
+   }
+   ```
 
 3. Change the `useEffect` hook to to set the `highlightedHTMLBlurb` to be the a HTML element with the finished Blurb as it's content
 
-    ```ts
-    useEffect(() => {
-      if (blurbsFinishedGenerating) {
-        checkPlagiarism(generatingPost);
-        setHighlightedHTMLBlurb(<>{generatingPost}</>);
-      }
-    }, [blurbsFinishedGenerating]);
-    ```
+   ```ts
+   useEffect(() => {
+     if (blurbsFinishedGenerating) {
+       checkPlagiarism(generatingPost);
+       setHighlightedHTMLBlurb(<>{generatingPost}</>);
+     }
+   }, [blurbsFinishedGenerating]);
+   ```
 
 4. Change the HTML to show the new `highlightedHTMLBlurb` instead or the `generatingPost` only when `blurbsFinishedGenerating` is true.
 
-    ```diff
-      <Stack direction="row" spacing="1em">
-        <Card sx={{ width: "37em" }}>
-    -     <CardContent>{generatingPost}</CardContent>
-    +     <CardContent>
-    +        {!blurbsFinishedGenerating ? generatingPost : highlightedHTMLBlurb}
-    +     </CardContent>
-        </Card>
-        <Stack
-          alignItems="center"
-          justifyContent="center"
-          width="12em"
-          className="bg-white rounded-xl shadow-md p-4 border"
-        >
-          <Plagiarism loading={plagiarismLoading} score={plagiarismScore} />
-        </Stack>
-      </Stack>
-    ```
+   ```diff
+     <Stack direction="row" spacing="1em">
+       <Card sx={{ width: "37em" }}>
+   -     <CardContent>{generatingPost}</CardContent>
+   +     <CardContent>
+   +        {!blurbsFinishedGenerating ? generatingPost : highlightedHTMLBlurb}
+   +     </CardContent>
+       </Card>
+       <Stack
+         alignItems="center"
+         justifyContent="center"
+         width="12em"
+         className="bg-white rounded-xl shadow-md p-4 border"
+       >
+         <Plagiarism loading={plagiarismLoading} score={plagiarismScore} />
+       </Stack>
+     </Stack>
+   ```
 
 </details>
 </br>
@@ -579,7 +585,7 @@ Firebase Realtime Database is a cloud-hosted NoSQL database provided by Google a
 
 Although our plagiarism call is not realtime, Copy Leaks API will send the response to a webhook. The webhook will then sends the response to the Firebase database and Firebase is connected to our UI to update the frontend as soon as any new data is available in the db. The main aim of this module is to show you how to connect your frontend with a realtime database and display the latest data in your application as soon as new data becomes available.
 
- For more information on Firebase check their documentation [here](https://firebase.google.com/docs/database/web/start).
+For more information on Firebase check their documentation [here](https://firebase.google.com/docs/database/web/start).
 
 ---
 
@@ -603,11 +609,9 @@ Although our plagiarism call is not realtime, Copy Leaks API will send the respo
 
 **3.3.2.1 Create an Export Webhook**
 
-As we are working backwards through the workflow lets first write the `export` Webhook, mentioned in step 5. This is webhook called by CopyLeaks with the detailed results of a source from a plagiarism scan.
+As we are working backwards through the workflow lets first write the `export` Webhook, mentioned in step 5. The export webhook is called by CopyLeaks with which words in our blurb have been plagiarised.
 
-In Next.js, dynamic routes allow you to create pages with dynamic content based on the values in the URL. It enables you to generate static pages with dynamic paths and parameters, allowing you to build dynamic and interactive web applications.
-
-Dynamic routes are defined by placing the file inside the pages directory in Next.js with square brackets [] in the filename. For example, if you create a file named [id].js inside the pages directory, it will match any route that has a dynamic segment in the URL. The dynamic segment will be accessible as a parameter in the page component.
+In Next.js, dynamic routes allow you to create pages with dynamic content based on the values in the URL. For example, if you create a file named [id].js inside the pages directory, it will match any route that has a dynamic segment in the URL.
 
 In our case we want a dynamic route for the `scanId` and the `exportId` as this will be constantly changing for each scan that we do.
 
@@ -662,9 +666,9 @@ export default async function handler(req: NextRequest) {
 
 **3.3.2.2 Create a Scan Webhook**
 
-Now lets write the `scan` Webhook, mentioned in step 4.
+Now lets write the `scan` Webhook, mentioned in step 4. The `scan` webhook is called by CopyLeaks with the number of words in our blurb which have been plagiarised.
 
-1. Create aa dynamic route Edge function named `[scanId].ts` in `pages/api/copy-leaks/completed` which receives the results of a scan and returns a response with `{message: "Scan Completed"}`. This should also write the scan to the database using the Firebase PUT API under the node `scans/<scanId>.json`. Instead of writing the actual results to the database.
+1. Create a dynamic route Edge function named `[scanId].ts` in `pages/api/copy-leaks/completed` which receives the results of a scan and returns a response with `{message: "Scan Completed"}`. This should also write the scan to the database using the Firebase PUT API under the node `scans/<scanId>.json`. Instead of writing the actual results to the database.
 
 More information:
 
