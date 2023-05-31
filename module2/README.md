@@ -247,12 +247,16 @@ export default function Home() {
 
 </details>
 </br>
+
 Now you need to update your generateBlurb function to use the blurbRef.current value.
 
 <details>
    <summary>Solution</summary>
 
 ```diff
+- import { useRef } from "react";
++ import { useRef, useCallback } from "react";
+...
 - async function generateBlurb() {
 + const generateBlurb = useCallback(async () => {
     const response = await fetch("/api/generateBlurb", {
@@ -276,21 +280,21 @@ Now you need to update your generateBlurb function to use the blurbRef.current v
 
 Lets explain what we've just done
 
-- Added in a UseCallback so that the ref is updated when the function is called.
+- Added in a UseCallback so that the ref is updated when the function is called. You can now run your app and test out your new api call!
 
 </details>
 
-<br>
+</br>
 
 Thats it! we've built the first version of our application. However we are only outputting to the console!
 
-Lets create a output now for this to display.
+Lets create an output now to display the api response.
 
 </br>
 
 ## 2.2 Creating a Card to display the OpenAI Output
 
-Now we've got a actual response from openAI, lets display it in our app.
+Now we've got an actual response from openAI, lets display it in our app.
 
 You will need the following things
 
@@ -304,13 +308,15 @@ You will need the following things
 Add the following to your code.
 
 ```diff
+- import { Typography, Stack, TextField, Button } from "@mui/material";
++ import { Typography, Stack, TextField, Button, Card, CardContent } from "@mui/material";
 - import { useRef } from "react";
-+ import { useRef, useState } from "react";
++ import { useRef, useCallback, useState } from "react";
 
 
   export default function Home() {
   const blurbRef = useRef("");
-+  const [generatingPosts, setGeneratingPosts] = useState("");
++  const [blurb, setBlurb] = useState("");
 
 ...
 
@@ -326,9 +332,9 @@ Add the following to your code.
 ></TextField>
 
 
-+ {generatingPosts && (
++ {blurb && (
 +    <Card>
-+      <CardContent>{generatingPosts}</CardContent>
++      <CardContent>{blurb}</CardContent>
 +    </Card>
 + )}
 
