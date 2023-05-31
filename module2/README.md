@@ -806,7 +806,7 @@ interface Props {
   generatingPost: string;
 }
 
-export function Blurb({ generatingPost }: Props) {
+export default function Blurb({ generatingPost }: Props) {
   return (
     <Card>
       <CardContent>{generatingPost}</CardContent>
