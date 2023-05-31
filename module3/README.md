@@ -8,14 +8,14 @@ In this module we learn how to check your blurb for plagiarism using the CopyLea
 The flow for a plagiarism check is as follows:
 
 1. The frontend calls our Next.js `plagiarismCheck` API with some text to be checked. A `scanId` is returned. We then listen to Firebase for any changes on the node `scan/[scanId]`.
-2. This text is then passed to the CopyLeaks `scan` API - Copyleaks is an online plagiarism detection tool.
-3. Once CopyLeaks has finished scanning our text for plagiarism it sends high level details of the results to our `pages/api/copy-leaks/completed/[scanId]` Webhook. **It can take up to two minutes before we receive these results.**
+2. This text is then passed to an online plagiarism detection tool(CopyLeaks).
+3. Once the plagiarism check has completed it sends high level details of the results to our `pages/api/copy-leaks/completed/[scanId]` Webhook. **It can take up to two minutes before we receive these results.**
 4. When we receive the high level results in our `pages/api/copy-leaks/completed/[scanId]` Webhook. We do the following:
 
 - We write the scan results to Firebase. Once our listener, mentioned in step 1, gets notified of this change we then calculate the plagiarism score based off this data.
-- We find the source within the results which has the highest amount of suspected plagiarism and pass it to the CopyLeaks `exportResults` API.
+- We find the source within the results which has the highest amount of suspected plagiarism and pass it to the plagiarism detection tool `exportResults` API.
 
-5. The CopyLeaks `exportResults` API gives us further information about a particular source such as which words in our text it thinks were plagiarised. Once CopyLeaks has finished exporting the results of a source it sends the low level details of the results to our `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook. **It can take up to a minute before we receive these results**.
+5. The plagiarism detection tool(CopyLeaks) `exportResults` API gives us further information about a particular source such as which words in our text it thinks were plagiarised. Once the plagiarism detection tool has finished exporting the results of a source it sends the low level details of the results to our `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook. **It can take up to a minute before we receive these results**.
 6. When we receive the results in our `pages/api/copy-leaks/export/[scanId]/[resultId]` Webhook. We do the following:
 
 - We write the results to Firebase.
@@ -25,19 +25,19 @@ The flow for a plagiarism check is as follows:
 
 ## Contents
 
-3.1 Plagiarism UI
+3.1 [Plagiarism UI](#31-plagiarism-ui)
 <br>
-3.2 Verify UI with Dummy Values
+3.2 [Verify UI with Dummy Values](#32-verify-ui-with-dummy-values)
 <br>
-3.3 Webhooks
+3.3 [Webhooks](#33-webhooks)
 <br>
-3.4 Writing a Firebase Library
+3.4 [Writing a Firebase Library](#34-writing-a-firebase-library)
 <br>
-3.5 Validate Webhooks in the UI Using Firebase
+3.5 [Validate Webhooks in the UI Using Firebase](#35-validate-webhooks-in-the-ui-using-firebase)
 <br>
-3.6 Next.js Plagiarism Check API
+3.6 [Next.js Plagiarism Check API](#36-nextjs-plagiarism-check-api)
 <br>
-3.7 Hookup API to Frontend
+3.7 [Hookup API to Frontend](#37-hookup-api-to-frontend)
 
 ---
 
