@@ -1029,17 +1029,11 @@ In order to call the the CopyLeaks scan function we need to create an API. Befor
 
 ### 3.6.2 Writing a CopyLeaks Library
 
-The CopyLeaks class that we will be writing will be a wrapper around the CopyLeaks SDK which we will use in the frontend of our application. We will only need to use 3 CopyLeaks APIs in this course:
-
-1. Login - https://api.copyleaks.com/documentation/v3/account/login
-2. Scan - https://api.copyleaks.com/documentation/v3/scans/submit/file
-3. Export Results - https://api.copyleaks.com/documentation/v3/downloads/export
-
-**Important all API calls must use `fetch` and not `axios`**
+Since that we have tested our webhooks and firebase interactions using dummy responses from Copy Leaks apis, we shall now replace the dummy responses with actual api calls.
 
 ### Tasks
 
-**3.6.3.1 Installing the CopyLeaks SDK Package**
+**Step1:** Install the CopyLeaks SDK package
 
 1. Install the CopyLeaks SDK Package - https://www.npmjs.com/package/plagiarism-checker.
 2. Install the `uuid` package to generate Ids - https://www.npmjs.com/package/uuid
@@ -1055,9 +1049,9 @@ The CopyLeaks class that we will be writing will be a wrapper around the CopyLea
 </details>
 </br>
 
-Copy and paste the folder found in `module3/content/lib` into the root of your project.
+**Step2:** Download `copyLeaksWrapper.ts` file from [here](module3/content/lib/copy-leaks) and place it into your `lib/copy-leaks/` folder.
 
-**3.6.3.2 Create a Plagiarism Check API**
+**Step3:** Create a Plagiarism Check API
 
 1. Create an Edge function named `plagiarismCheck.ts` which calls our `CopyLeaksWrapper.scan` function the the text to be scanned. More information: https://vercel.com/docs/concepts/functions/edge-functions.
 2. Deploy your API
@@ -1099,7 +1093,7 @@ export default async function handler(req: NextRequest) {
 </details>
 </br>
 
-**3.6.2.3 Calling the Export Function from the Scan Webhook**
+**Step4:** Calling the Export Function from the Scan Webhook
 
 Once the `scan` Webhook receives a result we want to immediately call the CopyLeaksWrapper function `getDetailedResults` in order to get more details on the source with the highest number of matched words. This is step 4.2 in our workflow.
 
