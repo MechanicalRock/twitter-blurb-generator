@@ -420,20 +420,16 @@ Write a function in `blurb.tsx` that uses the dummy results file to calculate th
 </details>
 </br>
 
-It should look like this:
-
-![ScanPercentage](../module3/imgs/ScanPercentage.png)
-
 **3.2.3 Using useEffect to Call checkPlagiarism**
 
 Next step we would like to store the final blurb value after it has finished streaming. To do this we are using react `useEffect` which essentially only effect the block of code inside the useEffect when its dependent state has been updated.
 
-In React, `useEffect` is a built-in hook that allows you to perform side effects in functional components. The `useEffect` hook takes two arguments: a function and an optional array of dependencies. The function passed as the first argument will be executed after the component renders, and it will run again if any of the dependencies change.
-
-1. As we can only check for plagiarism once all the blurbs have finished generating. You should use `useEffect` to call our `checkPlagiarism` function while having `blurbsFinishedGenerating` as a dependency.
+As we can only check for plagiarism once all the blurbs have finished generating. You should use `useEffect` to call our `checkPlagiarism` function while having `blurbsFinishedGenerating` as a dependency.
 
 <details>
   <summary>Solution</summary>
+
+Inside `components/blurb.tsx` add below snippet after your handleScan function.
 
 ```ts
 ...
@@ -445,7 +441,7 @@ In React, `useEffect` is a built-in hook that allows you to perform side effects
 ```
 
 </details>
-<br>
+</br>
 
 As this runs pretty quickly we don't actually get to see our loading spinner. Let's put a timeout for 5 seconds in our `checkPlagiarism` function to force our loading spinner to show. Your function should look like this:
 
@@ -458,6 +454,10 @@ const checkPlagiarism = async (streamedBlurb: string) => {
   setPlagiarismLoading(false);
 };
 ```
+
+Test your app, it should look like this:
+
+![ScanPercentage](../module3/imgs/ScanPercentage.png)
 
 Now that we tested that the loading spinner works. We can remove the timeout.
 
