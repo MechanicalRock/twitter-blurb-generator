@@ -1,7 +1,7 @@
 # Module 3
 
 In this module we learn how to check your blurb for plagiarism using the CopyLeaks API, Firebase Realtime Database and Webhooks.
-<br>
+</br>
 
 ![Plagiarism Flow](../module3/imgs/PlagiarismFlow.png)
 
@@ -26,17 +26,17 @@ The flow for a plagiarism check is as follows:
 ## Contents
 
 3.1 [Plagiarism UI](#31-plagiarism-ui)
-<br>
+</br>
 3.2 [Verify UI with Dummy Values](#32-verify-ui-with-dummy-values)
-<br>
+</br>
 3.3 [Webhooks](#33-webhooks)
-<br>
+</br>
 3.4 [Writing a Firebase Library](#34-writing-a-firebase-library)
-<br>
+</br>
 3.5 [Validate Webhooks in the UI Using Firebase](#35-validate-webhooks-in-the-ui-using-firebase)
-<br>
+</br>
 3.6 [Next.js Plagiarism Check API](#36-nextjs-plagiarism-check-api)
-<br>
+</br>
 3.7 [Hookup API to Frontend](#37-hookup-api-to-frontend)
 
 ---
@@ -132,7 +132,7 @@ It should look like this:
 
 ![Loading](../module3/imgs/Loading.png)
 
-<br>
+</br>
 
 **Step 3:** In the `components` folder, add a new component named `score.tsx`
 
@@ -324,7 +324,7 @@ Your final component should look like this:
 ## 3.2 Verify UI with Dummy Values
 
 Before we write our APIs, lets use some dummy objects to validate our changes. This will allow us to avoid using time consuming APIs and provide us with quicker feedback. Lets assume for now that our database already has results. We will work backwards starting from step 6 in our flow mentioned at the top of this page.
-<br>
+</br>
 
 **3.2.1 Check For Plagiarism When Blurb Has Finished Generating**
 
@@ -662,7 +662,7 @@ export default async function handler(req: NextRequest) {
 ```
 
 </details>
-<br>
+</br>
 
 **3.3.2.2 Create a Scan Webhook**
 
@@ -749,9 +749,7 @@ Before we can test our Webhooks in the frontend we first need to write a Firebas
 
 ### Tasks
 
-**3.4.1 Installing the Firebase SDK Package**
-
-1. Install the Firebase SDK Package - https://www.npmjs.com/package/firebase
+**Step1:** Install the Firebase SDK Package
 
 <details>
   <summary>Solution</summary>
@@ -759,28 +757,27 @@ Before we can test our Webhooks in the frontend we first need to write a Firebas
 1. In your terminal run `pnpm i firebase`
 
 </details>
-<br>
+</br>
 
-**3.4.2 Creating an Empty FirebaseWrapper Class**
-
-1. Create an empty class library named `FirebaseWrapper.tsx` in a sub-folder named `firebase`.
+**Step2:** Create an empty FirebaseWrapper class
 
 <details>
   <summary>Solution</summary>
 
-1. In your `lib` folder create a class named `FirebaseWrapper.tsx` in a sub-folder named `firebase`.
-2. In `FirebaseWrapper.tsx` add the following code:
+1. Create a `lib` folder in the root directory
+2. In your `lib` folder create a class named `firebaseWrapper.tsx` in a sub-folder named `firebase`.
+2. In `firebaseWrapper.tsx` add the following code:
 
 ```ts
 export class FirebaseWrapper {}
 ```
 
 </details>
-<br>
+</br>
 
-**3.4.3 Write a Get Database Function**
+**Step3:** Write a Get Database Function
 
-1. Write a function called `getInstance` that will return an instance of your database - https://firebase.google.com/docs/database/web/start#add_the_js_sdk_and_initialize
+Write a function called `getInstance` that will return an instance of your database - https://firebase.google.com/docs/database/web/start#add_the_js_sdk_and_initialize
 
 <details>
   <summary>Solution</summary>
@@ -790,14 +787,12 @@ export class FirebaseWrapper {}
 3. Initialise the Firebase app instance with `const app = initializeApp(firebaseConfig)`
 4. Get the database instance from the app instance.
 
-```ts
-const database = getDatabase(app);
-return database;
-```
-
-Your `FirebaseWrapper.tsx` should now look like this:
+Your `firebaseWrapper.tsx` should now look like this:
 
 ```ts
+import { Database, getDatabase, ref } from "firebase/database";
+import { initializeApp } from "firebase/app";
+
 export class FirebaseWrapper {
   public getInstance(): Database {
     const firebaseConfig = {
@@ -812,32 +807,25 @@ export class FirebaseWrapper {
 ```
 
 </details>
-<br>
+</br>
 
-**Convert the FirebaseWrapper Class to Return a Singleton Instance**
+**Step4:** Convert the FirebaseWrapper Class to Return a Singleton Instance
 
-Imagine a scenario where we have to get 3 items from our database in the frontend. With our current implementation, every time we initialise the class in the frontend we would have to initialise the connection to the database as well. This would mean that we would have to initialise a connection to our database 3 times, this can be time-consuming and is considered bad practice.
+Imagine a scenario where we have to get 3 items from our database in the frontend. With our current implementation, every time we initialise the class in the frontend we would have to initialise a new connection to the database as well. This would mean that we would have to initialise a connection to our database 3 times, this can be time-consuming and is considered bad practice.
 
 **Singletons**
 
 A singleton is a design pattern that restricts the number of instantiations of a class to one for the lifetime of the application. In this case every time we call the instance we would always be returned the same instance which in turn means we would not have any overheads in establishing multiple connections to the database. More information: https://refactoring.guru/design-patterns/singleton
 
-Copy and paste the code below to make your database a Singleton instance.
+Change `firebaseWrapper.tsx` as below to make your database a Singleton instance.
 
-```ts
-this.database = getDatabase(app);
-return this.database;
-```
-
-Your `FirebaseWrapper.tsx` should now look like this:
-
-```ts
+```diff
 import { Database, getDatabase, ref } from "firebase/database";
 
 import { initializeApp } from "firebase/app";
 
 export class FirebaseWrapper {
-  private database?: Database;
++  private database?: Database;
 
   private getInstance(): Database {
     if (!this.database) {
@@ -845,10 +833,12 @@ export class FirebaseWrapper {
         databaseURL: `${process.env.NEXT_PUBLIC_FIREBASE_REALTIME_DATABASE_URL}`,
       };
       const app = initializeApp(firebaseConfig);
-      this.database = getDatabase(app);
+-      const database = getDatabase(app);
++      this.database = getDatabase(app);
     }
 
-    return this.database;
+-    return database;
++    return this.database;
   }
 }
 ```
@@ -929,14 +919,14 @@ useEffect(() => {
 ```
 
 </details>
-<br>
+</br>
 
 **3.5.2 Listening to Firebase Events**
 
 Now that we can send scan results and export results to the database via Webhook lets listen to Firebase for when the results are returned.
 
 1. Using the Firebase SDK listen for scan results on a specific node based on `scanId`. Use Firebases `onValue` function. Remember to use the `scanId` `f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2`.
-   <br>
+   </br>
    More information: https://firebase.google.com/docs/database/web/read-and-write#read_data
 
 <details>
@@ -1021,7 +1011,7 @@ function handleScan(text: string, scan) {
 ```
 
 </details>
-<br>
+</br>
 
 ---
 
@@ -1070,7 +1060,7 @@ The CopyLeaks class that we will be writing will be a wrapper around the CopyLea
 3. In your terminal run `pnpm i --save-dev @types/uuid`
 
 </details>
-<br>
+</br>
 
 Copy and paste the folder found in `module3/content/lib` into the root of your project.
 
@@ -1156,7 +1146,7 @@ export default async function handler(req: NextRequest) {
 ```
 
 </details>
-<br>
+</br>
 
 ---
 
@@ -1212,7 +1202,7 @@ type ScanResponse = {
 ```
 
 </details>
-<br>
+</br>
 
 Finally, push your code to deploy your app and test your blurbs with real plagiarism check. **Important: Once we deploy, we are no longer in sandbox mode, the response from CopyLeaks may take up to two minutes so you may see the loading spinner for a long time.**
 
