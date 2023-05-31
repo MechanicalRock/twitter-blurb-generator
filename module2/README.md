@@ -320,17 +320,18 @@ Add the following to your code.
 
 ...
 
-<TextField
-  multiline
-  fullWidth
-  minRows={4}
-  onChange={(e) => {
-    blurbRef.current = e.target.value;
-  }}
-  sx={{ "& textarea": { boxShadow: "none !important" } }}
-  placeholder="e.g. I'm learning about NextJs and OpenAI GPT-3 api at the Latency Conference."
-></TextField>
+  <TextField
+    multiline
+    fullWidth
+    minRows={4}
+    onChange={(e) => {
+      blurbRef.current = e.target.value;
+    }}
+    sx={{ "& textarea": { boxShadow: "none !important" } }}
+    placeholder="e.g. I'm learning about NextJs and OpenAI GPT-3 api at the Latency Conference."
+  ></TextField>
 
+  <Button onClick={generateBlurb}>Generate Blurb</Button>
 
 + {generatingPosts && (
 +    <Card>
@@ -704,7 +705,6 @@ Feel free to manipulate and add in your own changes.
 
 </details>
 
-
 </br>
 
 ## 2.5 String manipulation to output multiple cards
@@ -726,18 +726,17 @@ Resources:
 -          <CardContent>{generatingPosts}</CardContent>
 -        </Card>
 -      )}
-+      <>
-+        {generatingPosts
++    {generatingPosts &&
++        generatingPosts
 +          .substring(generatingPosts.indexOf("1.") + 3)
 +          .split(/2\.|3\./)
-+          .map((generatingPost) => {
++          .map((generatingPost, index) => {
 +            return (
-+              <Card>
++              <Card key={index}>
 +                <CardContent>{generatingPost}</CardContent>
 +              </Card>
 +            );
 +          })}
-+      </>
 
 ```
 
@@ -779,7 +778,7 @@ Why is this occuring? Have a go and trying to fix it.
 +       setGeneratingPosts(streamedText);
 +     } else {
 +       firstPost = streamedText.includes("1.");
-      }
++     }
     }
 
 ```
