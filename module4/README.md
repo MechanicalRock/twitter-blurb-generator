@@ -614,6 +614,34 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 ```
 
+Next let's add a toast pop up once the tweet has been successfully tweeted to our `index.tsx`.
+
+```diff
+import { Button, Stack, TextField, Typography } from "@mui/material";
+import { useCallback, useRef, useState } from "react";
+
+import Blurb from "@/components/blurb";
+import SigninToolbar from "@/components/signinToolbar";
++ import { Toaster } from "react-hot-toast";
+
+export default function Home() {
+  ...
+      <SigninToolbar />
+      <Typography
+        variant="h1"
+        className="bg-gradient-to-br from-black to-stone-400 bg-clip-text text-center font-display text-4xl font-bold tracking-[-0.02em] text-transparent drop-shadow-sm md:text-7xl md:leading-[5rem]"
+      >
+        Generate your next Twitter post with ChatGPT
+      </Typography>
++      <Toaster
++        position="top-center"
++        reverseOrder={false}
++        toastOptions={{ duration: 2000 }}
++      />
+      <TextField
+        multiline
+```
+
 Finally add the `TweetPreview` component to your `blurb` component so that it shows after the blurbs have finished generating.
 
 The `blurb.tsx` component's return statement should look like this:
