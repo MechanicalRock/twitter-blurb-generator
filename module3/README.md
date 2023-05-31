@@ -509,16 +509,20 @@ Now extend your `handleScan` function to use the `getHighlightedHTMLBlurb` funct
 <details>
   <summary>Solution</summary>
 
-1. Create a state variable called `highlightedHTMLBlurb` of type `JSX.Element`.
-2. In the `handleScan` function set the `characterStarts` variable to be `scan.results.identical.source.chars.starts`
-3. In the `handleScan` function set the `characterLengths` variable to be `scan.results.identical.source.chars.lengths`
-4. Call the `getHighlightedHTMLBlurb` function with `blurb`, `characterStarts` and `characterLengths`.
+1. Create a state variable called `highlightedHTMLBlurb` of type `JSX.Element`
+
+    ```ts
+    const [highlightedHTMLBlurb, setHighlightedHTMLBlurb] =
+    useState<JSX.Element>();
+    ```
+
+2. Replace your `handleScan` function with below code
 
     ```ts
     function handleScan(text: string, scan: any) {
       const totalBlurbWords = text.split(" ").length;
       const matchedWords = scan.matchedWords;
-      setPlagiarismScore((matchedWords / totalBlurbWords) * 100);
+      setPlagiarisedScore((matchedWords / totalBlurbWords) * 100);
       const characterStarts = scan.results.identical.source.chars.starts;
       const characterLengths = scan.results.identical.source.chars.lengths;
       const highlightedHTMLBlurb = getHighlightedHTMLBlurb(
@@ -530,7 +534,7 @@ Now extend your `handleScan` function to use the `getHighlightedHTMLBlurb` funct
     }
     ```
 
-5. Change the `useEffect` hook to to set the `highlightedHTMLBlurb` to be the a HTML element with the finished Blurb as it's content
+3. Change the `useEffect` hook to to set the `highlightedHTMLBlurb` to be the a HTML element with the finished Blurb as it's content
 
     ```ts
     useEffect(() => {
@@ -541,15 +545,15 @@ Now extend your `handleScan` function to use the `getHighlightedHTMLBlurb` funct
     }, [blurbsFinishedGenerating]);
     ```
 
-6. Change the HTML to show the new `highlightedHTMLBlurb` instead or the `generatingPost` only when `blurbsFinishedGenerating` is true.
+4. Change the HTML to show the new `highlightedHTMLBlurb` instead or the `generatingPost` only when `blurbsFinishedGenerating` is true.
 
-    ```ts
-    <>
+    ```diff
       <Stack direction="row" spacing="1em">
         <Card sx={{ width: "37em" }}>
-          <CardContent>
-            {!blurbsFinishedGenerating ? generatingPost : highlightedHTMLBlurb}
-          </CardContent>
+    -     <CardContent>{generatingPost}</CardContent>
+    +     <CardContent>
+    +        {!blurbsFinishedGenerating ? generatingPost : highlightedHTMLBlurb}
+    +     </CardContent>
         </Card>
         <Stack
           alignItems="center"
@@ -560,7 +564,6 @@ Now extend your `handleScan` function to use the `getHighlightedHTMLBlurb` funct
           <Plagiarism loading={plagiarismLoading} score={plagiarismScore} />
         </Stack>
       </Stack>
-    </>
     ```
 
 </details>
