@@ -671,8 +671,12 @@ Prompt engineering can be quite complex because language models don't actually u
 ...
   const [generatingPosts, setGeneratingPosts] = useState("");
 
-+  const prompt = `Generate 3 twitter posts with hashtags and clearly labeled "1." , "2." and "3.".
-+      Make sure each generated post is less than 280 characters, has short sentences that are found in Twitter posts, write it for a Student Audience, and base them on this context: ${blurbRef.current}`;
++  const prompt = `Generate 3 tweets and clearly labeled "1." , "2." and "3.". 
++                  Follow the following criteria:
++                  1. Each tweet should be based on this context: ${blurbRef.current}
++                  2. Each tweet will have short sentences that are found in Twitter posts. 
++                  3. Each tweet should be an abstract for a workshop
++                  4. Each tweet will be strictly less than 280 tokens including spaces, punctuation, emojis and hashtags`;
 
   const generateBlurb = useCallback(async () => {
     const response = await fetch("/api/generateBlurb", {
