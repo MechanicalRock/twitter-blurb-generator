@@ -47,7 +47,7 @@ Firstly, let's start creating the UI to show our plagiarism results.
 
 ### Tasks
 
-Ensure you running `pnpm dev` before solving the next tasks.
+Ensure you are running `pnpm dev` before solving the next tasks.
 
 **3.1.1 Plagiarism Progress Bar**
 
@@ -191,7 +191,7 @@ It should look like this:
 
 **Step 4:** In the `components` folder, add a file named `plagiarism.tsx`
 
-1.  This will function will take a `loading` boolean variable and a `score` number variable as parameters.
+1.  This function will take a `loading` boolean variable and a `score` number variable as parameters.
 2.  If `loading` is true we will show our `Loading` component.
 3.  If `loading` is false we will show our `Score` component.
 
@@ -321,7 +321,7 @@ Your final component should look like this:
 
 ## 3.2 Verify UI with Dummy Values
 
-Before we write our APIs, lets use some dummy objects to validate our changes. This will allow us to avoid using time consuming APIs and provide us with quicker feedback. Lets assume for now that our database already has results. We will work backwards starting from step 6 in our flow mentioned at the top of this page.
+Before we write our APIs, lets use some dummy objects to validate our changes. This will allow us to avoid using time consuming APIs and provide us with quicker feedback. Let's assume for now that our database already has results. We will work backwards starting from step 6 in our flow mentioned at the top of this page.
 </br>
 
 **3.2.1 Check For Plagiarism When Blurb Has Finished Generating**
@@ -467,7 +467,7 @@ Now that we tested that the loading spinner works. We can remove the timeout.
 
 **3.2.4 Handle Detailed Results**
 
-Lets extend your `handleScan` function to handle detailed results. Copy and paste this function into `blurb.tsx`. This should highlight the text in the blurb which has been plagiarised.
+Let's extend your `handleScan` function to handle detailed results. Copy and paste this function into `blurb.tsx`. This should highlight the text in the blurb which has been plagiarised.
 
 ```ts
 import { Card, CardContent, Stack, Box } from "@mui/material";
@@ -664,7 +664,7 @@ export default async function handler(req: NextRequest) {
 
 **3.3.2.2 Create a Scan Webhook**
 
-Now lets write the `scan` Webhook, mentioned in step 4. The `scan` webhook is called by CopyLeaks with the number of words in our blurb which have been plagiarised.
+Now let's write the `scan` Webhook, mentioned in step 4. The `scan` webhook is called by CopyLeaks with the number of words in our blurb which have been plagiarised.
 
 1. Create a dynamic route Edge function named `[scanId].ts` in `pages/api/copy-leaks/completed` which receives the results of a scan and returns a response with `{message: "Scan Completed"}`. This should also write the scan to the database using the Firebase PUT API under the node `scans/<scanId>.json`.
 
@@ -1004,6 +1004,7 @@ function handleScan(text: string, scan) {
 </details>
 </br>
 You can now test your application and see the dummy results being returned by the Firebase database.
+
 ---
 
 ## 3.6 Next.js Plagiarism Check API
