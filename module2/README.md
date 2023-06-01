@@ -98,6 +98,8 @@ OpenAI is known for developing advanced language models, such as GPT (Generative
 
 For the purpose of this workshop, we have provided you with OpenAI credentials, saving you from the hustle of going through the sign-up process.
 
+If you want more infomation, heres the docs to the [OpenAI API](https://platform.openai.com/docs/guides/chat/introduction) docs
+
 #### Place the OpenAI key into your environment variables
 
 Next.js provides native support for managing environment variables, offering the following capabilities:
