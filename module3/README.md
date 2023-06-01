@@ -766,7 +766,7 @@ Before we can test our Webhooks in the frontend we first need to write a Firebas
 
 1. Create a `lib` folder in the root directory
 2. In your `lib` folder create a class named `firebaseWrapper.tsx` in a sub-folder named `firebase`.
-2. In `firebaseWrapper.tsx` add the following code:
+3. In `firebaseWrapper.tsx` add the following code:
 
 ```ts
 export class FirebaseWrapper {}
@@ -921,8 +921,8 @@ The dummy data for this task can be found in `/utils/dummy-data/dummyCompletedEx
 Now that we can send scan results and export results to the database via Webhook lets listen to Firebase for when the results are returned.
 
 Using the Firebase SDK listen for scan results on a specific node based on `scanId`. Use Firebases `onValue` function. Remember to use the `scanId` `f1d0db14-c4d2-487d-9615-5a1b8ef6f4c2`.
-   </br>
-   More information: https://firebase.google.com/docs/database/web/read-and-write#read_data
+</br>
+More information: https://firebase.google.com/docs/database/web/read-and-write#read_data
 
 <details>
   <summary>Solution</summary>
@@ -1200,3 +1200,7 @@ Finally, push your code to deploy your app and test your blurbs with real plagia
 If a response hasn't come back after two minutes, check https://api.copyleaks.com/dashboard to see if you have enough credits. Remember we are checking 3 blurbs at once so we will use 3 credits every time we generate blurbs. If you run out of credits you will have to create a new Copy Leaks account with a different email address as outlined in step 3.6.1
 
 ---
+
+Congratulations you have now completed module 3 and ready to move on to the fourth module. If you have any issues finishing off module 3, you can download the app from [Module3- Final Demo](final-demo/) and move on to the next module.
+
+**Module4** Tweeting your Blurb -> [Get started](/module4/README.md)

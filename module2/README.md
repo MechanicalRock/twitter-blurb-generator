@@ -182,9 +182,9 @@ Open your `index.ts` file. Add below line above your generateBlurb function.
 const blurbRef = useRef("");
 ```
 
-Make sure to import useRef from react. ```import { useRef } from "react";```
+Make sure to import useRef from react. `import { useRef } from "react";`
 
-Next step is to connect your textbox to the blurbRef reference that you just created. We accomplish this by adding a `onChange` event to the textbox, and updating the blurbRef.current value.  
+Next step is to connect your textbox to the blurbRef reference that you just created. We accomplish this by adding a `onChange` event to the textbox, and updating the blurbRef.current value.
 
 <details>
    <summary>Solution</summary>
@@ -471,7 +471,6 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 export default handler;
-
 ```
 
 </details>
@@ -660,7 +659,7 @@ When it comes to AI models, prompt engineering can involve many strategies, incl
 
 Prompt engineering can be quite complex because language models don't actually understand language in the way humans do. They're trained on massive amounts of text data and learn to predict the next piece of text based on the input they're given. So, you're essentially trying to understand the model's 'thinking' and craft prompts that will guide it towards the answers you want.
 
-***Challenge: Create a prompt that feeds into generate API, that will generate 3 clearly labelled twitter bios, using the input we have supplied from the textbox***
+**_Challenge: Create a prompt that feeds into generate API, that will generate 3 clearly labelled twitter bios, using the input we have supplied from the textbox_**
 
 <br>
 
@@ -833,6 +832,6 @@ import Blurb from "./components/blurb";
 
 </details>
 
-Congratulations you have now completed module2 and ready to move on to the third module. If you have any issues finishing off module2, you can download the app from [Module2- Final Demo](final-demo/) and move on to the next module.
+Congratulations you have now completed module 2 and ready to move on to the third module. If you have any issues finishing off module 2, you can download the app from [Module 2 - Final Demo](final-demo/) and move on to the next module.
 
 **Module3** Enabling Plagiarism checker -> [Get started](/module3/README.md)

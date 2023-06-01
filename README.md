@@ -9,9 +9,9 @@ This workshop contains 5 different modules. Following all the steps from module 
 Before you begin this workshop, you will have to make sure you have the following software installed:
 
 1. Git
-2. Visual Studio Code
-3. Node version 16 and above, if you have an older version of node installed you can use NVM to install a different version and switch between them easily.
-  [NVM installation and usage](https://www.freecodecamp.org/news/node-version-manager-nvm-install-guide/)
+2. Visual Studio Code - https://code.visualstudio.com/
+3. Node version 16.8 and above, if you have an older version of node installed you can use NVM to install a different version and switch between them easily - https://nodejs.org/
+   [NVM installation and usage](https://www.freecodecamp.org/news/node-version-manager-nvm-install-guide/)
 
 Are you ready to get started?
 
@@ -30,12 +30,7 @@ How to connect your frontend application to OpenAI APIs and passing custom promp
 Enabling Plagiarism checker ->
 [Get started](/module3/README.md)
 
-### Module 4
+### Module 4(Optional)
 
 Setting up Twitter Authentication and open graph preview ->
 [Get started](/module4/README.md)
-
-### Module 5 (Optional)
-
-Setting up image generator via custom AI tuning using AWS Sagemaker ->
-[Get started](/module5/README.md)
