@@ -389,7 +389,7 @@ return (
 Once your app is deployed
 
 - Update the `NEXTAUTH_URL` environment variable to be your deployed site's URL.
-- In your Twitter developer account, update your callback URL to be ``<your_site_URL_here>/api/auth/callback/twitter`. To get to this setting see the step `4.c` in `Setting Up Twitter API Consumer & Client Keys`
+- In your Twitter developer account, update your callback URL to be `<your_site_URL_here>/api/auth/callback/twitter`. To get to this setting see the step `4.c` in `Setting Up Twitter API Consumer & Client Keys`
 
 Test
 
