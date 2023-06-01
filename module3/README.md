@@ -258,7 +258,6 @@ export default function Blurb({ generatingPost }: Props) {
   const [plagiarismLoading, setPlagiarismLoading] = useState<boolean>(false);
   const [plagiarisedScore, setPlagiarisedScore] = useState<number>(0);
   return (
-    <>
       <Stack direction="row" spacing="1em">
         <Card sx={{ width: "37em" }}>
           <CardContent>{generatingPost}</CardContent>
@@ -272,7 +271,6 @@ export default function Blurb({ generatingPost }: Props) {
           <Plagiarism loading={plagiarismLoading} score={plagiarisedScore} />
         </Stack>
       </Stack>
-    </>
   );
 }
 ```
