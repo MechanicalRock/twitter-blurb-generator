@@ -104,14 +104,25 @@ If you want more infomation, heres the docs to the [OpenAI API](https://platform
 
 Next.js provides native support for managing environment variables, offering the following capabilities:
 
+**Local Environment Variables**
+
 1. You can easily load your environment variables by storing them into a `.env.local` file
 2. You can expose your environment variables to the browser by prefixing them with NEXT*PUBLIC*
 
-In order to access the openAI key in your app, create a new file in the project root folder and name it `.env.local`
+In order to access the openAI key in your app, create a new file in the project root folder and name it `.env.local` these variables will only be available in local development.
 
 ```text
 OPENAI_API_KEY=xyzxyzxyzxyz
 ```
+
+**Environment Variables on Vercel**
+
+1. Navigate to your project on Vercel
+2. Click on Settings
+3. Click on Environment Variables
+4. Add a new variable `Key` = `OPENAI_API_KEY` and `Value` = `xyzxyzxyzxyz`.
+5. Click `save`
+6. Vercel does not automatically pick up changes to environment variables. You will need to redeploy your app.
 
 Now you should be able to access this key in your app by using `process.env.OPENAI_API_KEY`
 
